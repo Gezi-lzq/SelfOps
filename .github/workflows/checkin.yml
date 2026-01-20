@@ -1,8 +1,8 @@
-name: NewAPI 自动签到
+name: NewAPI Checkin
 
 on:
   schedule:
-    - cron: '10 0 * * *'  # 北京时间 8:10
+    - cron: '10 0 * * *'  # 8:10 AM Beijing Time
   workflow_dispatch:
 
 jobs:
@@ -16,28 +16,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: 设置 Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       
       - run: pip install requests
       
-      - name: 签到
+      - name: Checkin
         id: checkin
         run: |
           python newapi-checkin/checkin.py --url "${{ matrix.account.url }}" --auth "${{ secrets[matrix.account.auth] }}" | tee result.json
           echo "result=$(cat result.json)" >> $GITHUB_OUTPUT
       
-      - name: 显示结果
+      - name: Summary
         run: |
           echo "### ${{ matrix.account.name }}" >> $GITHUB_STEP_SUMMARY
           result='${{ steps.checkin.outputs.result }}'
           success=$(echo "$result" | jq -r '.success')
           if [ "$success" = "true" ]; then
-            quota=$(echo "$result" | jq -r '.quota // .message // "已签到"')
-            echo "✅ 签到成功 | 额度: $quota" >> $GITHUB_STEP_SUMMARY
+            quota=$(echo "$result" | jq -r '.quota // .message // "done"')
+            echo "✅ Success | Quota: $quota" >> $GITHUB_STEP_SUMMARY
           else
-            error=$(echo "$result" | jq -r '.error // "未知错误"')
-            echo "❌ 签到失败: $error" >> $GITHUB_STEP_SUMMARY
+            error=$(echo "$result" | jq -r '.error // "unknown error"')
+            echo "❌ Failed: $error" >> $GITHUB_STEP_SUMMARY
           fi

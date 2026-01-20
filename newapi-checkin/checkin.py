@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""NewAPI 单账号签到 CLI"""
+"""NewAPI checkin CLI"""
 
 import argparse
 import json
@@ -8,10 +8,14 @@ import requests
 
 
 def main():
-    parser = argparse.ArgumentParser(description='NewAPI 签到')
-    parser.add_argument('--url', required=True, help='站点 URL')
-    parser.add_argument('--auth', required=True, help='认证信息 (userId:session)')
+    parser = argparse.ArgumentParser(description='NewAPI checkin')
+    parser.add_argument('--url', required=True, help='Site URL')
+    parser.add_argument('--auth', required=True, help='Auth info (userId:session)')
     args = parser.parse_args()
+
+    if ':' not in args.auth:
+        print(json.dumps({'success': False, 'error': 'Invalid auth format, expected userId:session'}))
+        sys.exit(1)
 
     user_id, session = args.auth.split(':', 1)
     url = args.url.rstrip('/')
@@ -31,9 +35,9 @@ def main():
             result['quota'] = resp.get('data', 0)
         else:
             msg = resp.get('message', '')
-            if '已签到' in msg or 'already' in msg.lower():
+            if 'already' in msg.lower() or '已签到' in msg:
                 result['success'] = True
-                result['message'] = '今日已签到'
+                result['message'] = 'already checked in'
             else:
                 result['error'] = msg
     except Exception as e:
