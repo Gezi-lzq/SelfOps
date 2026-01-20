@@ -18,6 +18,8 @@ def main():
         sys.exit(1)
 
     user_id, session = args.auth.split(':', 1)
+    user_id = user_id.strip()
+    session = session.strip().replace('\n', '').replace('\r', '')
     url = args.url.rstrip('/')
     headers = {
         'Cookie': f'session={session}',
