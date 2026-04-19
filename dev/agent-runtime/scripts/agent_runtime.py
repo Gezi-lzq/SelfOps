@@ -58,7 +58,7 @@ except ModuleNotFoundError:  # pragma: no cover
 ROOT = Path(os.environ.get("SELFOPS_AGENT_RUNTIME_ROOT", Path(__file__).resolve().parents[1])).resolve()
 REGISTRY_DIR = Path(os.environ.get("SELFOPS_AGENT_RUNTIME_REGISTRY", ROOT / "registry")).resolve()
 STATE_DIR = Path(os.environ.get("SELFOPS_AGENT_RUNTIME_STATE", ROOT / ".state")).resolve()
-CACHE_DIR = Path(os.environ.get("SELFOPS_AGENT_RUNTIME_CACHE", ROOT / ".cache" / "skills")).resolve()
+CACHE_DIR = Path(os.environ.get("SELFOPS_AGENT_RUNTIME_CACHE", ROOT / ".cache")).resolve()
 SKILLS_PATH = REGISTRY_DIR / "skills.toml"
 PROJECTS_PATH = REGISTRY_DIR / "projects.toml"
 SCAN_PATH = STATE_DIR / "scan.json"
@@ -294,11 +294,11 @@ def skill_dest(skill_name: str, skill: dict[str, Any]) -> Path:
     """Return the local path a skill should be linked from.
 
     - owned / local_path: materialized_path (under materialized/)
-    - public: .cache/skills/<name> (git-ignored, managed by npx)
+    - public: .cache/.agents/skills/<name> (git-ignored, managed by npx)
     """
     source_type = skill.get("source", {}).get("type", "owned")
     if source_type == "public":
-        return CACHE_DIR / skill_name
+        return CACHE_DIR / ".agents" / "skills" / skill_name
     raw = skill.get("materialized_path")
     if not raw:
         raw = f"materialized/skills/{skill_name}"
@@ -413,19 +413,13 @@ def copy_tree(src: Path, dest: Path) -> None:
 
 
 def sync_public(spec: str, skill_name: str) -> None:
-    """Download a public skill repo into .cache/skills/ via npx skills add."""
+    """Download a public skill into .cache/ via npx skills add."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    command = ["npx", "skills", "add", spec, "--skill", skill_name, "--copy", "--all", "-y"]
+    command = ["npx", "skills", "add", spec, "--skill", skill_name, "-y"]
     subprocess.run(command, cwd=CACHE_DIR, check=True)
-    dest = CACHE_DIR / skill_name
+    dest = CACHE_DIR / ".agents" / "skills" / skill_name
     if not (dest / "SKILL.md").exists():
-        # npx may place it under an agent subdir; search and relocate
-        candidates = [p for p in CACHE_DIR.rglob(f"{skill_name}/SKILL.md") if p.is_file()]
-        if not candidates:
-            fail(f"public skill did not produce {skill_name}/SKILL.md: {spec}")
-        src = candidates[0].parent
-        if src != dest:
-            copy_tree(src, dest)
+        fail(f"public skill did not produce {skill_name}/SKILL.md: {spec}")
 
 
 def remove_path(path: Path) -> None:
