@@ -415,7 +415,7 @@ def copy_tree(src: Path, dest: Path) -> None:
 def sync_public_batch(spec: str, skill_names: list[str]) -> None:
     """Download multiple skills from one repo via a single npx skills add."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    command = ["npx", "skills", "add", spec, "--agent", "universal", "-y"]
+    command = ["npx", "skills", "add", spec, "--agent", "universal", "--full-depth", "-y"]
     for name in skill_names:
         command.extend(["--skill", name])
     subprocess.run(command, cwd=ROOT, check=True)
