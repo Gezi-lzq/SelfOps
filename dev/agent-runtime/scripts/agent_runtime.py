@@ -415,7 +415,7 @@ def copy_tree(src: Path, dest: Path) -> None:
 def sync_public(spec: str, skill_name: str) -> None:
     """Download a public skill into .agents/skills/ via npx skills add."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    command = ["npx", "skills", "add", spec, "--skill", skill_name, "-y"]
+    command = ["npx", "skills", "add", spec, "--skill", skill_name, "--agent", "universal", "-y"]
     subprocess.run(command, cwd=ROOT, check=True)
     dest = CACHE_DIR / "skills" / skill_name
     if not (dest / "SKILL.md").exists():
