@@ -204,7 +204,6 @@ def scan(discover: list[str] | None = None) -> dict[str, Any]:
 
 
 def print_scan(result: dict[str, Any]) -> None:
-    home = str(Path.home())
     skills_cfg, _ = load_registry()
 
     source_types: dict[str, str] = {}
@@ -227,7 +226,7 @@ def print_scan(result: dict[str, Any]) -> None:
         return dim(f"? {name}")
 
     for project_name, project_state in sorted(result["projects"].items()):
-        short = project_name.replace(home + "/Dev/", "").replace(home, "~")
+        short = short_path(project_name)
         agents = project_state.get("agents", {})
         total = sum(len(a.get("skills", {})) for a in agents.values())
         managed = project_state.get("managed", True)
@@ -518,96 +517,114 @@ def apply_plan(force: bool = False) -> dict[str, Any]:
     return result
 
 
+# ── Shared formatting helpers ──
+
+_HOME = str(Path.home())
+
+def short_path(p: str) -> str:
+    return p.replace(_HOME + "/Dev/", "").replace(_HOME, "~")
+
+ACTION_ORDER = ("create_link", "update_link", "replace_path", "remove_path")
+ACTION_STYLE: dict[str, tuple[str, str, Any]] = {
+    "create_link":  ("+", "add",     green),
+    "update_link":  ("~", "update",  yellow),
+    "replace_path": ("!", "replace", yellow),
+    "remove_path":  ("-", "remove",  red),
+}
+
+def _group_actions_by_project(actions: list[dict[str, Any]]) -> dict[str, dict[tuple, list[str]]]:
+    """Group link actions by project, then dedup agents with identical signatures."""
+    proj_groups: dict[str, dict[str, dict[str, list[str]]]] = {}
+    for a in actions:
+        if a["type"] not in ACTION_STYLE:
+            continue
+        proj = short_path(a.get("project", "?"))
+        agent = a.get("agent", "?")
+        proj_groups.setdefault(proj, {}).setdefault(agent, {}).setdefault(a["type"], []).append(a["skill"])
+
+    result: dict[str, dict[tuple, list[str]]] = {}
+    for proj, agents in sorted(proj_groups.items()):
+        sigs: dict[tuple, list[str]] = {}
+        for agent, types in agents.items():
+            sig = tuple(sorted((t, tuple(sorted(s))) for t, s in types.items()))
+            sigs.setdefault(sig, []).append(agent)
+        result[proj] = sigs
+    return result
+
+def _print_syncs(syncs: list[dict[str, Any]], *, header: str = "📦 Synced") -> None:
+    if not syncs:
+        return
+    public = [a for a in syncs if a.get("source", {}).get("type") == "public"]
+    local = [a for a in syncs if a.get("source", {}).get("type") != "public"]
+    print(f"\n{bold(header)} {dim(f'({len(syncs)})')}")
+    print(dim("─" * 60))
+    if public:
+        by_spec: dict[str, list[str]] = {}
+        for a in public:
+            by_spec.setdefault(a.get("points_to", "?"), []).append(a["skill"])
+        for spec, skills in sorted(by_spec.items()):
+            print(f"  {cyan(spec)}: {', '.join(skills)}")
+    for a in local:
+        src = short_path(a.get("points_to", "")).replace("/Dev/", "~/Dev/") if a.get("points_to") else "?"
+        print(f"  {a['skill']:40s} {dim('←')} {src}")
+
+def _print_project_groups(
+    grouped: dict[str, dict[tuple, list[str]]],
+    *,
+    count_label: str = "changes",
+    format_skills: Any = None,
+) -> None:
+    for proj, sigs in grouped.items():
+        for sig, agent_list in sigs.items():
+            agent_label = ", ".join(sorted(agent_list))
+            types = dict(sig)
+            total = sum(len(s) for s in types.values())
+            print(f"\n{bold(proj)} {dim(f'[{agent_label}]')} {dim(f'({total} {count_label})')}")
+            print(dim("─" * 60))
+            for action_type in ACTION_ORDER:
+                skills = sorted(types.get(action_type, []))
+                if not skills:
+                    continue
+                icon, label, color = ACTION_STYLE[action_type]
+                display = format_skills(action_type, skills) if format_skills else ", ".join(skills)
+                print(f"  {color(icon)} {color(label)}: {display}")
+
+
 def print_apply(result: dict[str, Any]) -> None:
     applied = result["applied"]
     skipped = result["skipped"]
     warned = result.get("warned", [])
-    home = str(Path.home())
 
     if not applied and not skipped and not warned:
         print(green("✅ Nothing to do."))
         return
 
-    def short_project(p: str) -> str:
-        return p.replace(home + "/Dev/", "").replace(home, "~")
+    _print_syncs([a for a in applied if a["type"] == "sync_source"])
+    grouped = _group_actions_by_project(applied)
+    _print_project_groups(grouped, count_label="applied")
+
+    if skipped:
+        print(f"\n{yellow(f'⚠️  Skipped ({len(skipped)})')}")
+        print(dim("─" * 60))
+        for s in skipped:
+            print(f"  {yellow(s.get('skill','?'))}: {s.get('reason','') or s.get('error','')}")
+
+    if warned:
+        warn_types: dict[str, list[str]] = {}
+        for w in warned:
+            proj = short_path(w.get("project", "?"))
+            warn_types.setdefault(w.get("type", "?"), []).append(f"{w.get('skill','?')} ({proj}/{w.get('agent','?')})")
+        print(f"\n{yellow(bold(f'⚠️  {len(warned)} destructive actions held back (use --force to execute):'))}")
+        print(dim("─" * 60))
+        for wtype, items in warn_types.items():
+            print(f"  {yellow(wtype)}: {', '.join(items)}")
 
     type_counts: dict[str, int] = {}
     for a in applied:
         type_counts[a["type"]] = type_counts.get(a["type"], 0) + 1
-
-    action_style = {
-        "create_link":  ("+", green),
-        "update_link":  ("~", yellow),
-        "replace_path": ("!", yellow),
-        "remove_path":  ("-", red),
-    }
-
-    # Synced
-    syncs = [a for a in applied if a["type"] == "sync_source"]
-    if syncs:
-        print(f"\n{bold('📦 Synced')} {dim(f'({len(syncs)})')}")
-        print(dim("─" * 50))
-        for a in syncs:
-            src_type = a.get("source", {}).get("type", "")
-            if src_type == "public":
-                print(f"  {green('✅')} {a['skill']} {dim('←')} {cyan(a['points_to'])}")
-            else:
-                src = a.get("points_to", "").replace(home + "/Dev/", "~/Dev/").replace(home, "~")
-                print(f"  {green('✅')} {a['skill']} {dim('←')} {src}")
-
-    # Group by project
-    proj_groups: dict[str, dict[str, dict[str, list[str]]]] = {}
-    for a in applied:
-        if a["type"] not in action_style:
-            continue
-        proj = short_project(a.get("project", "?"))
-        agent = a.get("agent", "?")
-        proj_groups.setdefault(proj, {}).setdefault(agent, {}).setdefault(a["type"], []).append(a["skill"])
-
-    for proj in sorted(proj_groups.keys()):
-        agents = proj_groups[proj]
-        agent_sigs: dict[tuple, list[str]] = {}
-        for agent, types in agents.items():
-            sig = tuple(sorted((t, tuple(sorted(s))) for t, s in types.items()))
-            agent_sigs.setdefault(sig, []).append(agent)
-
-        for sig, agent_list in agent_sigs.items():
-            agent_label = ", ".join(sorted(agent_list))
-            types = dict(sig)
-            total = sum(len(s) for s in types.values())
-            print(f"\n{bold(proj)} {dim(f'[{agent_label}]')} {dim(f'({total} applied)')}")
-            print(dim("─" * 50))
-            for action_type in ("create_link", "update_link", "replace_path", "remove_path"):
-                skills = sorted(types.get(action_type, []))
-                if not skills:
-                    continue
-                icon, color = action_style[action_type]
-                print(f"  {color(icon)} {', '.join(skills)}")
-
-    # Skipped
-    if skipped:
-        print(f"\n{yellow(f'⚠️  Skipped ({len(skipped)})')}")
-        print(dim("─" * 50))
-        for s in skipped:
-            reason = s.get("reason", "") or s.get("error", "")
-            print(f"  {yellow(s.get('skill','?'))}: {reason}")
-
-    # Warned (destructive actions held back)
-    if warned:
-        warn_types: dict[str, list[str]] = {}
-        for w in warned:
-            key = w.get("type", "?")
-            proj = w.get("project", "?").replace(home + "/Dev/", "").replace(home, "~")
-            warn_types.setdefault(key, []).append(f"{w.get('skill','?')} ({proj}/{w.get('agent','?')})")
-        print(f"\n{yellow(bold(f'⚠️  {len(warned)} destructive actions held back (use --force to execute):'))}")
-        print(dim("─" * 50))
-        for wtype, items in warn_types.items():
-            print(f"  {yellow(wtype)}: {', '.join(items)}")
-
-    # Summary
     parts = [f"{v} {k}" for k, v in sorted(type_counts.items())]
-    summary_detail = ", ".join(parts)
-    print(f"\n{bold(f'Applied: {len(applied)}')} {dim(f'({summary_detail})')}")
+    detail = ", ".join(parts)
+    print(f"\n{bold(f'Applied: {len(applied)}')} {dim(f'({detail})')}")
     if skipped:
         print(yellow(f"Skipped: {len(skipped)}"))
     if warned:
@@ -621,82 +638,27 @@ def print_plan(result: dict[str, Any]) -> None:
         print(green("✅ No changes needed — everything is up to date."))
         return
 
-    home = str(Path.home())
     skills_cfg, _ = load_registry()
-
     bundle_skills: dict[str, set[str]] = {}
-    for bname, b in skills_cfg.get("bundles", {}).items():
+    for bname in skills_cfg.get("bundles", {}):
         bundle_skills[bname] = set(expand_bundle(skills_cfg, bname))
 
-    def short_project(p: str) -> str:
-        return p.replace(home + "/Dev/", "").replace(home, "~")
-
-    def group_by_bundle(skill_list: list[str]) -> str:
+    def format_skills(action_type: str, skill_list: list[str]) -> str:
+        if action_type != "create_link":
+            return ", ".join(skill_list)
         remaining = set(skill_list)
         parts: list[str] = []
         for bname, bskills in sorted(bundle_skills.items(), key=lambda x: -len(x[1])):
             if bskills and bskills <= remaining:
                 parts.append(blue(f"[{bname}]({len(bskills)})"))
                 remaining -= bskills
-        for sk in sorted(remaining):
-            parts.append(sk)
+        parts.extend(sorted(remaining))
         return ", ".join(parts)
 
-    # Sync source
-    syncs = [a for a in actions if a["type"] == "sync_source"]
-    if syncs:
-        public = [a for a in syncs if a.get("source", {}).get("type") == "public"]
-        local = [a for a in syncs if a.get("source", {}).get("type") != "public"]
-        print(f"\n{bold('📦 Sync source')} {dim(f'({len(syncs)})')}")
-        print(dim("─" * 60))
-        if public:
-            by_spec: dict[str, list[str]] = {}
-            for a in public:
-                by_spec.setdefault(a.get("points_to", "?"), []).append(a["skill"])
-            for spec, skills in sorted(by_spec.items()):
-                print(f"  {cyan(spec)}: {', '.join(skills)}")
-        for a in local:
-            src = a.get("points_to", "").replace(home + "/Dev/", "~/Dev/").replace(home, "~")
-            print(f"  {a['skill']:40s} {dim('←')} {src}")
+    _print_syncs([a for a in actions if a["type"] == "sync_source"], header="📦 Sync source")
+    grouped = _group_actions_by_project(actions)
+    _print_project_groups(grouped, format_skills=format_skills)
 
-    # Group by project
-    action_style = {
-        "create_link":  ("+", "add",     green),
-        "update_link":  ("~", "update",  yellow),
-        "replace_path": ("!", "replace", yellow),
-        "remove_path":  ("-", "remove",  red),
-    }
-
-    proj_groups: dict[str, dict[str, dict[str, list[str]]]] = {}
-    for a in actions:
-        if a["type"] not in action_style:
-            continue
-        proj = short_project(a.get("project", "?"))
-        agent = a.get("agent", "?")
-        proj_groups.setdefault(proj, {}).setdefault(agent, {}).setdefault(a["type"], []).append(a["skill"])
-
-    for proj in sorted(proj_groups.keys()):
-        agents = proj_groups[proj]
-        agent_sigs: dict[tuple, list[str]] = {}
-        for agent, types in agents.items():
-            sig = tuple(sorted((t, tuple(sorted(s))) for t, s in types.items()))
-            agent_sigs.setdefault(sig, []).append(agent)
-
-        for sig, agent_list in agent_sigs.items():
-            agent_label = ", ".join(sorted(agent_list))
-            types = dict(sig)
-            total = sum(len(s) for s in types.values())
-            print(f"\n{bold(proj)} {dim(f'[{agent_label}]')} {dim(f'({total} changes)')}")
-            print(dim("─" * 60))
-            for action_type in ("create_link", "update_link", "replace_path", "remove_path"):
-                skills = sorted(types.get(action_type, []))
-                if not skills:
-                    continue
-                icon, label, color = action_style[action_type]
-                display = group_by_bundle(skills) if action_type == "create_link" else ", ".join(skills)
-                print(f"  {color(icon)} {color(label)}: {display}")
-
-    # Errors
     errors = [a for a in actions if a["type"] in ("missing_source", "config_error")]
     if errors:
         print(f"\n{red(f'⚠️  Errors ({len(errors)})')}")
@@ -706,8 +668,8 @@ def print_plan(result: dict[str, Any]) -> None:
 
     total = sum(summary.values())
     parts = [f"{v} {k}" for k, v in summary.items()]
-    summary_detail = ", ".join(parts)
-    print(f"\n{bold(f'Total: {total} actions')} {dim(f'({summary_detail})')}")
+    detail = ", ".join(parts)
+    print(f"\n{bold(f'Total: {total} actions')} {dim(f'({detail})')}")
     print(dim(f"Plan saved to {PLAN_PATH}"))
 
 
