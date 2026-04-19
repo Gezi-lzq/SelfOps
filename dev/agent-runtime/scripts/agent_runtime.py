@@ -691,6 +691,14 @@ def print_plan(result: dict[str, Any]) -> None:
     print(dim(f"Plan saved to {PLAN_PATH}"))
 
 
+def update_public() -> None:
+    """Update all public skills via npx skills update."""
+    print(bold("📦 Updating public skills..."))
+    command = ["npx", "skills", "update", "-p", "-y"]
+    subprocess.run(command, cwd=ROOT, check=True)
+    print(green("✅ Update complete."))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="SelfOps agent runtime")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -701,6 +709,7 @@ def main() -> None:
     apply_cmd = sub.add_parser("apply")
     apply_cmd.add_argument("--force", action="store_true",
                            help="Execute destructive actions (remove, replace, update)")
+    sub.add_parser("update")
     args = parser.parse_args()
 
     if args.command == "scan":
@@ -713,6 +722,8 @@ def main() -> None:
         print_plan(plan())
     elif args.command == "apply":
         apply_plan(force=args.force)
+    elif args.command == "update":
+        update_public()
 
 
 if __name__ == "__main__":
