@@ -1,0 +1,352 @@
+# Skill catalog and bundle catalog for SelfOps agent runtime.
+#
+# Source types:
+#   public     – fetched via npx skills add <owner/repo>
+#   local_path – synced from a local directory into materialized/skills/
+#   owned      – maintained directly in this repo under materialized/skills/
+#
+# Bundles are desired-state authoring helpers only.
+
+# ── anthropics/skills ──
+
+[skills.skill-creator]
+source = { type = "public", spec = "anthropics/skills" }
+
+# ── github/awesome-copilot ──
+
+[skills.gh-cli]
+source = { type = "public", spec = "github/awesome-copilot" }
+
+# ── larksuite/cli ──
+
+[skills.lark-approval]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-base]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-calendar]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-contact]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-doc]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-drive]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-event]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-im]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-mail]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-minutes]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-openapi-explorer]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-shared]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-sheets]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-skill-maker]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-task]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-vc]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-whiteboard]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-whiteboard-cli]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-wiki]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-workflow-meeting-summary]
+source = { type = "public", spec = "larksuite/cli" }
+
+[skills.lark-workflow-standup-report]
+source = { type = "public", spec = "larksuite/cli" }
+
+# ── mager/frontend-design ──
+
+[skills.frontend-design]
+source = { type = "public", spec = "mager/frontend-design" }
+
+# ── manaflow-ai/cmux ──
+
+[skills.cmux]
+source = { type = "public", spec = "manaflow-ai/cmux" }
+
+# ── masayuki-kono/agent-skills ──
+
+[skills.implementation-plan]
+source = { type = "public", spec = "masayuki-kono/agent-skills" }
+
+# ── nowledge-co/community ──
+
+[skills.check-integration]
+source = { type = "public", spec = "nowledge-co/community" }
+
+[skills.distill-memory]
+source = { type = "public", spec = "nowledge-co/community" }
+
+[skills.read-working-memory]
+source = { type = "public", spec = "nowledge-co/community" }
+
+[skills.save-handoff]
+source = { type = "public", spec = "nowledge-co/community" }
+
+[skills.save-thread]
+source = { type = "public", spec = "nowledge-co/community" }
+
+[skills.search-memory]
+source = { type = "public", spec = "nowledge-co/community" }
+
+[skills.status]
+source = { type = "public", spec = "nowledge-co/community" }
+
+# ── obra/superpowers ──
+
+[skills.brainstorming]
+source = { type = "public", spec = "obra/superpowers" }
+
+[skills.dispatching-parallel-agents]
+source = { type = "public", spec = "obra/superpowers" }
+
+[skills.executing-plans]
+source = { type = "public", spec = "obra/superpowers" }
+
+[skills.finishing-a-development-branch]
+source = { type = "public", spec = "obra/superpowers" }
+
+[skills.receiving-code-review]
+source = { type = "public", spec = "obra/superpowers" }
+
+[skills.requesting-code-review]
+source = { type = "public", spec = "obra/superpowers" }
+
+[skills.subagent-driven-development]
+source = { type = "public", spec = "obra/superpowers" }
+
+[skills.systematic-debugging]
+source = { type = "public", spec = "obra/superpowers" }
+
+[skills.test-driven-development]
+source = { type = "public", spec = "obra/superpowers" }
+
+[skills.using-git-worktrees]
+source = { type = "public", spec = "obra/superpowers" }
+
+[skills.using-superpowers]
+source = { type = "public", spec = "obra/superpowers" }
+
+[skills.verification-before-completion]
+source = { type = "public", spec = "obra/superpowers" }
+
+[skills.writing-plans]
+source = { type = "public", spec = "obra/superpowers" }
+
+[skills.writing-skills]
+source = { type = "public", spec = "obra/superpowers" }
+
+# ── vercel-labs/skills ──
+
+[skills.find-skills]
+source = { type = "public", spec = "vercel-labs/skills" }
+
+# ── tw93/Waza ──
+
+[skills.check]
+source = { type = "public", spec = "tw93/Waza" }
+
+[skills.design]
+source = { type = "public", spec = "tw93/Waza" }
+
+[skills.health]
+source = { type = "public", spec = "tw93/Waza" }
+
+[skills.hunt]
+source = { type = "public", spec = "tw93/Waza" }
+
+[skills.learn]
+source = { type = "public", spec = "tw93/Waza" }
+
+[skills.read]
+source = { type = "public", spec = "tw93/Waza" }
+
+[skills.think]
+source = { type = "public", spec = "tw93/Waza" }
+
+[skills.write]
+source = { type = "public", spec = "tw93/Waza" }
+
+# ── Custom skills (not in public registry) ──
+
+[skills.cmux-multi-agent]
+source = { type = "owned" }
+
+[skills.feishu]
+source = { type = "local_path", path = "~/.agents/skills/feishu" }
+materialized_path = "materialized/skills/feishu"
+
+# ── Project-local skills ──
+
+[skills.chrome-cdp]
+source = { type = "public", spec = "pasky/chrome-cdp-skill" }
+
+[skills.cv-builder]
+source = { type = "local_path", path = "/Users/gezi/Dev/profile/.agents/skills/cv-builder" }
+materialized_path = "materialized/skills/cv-builder"
+
+[skills.enterprise-build]
+source = { type = "local_path", path = "/Users/gezi/Dev/automq-kafka-enterprise/.agents/skills/enterprise-build" }
+materialized_path = "materialized/skills/enterprise-build"
+
+[skills.enterprise-dev-workflow]
+source = { type = "local_path", path = "/Users/gezi/Dev/automq-kafka-enterprise/.agents/skills/enterprise-dev-workflow" }
+materialized_path = "materialized/skills/enterprise-dev-workflow"
+
+[skills.enterprise-devkit]
+source = { type = "local_path", path = "/Users/gezi/Dev/automq-kafka-enterprise/.agents/skills/enterprise-devkit" }
+materialized_path = "materialized/skills/enterprise-devkit"
+
+[skills.enterprise-e2e]
+source = { type = "local_path", path = "/Users/gezi/Dev/automq-kafka-enterprise/.agents/skills/enterprise-e2e" }
+materialized_path = "materialized/skills/enterprise-e2e"
+
+[skills.playwright-cli]
+source = { type = "local_path", path = "/Users/gezi/Dev/kafka-console/.agents/skills/playwright-cli" }
+materialized_path = "materialized/skills/playwright-cli"
+
+[skills.provider-resources]
+source = { type = "public", spec = "hashicorp/agent-skills" }
+
+[skills.vercel-react-best-practices]
+source = { type = "local_path", path = "/Users/gezi/Dev/sitebox/.agents/skills/vercel-react-best-practices" }
+materialized_path = "materialized/skills/vercel-react-best-practices"
+
+[skills.web-design-guidelines]
+source = { type = "local_path", path = "/Users/gezi/Dev/sitebox/.agents/skills/web-design-guidelines" }
+materialized_path = "materialized/skills/web-design-guidelines"
+
+# ═══════════════════════════════════════════
+# Bundles
+# ═══════════════════════════════════════════
+
+[bundles.core]
+description = "Skill management"
+skills = [
+  "find-skills",
+  "skill-creator",
+  "writing-skills",
+]
+
+[bundles.superpowers]
+description = "obra/superpowers engineering workflow"
+skills = [
+  "systematic-debugging",
+  "verification-before-completion",
+  "brainstorming",
+  "dispatching-parallel-agents",
+  "executing-plans",
+  "finishing-a-development-branch",
+  "implementation-plan",
+  "receiving-code-review",
+  "requesting-code-review",
+  "subagent-driven-development",
+  "test-driven-development",
+  "using-git-worktrees",
+  "using-superpowers",
+  "writing-plans",
+]
+
+[bundles.tools]
+description = "Tool integrations"
+skills = [
+  "gh-cli",
+  "cmux",
+  "cmux-multi-agent",
+]
+
+[bundles.memory]
+description = "Knowledge management (nowledge-co)"
+skills = [
+  "check-integration",
+  "distill-memory",
+  "read-working-memory",
+  "save-handoff",
+  "save-thread",
+  "search-memory",
+  "status",
+]
+
+[bundles.lark]
+description = "Feishu / Lark full suite"
+skills = [
+  "feishu",
+  "lark-approval",
+  "lark-base",
+  "lark-calendar",
+  "lark-contact",
+  "lark-doc",
+  "lark-drive",
+  "lark-event",
+  "lark-im",
+  "lark-mail",
+  "lark-minutes",
+  "lark-openapi-explorer",
+  "lark-shared",
+  "lark-sheets",
+  "lark-skill-maker",
+  "lark-task",
+  "lark-vc",
+  "lark-whiteboard",
+  "lark-whiteboard-cli",
+  "lark-wiki",
+  "lark-workflow-meeting-summary",
+  "lark-workflow-standup-report",
+]
+
+[bundles.waza]
+description = "Claude-only AI workflow (tw93/Waza)"
+skills = [
+  "check",
+  "design",
+  "health",
+  "hunt",
+  "learn",
+  "read",
+  "think",
+  "write",
+]
+
+[bundles.frontend]
+description = "Frontend product workflow"
+skills = [
+  "frontend-design",
+]
+
+[bundles.enterprise]
+description = "AutoMQ enterprise project skills"
+skills = [
+  "enterprise-build",
+  "enterprise-dev-workflow",
+  "enterprise-devkit",
+  "enterprise-e2e",
+]
+

@@ -1,0 +1,24 @@
+[tools]
+python = "3.12"
+node = "latest"
+"npm:@openai/codex" = "latest"
+"npm:@anthropic-ai/claude-code" = "latest"
+
+[env]
+SELFOPS_ROOT = "{{ config_root }}"
+
+[tasks.doctor]
+description = "Check SelfOps local toolchain and registry files"
+run = "python --version && mise --version"
+
+[tasks."agent:scan"]
+description = "Scan configured roots for existing agent skills"
+run = "mise -C dev/agent-runtime run agent:scan"
+
+[tasks."agent:plan"]
+description = "Compare declared desired state with scanned actual state"
+run = "mise -C dev/agent-runtime run agent:plan"
+
+[tasks."agent:apply"]
+description = "Apply skill source sync and runtime directory changes"
+run = "mise -C dev/agent-runtime run agent:apply"

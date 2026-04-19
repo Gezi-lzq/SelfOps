@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+
+# Generated local machine state.
+/dev/agent-runtime/.state/
+/dev/agent-runtime/.cache/
+/dev/agent-runtime/materialized/skills/*
+!/dev/agent-runtime/materialized/skills/cmux-multi-agent/
+
+# Agent runtime directories generated for this repository.
+/.codex/
+/.agents/
+/.kiro/
+/.claude/

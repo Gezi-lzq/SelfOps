@@ -1,0 +1,116 @@
+# Project desired state.
+#
+# Per-agent overrides: if [projects.<path>.agent_overrides.<agent>] exists,
+# its bundles/include/exclude REPLACE the project-level defaults for that agent.
+
+scan_dirs = ["~/Dev"]
+
+# ─────────────────────────────────────────────
+# Global — only tools + memory
+# ─────────────────────────────────────────────
+
+[projects."@global"]
+agents = ["kiro", "claude", "codex"]
+bundles = ["core", "tools", "memory"]
+include = []
+exclude = []
+
+# ─────────────────────────────────────────────
+# SelfOps
+# ─────────────────────────────────────────────
+
+[projects."/Users/gezi/Dev/SelfOps"]
+agents = ["kiro", "claude", "codex"]
+bundles = ["core", "superpowers"]
+include = []
+exclude = []
+
+# ─────────────────────────────────────────────
+# AutoMQ Kafka Enterprise
+# ─────────────────────────────────────────────
+
+[projects."/Users/gezi/Dev/automq-kafka-enterprise"]
+agents = ["kiro", "claude", "codex"]
+bundles = ["core", "superpowers"]
+include = []
+exclude = []
+
+# ─────────────────────────────────────────────
+# AutoMQ Enterprise Fix 1800
+# ─────────────────────────────────────────────
+
+[projects."/Users/gezi/Dev/automq-enterprise-fix-1800"]
+agents = ["kiro", "claude", "codex"]
+bundles = ["core", "superpowers"]
+include = []
+exclude = []
+
+# ─────────────────────────────────────────────
+# AutoMQ (open source)
+# ─────────────────────────────────────────────
+
+[projects."/Users/gezi/Dev/automq"]
+agents = ["kiro"]
+bundles = ["core", "superpowers"]
+include = []
+exclude = []
+
+# ─────────────────────────────────────────────
+# AutoMQ Marathon
+# ─────────────────────────────────────────────
+
+[projects."/Users/gezi/Dev/automq-marathon"]
+agents = ["kiro", "claude"]
+bundles = []
+include = []
+exclude = []
+
+# ─────────────────────────────────────────────
+# AutoMQ Benchmark
+# ─────────────────────────────────────────────
+
+[projects."/Users/gezi/Dev/automq-benchmark"]
+agents = ["claude"]
+bundles = []
+include = []
+exclude = []
+
+# ─────────────────────────────────────────────
+# Kafka Console
+# ─────────────────────────────────────────────
+
+[projects."/Users/gezi/Dev/kafka-console"]
+agents = ["kiro", "claude"]
+bundles = ["frontend"]
+include = ["chrome-cdp", "playwright-cli"]
+exclude = []
+
+# ─────────────────────────────────────────────
+# Profile
+# ─────────────────────────────────────────────
+
+[projects."/Users/gezi/Dev/profile"]
+agents = ["kiro", "claude"]
+bundles = []
+include = ["cv-builder"]
+exclude = []
+
+# ─────────────────────────────────────────────
+# Sitebox
+# ─────────────────────────────────────────────
+
+[projects."/Users/gezi/Dev/sitebox"]
+agents = ["kiro", "claude"]
+bundles = ["frontend"]
+include = ["vercel-react-best-practices", "web-design-guidelines"]
+exclude = []
+
+# ─────────────────────────────────────────────
+# Terraform Provider AutoMQ
+# ─────────────────────────────────────────────
+
+[projects."/Users/gezi/Dev/terraform-provider-automq"]
+agents = ["kiro", "claude"]
+bundles = []
+include = ["provider-resources"]
+exclude = []

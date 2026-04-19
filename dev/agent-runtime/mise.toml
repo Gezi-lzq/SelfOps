@@ -1,0 +1,34 @@
+[tools]
+python = "3.12"
+node = "latest"
+"npm:@openai/codex" = "latest"
+"npm:@anthropic-ai/claude-code" = "latest"
+
+[env]
+SELFOPS_AGENT_RUNTIME_ROOT = "{{ config_root }}"
+SELFOPS_AGENT_RUNTIME_REGISTRY = "{{ config_root }}/registry"
+SELFOPS_AGENT_RUNTIME_STATE = "{{ config_root }}/.state"
+
+[tasks.scan]
+description = "Scan actual agent skill directories"
+run = "python scripts/agent_runtime.py scan"
+
+[tasks.plan]
+description = "Plan skill source sync and runtime directory changes"
+run = "python scripts/agent_runtime.py plan"
+
+[tasks.apply]
+description = "Apply skill source sync and runtime directory changes"
+run = "python scripts/agent_runtime.py apply"
+
+[tasks."agent:scan"]
+description = "Alias for scan"
+run = "python scripts/agent_runtime.py scan"
+
+[tasks."agent:plan"]
+description = "Alias for plan"
+run = "python scripts/agent_runtime.py plan"
+
+[tasks."agent:apply"]
+description = "Alias for apply"
+run = "python scripts/agent_runtime.py apply"
