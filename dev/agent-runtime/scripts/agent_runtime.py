@@ -510,7 +510,7 @@ def print_apply(result: dict[str, Any]) -> None:
     warned = result.get("warned", [])
     home = str(Path.home())
 
-    if not applied and not skipped:
+    if not applied and not skipped and not warned:
         print(green("✅ Nothing to do."))
         return
 
