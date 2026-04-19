@@ -129,7 +129,7 @@ def is_skill_entry(path: Path) -> bool:
     return path.is_dir() and (path / "SKILL.md").exists()
 
 
-AGENTS = ("kiro", "claude", "codex")
+AGENTS = ("kiro", "claude", "codex", "gemini")
 
 
 def scan_project(project_name: str, agents: list[str]) -> dict[str, Any]:

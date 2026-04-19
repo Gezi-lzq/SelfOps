@@ -10,7 +10,7 @@ scan_dirs = ["~/Dev"]
 # ─────────────────────────────────────────────
 
 [projects."@global"]
-agents = ["kiro", "claude", "codex"]
+agents = ["kiro", "claude", "codex", "gemini"]
 bundles = ["core", "tools", "memory"]
 include = []
 exclude = []
@@ -20,7 +20,7 @@ exclude = []
 # ─────────────────────────────────────────────
 
 [projects."/Users/gezi/Dev/SelfOps"]
-agents = ["kiro", "claude", "codex"]
+agents = ["kiro", "claude", "codex", "gemini"]
 bundles = ["core", "superpowers"]
 include = []
 exclude = []
@@ -30,7 +30,7 @@ exclude = []
 # ─────────────────────────────────────────────
 
 [projects."/Users/gezi/Dev/automq-kafka-enterprise"]
-agents = ["kiro", "claude", "codex"]
+agents = ["kiro", "claude", "codex", "gemini"]
 bundles = ["core", "superpowers"]
 include = []
 exclude = []
@@ -40,7 +40,7 @@ exclude = []
 # ─────────────────────────────────────────────
 
 [projects."/Users/gezi/Dev/automq-enterprise-fix-1800"]
-agents = ["kiro", "claude", "codex"]
+agents = ["kiro", "claude", "codex", "gemini"]
 bundles = ["core", "superpowers"]
 include = []
 exclude = []
