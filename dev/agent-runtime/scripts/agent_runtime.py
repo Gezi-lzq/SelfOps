@@ -58,7 +58,7 @@ except ModuleNotFoundError:  # pragma: no cover
 ROOT = Path(os.environ.get("SELFOPS_AGENT_RUNTIME_ROOT", Path(__file__).resolve().parents[1])).resolve()
 REGISTRY_DIR = Path(os.environ.get("SELFOPS_AGENT_RUNTIME_REGISTRY", ROOT / "registry")).resolve()
 STATE_DIR = Path(os.environ.get("SELFOPS_AGENT_RUNTIME_STATE", ROOT / ".state")).resolve()
-CACHE_DIR = Path(os.environ.get("SELFOPS_AGENT_RUNTIME_CACHE", ROOT / ".cache")).resolve()
+CACHE_DIR = Path(os.environ.get("SELFOPS_AGENT_RUNTIME_CACHE", ROOT / ".agents")).resolve()
 SKILLS_PATH = REGISTRY_DIR / "skills.toml"
 PROJECTS_PATH = REGISTRY_DIR / "projects.toml"
 SCAN_PATH = STATE_DIR / "scan.json"
@@ -294,11 +294,11 @@ def skill_dest(skill_name: str, skill: dict[str, Any]) -> Path:
     """Return the local path a skill should be linked from.
 
     - owned / local_path: materialized_path (under materialized/)
-    - public: .cache/.agents/skills/<name> (git-ignored, managed by npx)
+    - public: .agents/skills/<name> (git-ignored, managed by npx)
     """
     source_type = skill.get("source", {}).get("type", "owned")
     if source_type == "public":
-        return CACHE_DIR / ".agents" / "skills" / skill_name
+        return CACHE_DIR / "skills" / skill_name
     raw = skill.get("materialized_path")
     if not raw:
         raw = f"materialized/skills/{skill_name}"
@@ -413,11 +413,11 @@ def copy_tree(src: Path, dest: Path) -> None:
 
 
 def sync_public(spec: str, skill_name: str) -> None:
-    """Download a public skill into .cache/ via npx skills add."""
+    """Download a public skill into .agents/skills/ via npx skills add."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     command = ["npx", "skills", "add", spec, "--skill", skill_name, "-y"]
-    subprocess.run(command, cwd=CACHE_DIR, check=True)
-    dest = CACHE_DIR / ".agents" / "skills" / skill_name
+    subprocess.run(command, cwd=ROOT, check=True)
+    dest = CACHE_DIR / "skills" / skill_name
     if not (dest / "SKILL.md").exists():
         fail(f"public skill did not produce {skill_name}/SKILL.md: {spec}")
 

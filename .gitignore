@@ -3,7 +3,7 @@ __pycache__/
 
 # Generated local machine state.
 /dev/agent-runtime/.state/
-/dev/agent-runtime/.cache/
+/dev/agent-runtime/.agents/
 /dev/agent-runtime/materialized/skills/*
 !/dev/agent-runtime/materialized/skills/cmux-multi-agent/
 
