@@ -412,14 +412,17 @@ def copy_tree(src: Path, dest: Path) -> None:
     shutil.copytree(src, dest, symlinks=True)
 
 
-def sync_public(spec: str, skill_name: str) -> None:
-    """Download a public skill into .agents/skills/ via npx skills add."""
+def sync_public_batch(spec: str, skill_names: list[str]) -> None:
+    """Download multiple skills from one repo via a single npx skills add."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    command = ["npx", "skills", "add", spec, "--skill", skill_name, "--agent", "universal", "-y"]
+    command = ["npx", "skills", "add", spec, "--agent", "universal", "-y"]
+    for name in skill_names:
+        command.extend(["--skill", name])
     subprocess.run(command, cwd=ROOT, check=True)
-    dest = CACHE_DIR / "skills" / skill_name
-    if not (dest / "SKILL.md").exists():
-        fail(f"public skill did not produce {skill_name}/SKILL.md: {spec}")
+    for name in skill_names:
+        dest = CACHE_DIR / "skills" / name
+        if not (dest / "SKILL.md").exists():
+            fail(f"public skill did not produce {name}/SKILL.md: {spec}")
 
 
 def remove_path(path: Path) -> None:
@@ -438,7 +441,26 @@ def apply_plan(force: bool = False) -> dict[str, Any]:
     skipped: list[dict[str, Any]] = []
     warned: list[dict[str, Any]] = []
 
+    # Batch public syncs by repo
+    public_batches: dict[str, list[dict[str, Any]]] = {}
+    remaining_actions: list[dict[str, Any]] = []
     for action in planned["actions"]:
+        if action["type"] == "sync_source" and action.get("source", {}).get("type") == "public":
+            spec = action["points_to"]
+            public_batches.setdefault(spec, []).append(action)
+        else:
+            remaining_actions.append(action)
+
+    for spec, batch in public_batches.items():
+        try:
+            skill_names = [a["skill"] for a in batch]
+            sync_public_batch(spec, skill_names)
+            applied.extend(batch)
+        except Exception as exc:
+            for a in batch:
+                skipped.append({**a, "error": str(exc)})
+
+    for action in remaining_actions:
         action_type = action["type"]
         path = Path(action["path"]).expanduser() if action.get("path") else None
 
@@ -457,8 +479,6 @@ def apply_plan(force: bool = False) -> dict[str, Any]:
                 source = action.get("source", {})
                 if source.get("type") == "local_path":
                     copy_tree(Path(action["points_to"]).expanduser().resolve(), path)
-                elif source.get("type") == "public":
-                    sync_public(action["points_to"], action["skill"])
                 else:
                     skipped.append({**action, "reason": "unsupported sync source"})
                     continue
