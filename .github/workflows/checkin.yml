@@ -2,7 +2,7 @@ name: NewAPI Checkin
 
 on:
   schedule:
-    - cron: '10 0 * * *'  # 8:10 AM Beijing Time
+    # - cron: '10 0 * * *'  # 8:10 AM Beijing Time
   workflow_dispatch:
 
 jobs:
