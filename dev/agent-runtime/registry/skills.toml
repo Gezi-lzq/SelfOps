@@ -210,8 +210,7 @@ materialized_path = "materialized/skills/feishu"
 source = { type = "public", spec = "pasky/chrome-cdp-skill" }
 
 [skills.cv-builder]
-source = { type = "local_path", path = "/Users/gezi/Dev/profile/.agents/skills/cv-builder" }
-materialized_path = "materialized/skills/cv-builder"
+source = { type = "public", spec = "claude-office-skills/skills" }
 
 [skills.enterprise-build]
 source = { type = "local_path", path = "/Users/gezi/Dev/automq-kafka-enterprise/.agents/skills/enterprise-build" }
