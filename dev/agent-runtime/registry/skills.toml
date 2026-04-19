@@ -229,19 +229,16 @@ source = { type = "local_path", path = "/Users/gezi/Dev/automq-kafka-enterprise/
 materialized_path = "materialized/skills/enterprise-e2e"
 
 [skills.playwright-cli]
-source = { type = "local_path", path = "/Users/gezi/Dev/kafka-console/.agents/skills/playwright-cli" }
-materialized_path = "materialized/skills/playwright-cli"
+source = { type = "public", spec = "microsoft/playwright-cli" }
 
 [skills.provider-resources]
 source = { type = "public", spec = "hashicorp/agent-skills" }
 
 [skills.vercel-react-best-practices]
-source = { type = "local_path", path = "/Users/gezi/Dev/sitebox/.agents/skills/vercel-react-best-practices" }
-materialized_path = "materialized/skills/vercel-react-best-practices"
+source = { type = "public", spec = "vercel-labs/agent-skills" }
 
 [skills.web-design-guidelines]
-source = { type = "local_path", path = "/Users/gezi/Dev/sitebox/.agents/skills/web-design-guidelines" }
-materialized_path = "materialized/skills/web-design-guidelines"
+source = { type = "public", spec = "vercel-labs/agent-skills" }
 
 # ═══════════════════════════════════════════
 # Bundles
