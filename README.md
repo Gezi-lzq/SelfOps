@@ -32,6 +32,7 @@ mise run agent:scan -- --discover  # 发现 ~/Dev 下未注册项目
 mise run agent:plan                # 生成变更计划（只读）
 mise run agent:apply               # 执行计划（destructive 操作需 --force）
 mise run agent:apply -- --force    # 执行计划（含删除和覆盖）
+mise run agent:update              # 更新 public skills 到最新版本
 ```
 
 Skill source 类型：
