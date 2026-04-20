@@ -195,6 +195,11 @@ source = { type = "public", spec = "tw93/Waza" }
 [skills.write]
 source = { type = "public", spec = "tw93/Waza" }
 
+# ── cathrynlavery/diagram-design ──
+
+[skills.diagram-design]
+source = { type = "public", spec = "cathrynlavery/diagram-design" }
+
 # ── Custom skills (not in public registry) ──
 
 [skills.cmux-multi-agent]
@@ -329,6 +334,12 @@ skills = [
   "read",
   "think",
   "write",
+]
+
+[bundles.diagram]
+description = "Diagramming and visual design"
+skills = [
+  "diagram-design",
 ]
 
 [bundles.frontend]
