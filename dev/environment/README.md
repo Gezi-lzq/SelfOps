@@ -4,6 +4,7 @@
 
 当前使用 `mise` 作为统一入口，托管以下工具链：
 
+- `go`
 - `java`
 - `maven`
 - `node`
@@ -15,6 +16,7 @@
 
 - `npx` 不单独安装，它随 `node`/`npm` 一起提供
 - `pnpm` 作为独立全局工具由 `mise` 管理，不依赖 `corepack`
+- `go` 由 mise 管理版本，GOPATH 设为 `~/go`（Go 默认值），`go install` 的二进制放在 `~/go/bin`
 
 ## 文件布局
 
