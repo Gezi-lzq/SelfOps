@@ -10,10 +10,30 @@
 mise trust && mise install
 ```
 
+如果目标是新机器初始化全局开发环境，先安装 `mise`，然后执行：
+
+```bash
+bash dev/environment/bootstrap.sh --activate-zsh
+```
+
+这会把仓库里的全局 `mise` 配置链接到 `~/.config/mise/config.toml`，
+按 `dev/environment/config.toml` 安装全局工具，并把 `mise activate zsh`
+追加到 `~/.zshrc`。
+
+如果要把你的全局 `mise` 配置也纳入这个仓库维护，可以把仓库内的
+[`./dev/environment/config.toml`](./dev/environment/config.toml) 链接到
+`~/.config/mise/config.toml`：
+
+```bash
+mkdir -p ~/.config/mise
+ln -sfn "$PWD/dev/environment/config.toml" ~/.config/mise/config.toml
+```
+
 ## 模块
 
 | 模块 | 说明 | 文档 |
 |------|------|------|
+| [Environment](./dev/environment/) | 管理本机全局开发环境依赖与 `mise` 配置 | [README](./dev/environment/README.md) |
 | [Agent Runtime](./dev/agent-runtime/) | 以 Git 声明式管理本机 agent skills 分发 | [README](./dev/agent-runtime/README.md) |
 | [newapi-checkin](./newapi-checkin/) | NewAPI 自动签到 | — |
 
