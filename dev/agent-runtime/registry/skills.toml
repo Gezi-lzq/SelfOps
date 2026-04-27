@@ -200,6 +200,23 @@ source = { type = "public", spec = "tw93/Waza" }
 [skills.diagram-design]
 source = { type = "public", spec = "cathrynlavery/diagram-design" }
 
+# ── jackwener/opencli ──
+
+[skills.opencli-adapter-author]
+source = { type = "public", spec = "jackwener/opencli" }
+
+[skills.opencli-autofix]
+source = { type = "public", spec = "jackwener/opencli" }
+
+[skills.opencli-browser]
+source = { type = "public", spec = "jackwener/opencli" }
+
+[skills.opencli-usage]
+source = { type = "public", spec = "jackwener/opencli" }
+
+[skills.smart-search]
+source = { type = "public", spec = "jackwener/opencli" }
+
 # ── Custom skills (not in public registry) ──
 
 [skills.cmux-multi-agent]
@@ -346,6 +363,16 @@ skills = [
 description = "Frontend product workflow"
 skills = [
   "frontend-design",
+]
+
+[bundles.opencli]
+description = "OpenCLI browser automation and site adapters"
+skills = [
+  "opencli-adapter-author",
+  "opencli-autofix",
+  "opencli-browser",
+  "opencli-usage",
+  "smart-search",
 ]
 
 [bundles.enterprise]

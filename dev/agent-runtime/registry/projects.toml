@@ -11,7 +11,7 @@ scan_dirs = ["~/Dev"]
 
 [projects."@global"]
 agents = ["kiro", "claude", "codex", "gemini"]
-bundles = ["core", "tools", "memory", "diagram"]
+bundles = ["core", "tools", "memory", "diagram", "opencli"]
 include = ["lark-doc", "lark-shared"]
 exclude = []
 
