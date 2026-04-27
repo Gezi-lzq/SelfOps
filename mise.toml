@@ -11,6 +11,53 @@ SELFOPS_ROOT = "{{ config_root }}"
 description = "Check SelfOps local toolchain and registry files"
 run = "python --version && mise --version"
 
+[tasks."nmem:install"]
+description = "Install nmem CLI (Nowledge Mem) via APT on Linux or guide on macOS"
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+if command -v nmem >/dev/null 2>&1; then
+  echo "nmem already installed: $(nmem --version 2>&1 | head -1)"
+  exit 0
+fi
+case "$(uname -s)" in
+  Linux)
+    echo "Installing nmem via APT..."
+    curl -fsSL https://nowledge-co.github.io/community/apt/install.sh | sudo bash
+    sudo apt-get install -y nowledge-mem
+    echo "nmem installed: $(nmem --version 2>&1 | head -1)"
+    ;;
+  Darwin)
+    echo "On macOS, install Nowledge Mem desktop app, then:"
+    echo "  Settings → Preferences → Developer Tools → Install CLI"
+    exit 1
+    ;;
+  *)
+    echo "Unsupported platform: $(uname -s)" >&2
+    exit 1
+    ;;
+esac
+"""
+
+[tasks."nmem:configure"]
+description = "Configure nmem remote connection (set NMEM_API_URL and NMEM_API_KEY first)"
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+if ! command -v nmem >/dev/null 2>&1; then
+  echo "nmem not found. Run: mise run nmem:install" >&2
+  exit 1
+fi
+if [[ -z "${NMEM_API_URL:-}" || -z "${NMEM_API_KEY:-}" ]]; then
+  echo "Set NMEM_API_URL and NMEM_API_KEY first." >&2
+  echo '  export NMEM_API_URL="http://<server>:14242"'
+  echo '  export NMEM_API_KEY="nmem_..."'
+  exit 1
+fi
+nmem config client set --url "$NMEM_API_URL" --api-key "$NMEM_API_KEY"
+nmem status
+"""
+
 [tasks."agent:scan"]
 description = "Scan configured roots for existing agent skills"
 run = "mise -C dev/agent-runtime run agent:scan"
