@@ -1,0 +1,61 @@
+version: "2.4"
+
+services:
+  node-exporter:
+    image: prom/node-exporter:v1.9.0
+    container_name: node-exporter
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/host"
+      - "--no-collector.filesystem"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    pid: host
+    mem_limit: 32m
+    restart: unless-stopped
+
+  victoria-metrics:
+    image: victoriametrics/victoria-metrics:v1.141.0
+    container_name: victoria-metrics
+    command:
+      - "-retentionPeriod=1"
+      - "-storageDataPath=/storage"
+      - "-promscrape.config=/etc/prometheus.yml"
+    volumes:
+      - ${HOME}/.observability/victoria-metrics:/storage
+      - ./prometheus.yml:/etc/prometheus.yml:ro
+    depends_on:
+      - node-exporter
+    mem_limit: 384m
+    restart: unless-stopped
+
+  victoria-logs:
+    image: victoriametrics/victoria-logs:v1.20.0-victorialogs
+    container_name: victoria-logs
+    command:
+      - "-retentionPeriod=7d"
+      - "-storageDataPath=/vlogs"
+    volumes:
+      - ${HOME}/.observability/victoria-logs:/vlogs
+    mem_limit: 256m
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.6.0
+    container_name: grafana
+    environment:
+      - GF_INSTALL_PLUGINS=victoriametrics-logs-datasource
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_ADMIN_PASSWORD}
+    ports:
+      - "0.0.0.0:3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ${HOME}/.observability/grafana:/var/lib/grafana
+    depends_on:
+      - victoria-metrics
+      - victoria-logs
+    mem_limit: 256m
+    restart: unless-stopped

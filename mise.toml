@@ -58,6 +58,30 @@ nmem config client set --url "$NMEM_API_URL" --api-key "$NMEM_API_KEY"
 nmem status
 """
 
+[tasks."obs:up"]
+description = "Start observability stack"
+dir = "{{config_root}}/infra/observability"
+run = "docker-compose up -d"
+
+[tasks."obs:down"]
+description = "Stop observability stack"
+dir = "{{config_root}}/infra/observability"
+run = "docker-compose down"
+
+[tasks."obs:logs"]
+description = "Tail observability stack logs"
+dir = "{{config_root}}/infra/observability"
+run = "docker-compose logs -f"
+
+[tasks."obs:status"]
+description = "Show observability stack container status"
+dir = "{{config_root}}/infra/observability"
+run = "docker-compose ps"
+
+[tasks."obs:expose"]
+description = "Expose Grafana via Cloudflare quick tunnel"
+run = "cloudflared tunnel --url http://localhost:3000"
+
 [tasks."agent:scan"]
 description = "Scan configured roots for existing agent skills"
 run = "mise -C dev/agent-runtime run agent:scan"
