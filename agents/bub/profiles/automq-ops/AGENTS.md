@@ -18,8 +18,6 @@
 |------|-------|
 | Observability incidents, alerts, metrics, VictoriaLogs, Grafana | `enterprise-observability-triage` |
 | General operations methodology and lessons learned | `ops-lessons-learned` |
-| GitHub Actions E2E failure investigation | `enterprise-e2e-triage` |
-| E2E / ducktape test execution when explicitly requested | `enterprise-e2e` |
 
 当问题同时涉及观测和排查方法论时，先读 `enterprise-observability-triage`，再读 `ops-lessons-learned`。
 
@@ -46,11 +44,11 @@
 
 主要入口：
 
-- `docs/logs/logs-handbook.md`
-- `docs/logs/logs-query-playbook.md`
-- `docs/metrics/metrics-handbook.md`
-- `docs/observability-environments.md`
-- `docs/worker-observability-playbook.md`
+- `/workspace/.agents/skills/enterprise-observability-triage/references/logs-handbook.md`
+- `/workspace/.agents/skills/enterprise-observability-triage/references/logs-query-playbook.md`
+- `/workspace/.agents/skills/enterprise-observability-triage/references/metrics-handbook.md`
+- `/workspace/automq-workspace/docs/observability-environments.md`
+- `/workspace/automq-workspace/docs/worker-observability-playbook.md`
 
 按症状选读：
 
