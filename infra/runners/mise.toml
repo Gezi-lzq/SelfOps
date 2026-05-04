@@ -1,0 +1,18 @@
+[env]
+RUNNERS_ROOT = "{{ config_root }}"
+
+[tasks."runner:ensure"]
+description = "Ensure all declared runners are registered and running (idempotent)"
+run = "bash runner.sh ensure"
+
+[tasks."runner:ensure-one"]
+description = "Ensure a single runner by id (e.g. mise run runner:ensure-one selfops)"
+run = "bash runner.sh ensure $1"
+
+[tasks."runner:status"]
+description = "Show status of all declared runners"
+run = "bash runner.sh status"
+
+[tasks."runner:remove"]
+description = "Deregister and stop a runner (e.g. mise run runner:remove selfops)"
+run = "bash runner.sh remove $1"

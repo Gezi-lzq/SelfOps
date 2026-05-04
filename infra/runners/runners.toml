@@ -1,0 +1,9 @@
+# Runners 声明
+
+[runners.selfops]
+repo = "Gezi-lzq/SelfOps"
+name = "selfops-runner"
+labels = ["self-hosted", "linux", "x64"]
+dir = "/home/gezi/actions-runner-selfops"
+version = "2.334.0"
+

@@ -1,0 +1,46 @@
+name: Bub Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'agents/bub/**'
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: 'Profile to deploy'
+        required: true
+        default: 'yuna'
+        type: choice
+        options:
+          - yuna
+          - all
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write env file
+        run: |
+          mkdir -p /opt/bub/profiles/yuna
+          cat > /opt/bub/profiles/yuna/env <<'ENVEOF'
+          BUB_MODEL=${{ secrets.BUB_MODEL }}
+          BUB_API_KEY=${{ secrets.BUB_API_KEY }}
+          BUB_API_BASE=${{ secrets.BUB_API_BASE }}
+          BUB_API_FORMAT=${{ secrets.BUB_API_FORMAT }}
+          BUB_ENABLED_CHANNELS=${{ secrets.BUB_ENABLED_CHANNELS }}
+          BUB_QQ_APPID=${{ secrets.BUB_QQ_APPID }}
+          BUB_QQ_SECRET=${{ secrets.BUB_QQ_SECRET }}
+          BUB_QQ_RECEIVE_MODE=${{ secrets.BUB_QQ_RECEIVE_MODE }}
+          BUB_TELEGRAM_TOKEN=${{ secrets.BUB_TELEGRAM_TOKEN }}
+          BUB_FEISHU_APP_ID=${{ secrets.BUB_FEISHU_APP_ID }}
+          BUB_FEISHU_APP_SECRET=${{ secrets.BUB_FEISHU_APP_SECRET }}
+          ENVEOF
+          sed -i 's/^          //' /opt/bub/profiles/yuna/env
+
+      - name: Deploy
+        run: |
+          chmod +x agents/bub/deploy.sh
+          bash agents/bub/deploy.sh ${{ inputs.profile || 'yuna' }}

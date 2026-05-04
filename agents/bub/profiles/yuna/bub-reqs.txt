@@ -1,0 +1,4 @@
+bub-tapestore-sqlite @ git+https://github.com/bubbuild/bub-contrib.git#subdirectory=packages/bub-tapestore-sqlite
+bub-qq @ git+https://github.com/bubbuild/bub-contrib.git#subdirectory=packages/bub-qq
+bub-schedule @ git+https://github.com/bubbuild/bub-contrib.git#subdirectory=packages/bub-schedule
+bub-feishu @ git+https://github.com/bubbuild/bub-contrib.git#subdirectory=packages/bub-feishu
