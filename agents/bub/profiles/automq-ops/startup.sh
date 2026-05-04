@@ -8,6 +8,10 @@ REPO_BRANCH="feat/gezi"
 
 mkdir -p "${WORKSPACE_ROOT}"
 
+if command -v gh >/dev/null 2>&1; then
+  gh auth setup-git >/dev/null
+fi
+
 if [ -d "${REPO_DIR}/.git" ]; then
   git -C "${REPO_DIR}" fetch origin "${REPO_BRANCH}"
   git -C "${REPO_DIR}" checkout "${REPO_BRANCH}"
