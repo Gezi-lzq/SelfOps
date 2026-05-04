@@ -1,0 +1,16 @@
+services:
+  bub:
+    image: ghcr.io/bubbuild/bub:latest
+    container_name: bub-${PROFILE}
+    network_mode: host
+    restart: unless-stopped
+    env_file:
+      - /opt/bub/profiles/${PROFILE}/env
+    volumes:
+      - /opt/bub/profiles/${PROFILE}/workspace:/workspace
+      - /opt/bub/profiles/${PROFILE}/home:/root
+      - /opt/bub/profiles/${PROFILE}/cache/pip:/root/.cache/pip
+      - /opt/bub/profiles/${PROFILE}/cache/uv:/root/.cache/uv
+      - ${SELFOPS_ROOT}/agents/bub/profiles/${PROFILE}/AGENTS.md:/workspace/AGENTS.md
+      - ${SELFOPS_ROOT}/agents/bub/profiles/${PROFILE}/bub-reqs.txt:/workspace/bub-reqs.txt:ro
+      - ${SELFOPS_ROOT}/agents/bub/startup.sh:/workspace/startup.sh:ro

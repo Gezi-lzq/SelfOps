@@ -35,6 +35,8 @@ ln -sfn "$PWD/dev/environment/config.toml" ~/.config/mise/config.toml
 |------|------|------|
 | [Environment](./dev/environment/) | 管理本机全局开发环境依赖与 `mise` 配置 | [README](./dev/environment/README.md) |
 | [Agent Runtime](./dev/agent-runtime/) | 以 Git 声明式管理本机 agent skills 分发 | [README](./dev/agent-runtime/README.md) |
+| [Runners](./infra/runners/) | 声明式管理 self-hosted GitHub Actions runner | [README](./infra/runners/README.md) |
+| [Bub Agents](./agents/bub/) | Bub agent 声明式部署与 profile 隔离运行 | — |
 | [newapi-checkin](./newapi-checkin/) | NewAPI 自动签到 | — |
 
 ### Agent Runtime 常用命令

@@ -1,0 +1,51 @@
+name: Bub Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'agents/bub/**'
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: 'Profile to deploy'
+        required: true
+        default: 'yuna'
+        type: choice
+        options:
+          - yuna
+          - all
+
+env:
+  SELFOPS_ROOT: /home/gezi/SelfOps
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Pull latest code
+        run: |
+          git -C "${SELFOPS_ROOT}" fetch origin
+          git -C "${SELFOPS_ROOT}" merge --ff-only ${{ github.sha }}
+
+      - name: Write env and deploy
+        run: |
+          PROFILE="${{ inputs.profile }}"
+          if [ "$PROFILE" = "all" ]; then
+            for d in "${SELFOPS_ROOT}/agents/bub/profiles"/*/; do
+              p="$(basename "$d")"
+              mise -C "${SELFOPS_ROOT}/agents/bub" run bub:write-env "$p"
+              mise -C "${SELFOPS_ROOT}/agents/bub" run bub:deploy "$p"
+            done
+          else
+            mise -C "${SELFOPS_ROOT}/agents/bub" run bub:write-env $PROFILE
+            mise -C "${SELFOPS_ROOT}/agents/bub" run bub:deploy $PROFILE
+          fi
+        env:
+          BUB_API_KEY: ${{ secrets.BUB_API_KEY }}
+          BUB_API_BASE: ${{ secrets.BUB_API_BASE }}
+          BUB_QQ_APPID: ${{ secrets.BUB_QQ_APPID }}
+          BUB_QQ_SECRET: ${{ secrets.BUB_QQ_SECRET }}
+          BUB_TELEGRAM_TOKEN: ${{ secrets.BUB_TELEGRAM_TOKEN }}
+          BUB_FEISHU_APP_ID: ${{ secrets.BUB_FEISHU_APP_ID }}
+          BUB_FEISHU_APP_SECRET: ${{ secrets.BUB_FEISHU_APP_SECRET }}

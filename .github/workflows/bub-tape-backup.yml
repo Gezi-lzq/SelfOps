@@ -1,0 +1,31 @@
+name: Bub Tape Backup
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: 'Profile to backup'
+        required: true
+        default: 'yuna'
+        type: choice
+        options:
+          - yuna
+
+env:
+  SELFOPS_ROOT: /home/gezi/SelfOps
+
+jobs:
+  backup:
+    runs-on: self-hosted
+    steps:
+      - name: Pull latest code
+        run: |
+          git -C "${SELFOPS_ROOT}" fetch origin
+          git -C "${SELFOPS_ROOT}" merge --ff-only ${{ github.sha }}
+
+      - name: Backup tape
+        run: mise -C "${SELFOPS_ROOT}/agents/bub" run bub:backup ${{ inputs.profile }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
