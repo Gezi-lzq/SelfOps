@@ -35,25 +35,6 @@ deploy_profile() {
   mkdir -p "${PROFILE_ROOT}/cache/pip"
   mkdir -p "${PROFILE_ROOT}/cache/uv"
 
-  local profile_dir="${SCRIPT_DIR}/profiles/${profile}"
-  if [ -d "${profile_dir}" ]; then
-    for f in AGENTS.md bub-reqs.txt; do
-      [ -f "${profile_dir}/${f}" ] && cp "${profile_dir}/${f}" "${PROFILE_ROOT}/workspace/${f}"
-    done
-  fi
-
-  [ -f "${SCRIPT_DIR}/startup.sh" ] && cp "${SCRIPT_DIR}/startup.sh" "${PROFILE_ROOT}/workspace/startup.sh"
-
-  if [ -d "${SCRIPT_DIR}/shared/skills" ]; then
-    mkdir -p "${PROFILE_ROOT}/workspace/.agents/skills"
-    cp -r "${SCRIPT_DIR}/shared/skills/." "${PROFILE_ROOT}/workspace/.agents/skills/"
-  fi
-
-  if [ -d "${profile_dir}/skills" ]; then
-    mkdir -p "${PROFILE_ROOT}/workspace/.agents/skills"
-    cp -r "${profile_dir}/skills/." "${PROFILE_ROOT}/workspace/.agents/skills/"
-  fi
-
   echo "==> Starting bub-${profile}"
   PROFILE="${profile}" docker compose -f "${COMPOSE_FILE}" -p "bub-${profile}" up -d
 
