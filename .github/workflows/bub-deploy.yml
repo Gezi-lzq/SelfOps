@@ -31,22 +31,26 @@ jobs:
             PROFILES=("$PROFILE")
           fi
           for p in "${PROFILES[@]}"; do
+            TEMPLATE="agents/bub/profiles/${p}/env.template"
+            if [ ! -f "$TEMPLATE" ]; then
+              echo "No env.template found for profile ${p}" >&2
+              exit 1
+            fi
             mkdir -p "/opt/bub/profiles/${p}"
-            cat > "/opt/bub/profiles/${p}/env" <<ENVEOF
-          BUB_MODEL=${{ secrets.BUB_MODEL }}
-          BUB_API_KEY=${{ secrets.BUB_API_KEY }}
-          BUB_API_BASE=${{ secrets.BUB_API_BASE }}
-          BUB_API_FORMAT=${{ secrets.BUB_API_FORMAT }}
-          BUB_ENABLED_CHANNELS=${{ secrets.BUB_ENABLED_CHANNELS }}
-          BUB_QQ_APPID=${{ secrets.BUB_QQ_APPID }}
-          BUB_QQ_SECRET=${{ secrets.BUB_QQ_SECRET }}
-          BUB_QQ_RECEIVE_MODE=${{ secrets.BUB_QQ_RECEIVE_MODE }}
-          BUB_TELEGRAM_TOKEN=${{ secrets.BUB_TELEGRAM_TOKEN }}
-          BUB_FEISHU_APP_ID=${{ secrets.BUB_FEISHU_APP_ID }}
-          BUB_FEISHU_APP_SECRET=${{ secrets.BUB_FEISHU_APP_SECRET }}
-          ENVEOF
-            sed -i 's/^          //' "/opt/bub/profiles/${p}/env"
+            envsubst < "$TEMPLATE" > "/opt/bub/profiles/${p}/env"
           done
+        env:
+          BUB_MODEL: ${{ secrets.BUB_MODEL }}
+          BUB_API_KEY: ${{ secrets.BUB_API_KEY }}
+          BUB_API_BASE: ${{ secrets.BUB_API_BASE }}
+          BUB_API_FORMAT: ${{ secrets.BUB_API_FORMAT }}
+          BUB_ENABLED_CHANNELS: ${{ secrets.BUB_ENABLED_CHANNELS }}
+          BUB_QQ_APPID: ${{ secrets.BUB_QQ_APPID }}
+          BUB_QQ_SECRET: ${{ secrets.BUB_QQ_SECRET }}
+          BUB_QQ_RECEIVE_MODE: ${{ secrets.BUB_QQ_RECEIVE_MODE }}
+          BUB_TELEGRAM_TOKEN: ${{ secrets.BUB_TELEGRAM_TOKEN }}
+          BUB_FEISHU_APP_ID: ${{ secrets.BUB_FEISHU_APP_ID }}
+          BUB_FEISHU_APP_SECRET: ${{ secrets.BUB_FEISHU_APP_SECRET }}
 
       - name: Deploy
         run: |
