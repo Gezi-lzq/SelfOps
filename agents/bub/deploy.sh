@@ -3,7 +3,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 COMPOSE_FILE="${SCRIPT_DIR}/docker-compose.yml"
-LEGACY_HOME="/opt/bub/home"
 
 usage() {
   echo "Usage: $0 <profile|all>"
@@ -55,8 +54,6 @@ deploy_profile() {
     cp -r "${profile_dir}/skills/." "${PROFILE_ROOT}/workspace/.agents/skills/"
   fi
 
-  migrate_tape "${profile}"
-
   echo "==> Starting bub-${profile}"
   PROFILE="${profile}" docker compose -f "${COMPOSE_FILE}" -p "bub-${profile}" up -d
 
@@ -68,31 +65,6 @@ deploy_profile() {
     docker logs "bub-${profile}" --tail 50
     return 1
   fi
-}
-
-migrate_tape() {
-  local profile="$1"
-  local new_bub_home="/opt/bub/profiles/${profile}/home/.bub"
-  local legacy_bub_home="${LEGACY_HOME}/.bub"
-
-  if [ -f "${new_bub_home}/tapes.sqlite3" ]; then
-    echo "    Tape already exists at profile path, skipping migration"
-    return 0
-  fi
-
-  if [ ! -f "${legacy_bub_home}/tapes.sqlite3" ]; then
-    echo "    No legacy tape found, skipping migration"
-    return 0
-  fi
-
-  echo "    Migrating tape from legacy path"
-  docker stop bub >/dev/null 2>&1 || true
-
-  cp -a "${legacy_bub_home}/tapes.sqlite3" "${new_bub_home}/tapes.sqlite3"
-  cp -a "${legacy_bub_home}/tapes.sqlite3-wal" "${new_bub_home}/tapes.sqlite3-wal" 2>/dev/null || true
-  cp -a "${legacy_bub_home}/tapes.sqlite3-shm" "${new_bub_home}/tapes.sqlite3-shm" 2>/dev/null || true
-
-  echo "    Tape migrated. Legacy path preserved for rollback."
 }
 
 for p in "${PROFILES[@]}"; do

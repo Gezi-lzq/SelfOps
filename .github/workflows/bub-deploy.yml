@@ -36,14 +36,10 @@ jobs:
             mise -C agents/bub run bub:deploy $PROFILE
           fi
         env:
-          BUB_MODEL: ${{ secrets.BUB_MODEL }}
           BUB_API_KEY: ${{ secrets.BUB_API_KEY }}
           BUB_API_BASE: ${{ secrets.BUB_API_BASE }}
-          BUB_API_FORMAT: ${{ secrets.BUB_API_FORMAT }}
-          BUB_ENABLED_CHANNELS: ${{ secrets.BUB_ENABLED_CHANNELS }}
           BUB_QQ_APPID: ${{ secrets.BUB_QQ_APPID }}
           BUB_QQ_SECRET: ${{ secrets.BUB_QQ_SECRET }}
-          BUB_QQ_RECEIVE_MODE: ${{ secrets.BUB_QQ_RECEIVE_MODE }}
           BUB_TELEGRAM_TOKEN: ${{ secrets.BUB_TELEGRAM_TOKEN }}
           BUB_FEISHU_APP_ID: ${{ secrets.BUB_FEISHU_APP_ID }}
           BUB_FEISHU_APP_SECRET: ${{ secrets.BUB_FEISHU_APP_SECRET }}
