@@ -2,3 +2,5 @@ services:
   bub:
     volumes:
       - ${SELFOPS_ROOT}/agents/bub/profiles/automq-ops/startup.sh:/workspace/startup.sh:ro
+      - ${HOME}/.codex/auth.json:/root/.codex/auth.json:ro
+      - ${HOME}/.codex/config.toml:/root/.codex/config.toml:ro
