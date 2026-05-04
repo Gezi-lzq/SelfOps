@@ -4,6 +4,7 @@ services:
       - ${SELFOPS_ROOT}/agents/bub/profiles/automq-ops/startup.sh:/workspace/startup.sh:ro
       - ${HOME}/.codex/auth.json:/root/.codex/auth.json:ro
       - ${HOME}/.codex/config.toml:/root/.codex/config.toml:ro
+      - ${HOME}/.config/gh:/root/.config/gh:ro
       - ${SELFOPS_ROOT}/dev/agent-runtime/.agents/skills/lark-doc:/root/.codex/skills/lark-doc:ro
       - ${SELFOPS_ROOT}/dev/agent-runtime/.agents/skills/lark-shared:/root/.codex/skills/lark-shared:ro
       - ${HOME}/.lark-cli:/root/.lark-cli:ro
