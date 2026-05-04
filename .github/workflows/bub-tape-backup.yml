@@ -20,6 +20,6 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Backup tape
-        run: mise -C agents/bub run bub:backup "${{ inputs.profile || 'yuna' }}"
+        run: mise -C agents/bub run bub:backup ${{ inputs.profile }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

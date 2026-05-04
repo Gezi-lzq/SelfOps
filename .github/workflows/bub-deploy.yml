@@ -24,7 +24,7 @@ jobs:
 
       - name: Write env and deploy
         run: |
-          PROFILE="${{ inputs.profile || 'yuna' }}"
+          PROFILE="${{ inputs.profile }}"
           if [ "$PROFILE" = "all" ]; then
             for d in agents/bub/profiles/*/; do
               p="$(basename "$d")"
@@ -32,8 +32,8 @@ jobs:
               mise -C agents/bub run bub:deploy "$p"
             done
           else
-            mise -C agents/bub run bub:write-env "$PROFILE"
-            mise -C agents/bub run bub:deploy "$PROFILE"
+            mise -C agents/bub run bub:write-env $PROFILE
+            mise -C agents/bub run bub:deploy $PROFILE
           fi
         env:
           BUB_MODEL: ${{ secrets.BUB_MODEL }}
