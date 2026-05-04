@@ -47,8 +47,6 @@
 - `/workspace/.agents/skills/enterprise-observability-triage/references/logs-handbook.md`
 - `/workspace/.agents/skills/enterprise-observability-triage/references/logs-query-playbook.md`
 - `/workspace/.agents/skills/enterprise-observability-triage/references/metrics-handbook.md`
-- `/workspace/automq-workspace/docs/observability-environments.md`
-- `/workspace/automq-workspace/docs/worker-observability-playbook.md`
 
 按症状选读：
 
