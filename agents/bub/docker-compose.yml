@@ -1,6 +1,6 @@
 services:
   bub:
-    image: ghcr.io/bubbuild/bub:latest
+    image: bub:latest
     container_name: bub-${PROFILE}
     network_mode: host
     restart: unless-stopped

@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 COMPOSE_FILE="${SCRIPT_DIR}/docker-compose.yml"
 export SELFOPS_ROOT="${SELFOPS_ROOT:-$(cd "${SCRIPT_DIR}/../.." && pwd)}"
+BUB_REPO="${BUB_REPO:-${HOME}/Dev/bub}"
 
 usage() {
   echo "Usage: $0 <profile|all>"
@@ -41,6 +42,9 @@ deploy_profile() {
   if [ -f "${profile_compose}" ]; then
     compose_args+=(-f "${profile_compose}")
   fi
+
+  echo "==> Building bub image"
+  docker build --pull -t bub:latest "${BUB_REPO}"
 
   echo "==> Starting bub-${profile}"
   PROFILE="${profile}" docker compose "${compose_args[@]}" -p "bub-${profile}" up -d
