@@ -3,7 +3,12 @@ BUB_ROOT = "{{ config_root }}"
 
 [tasks."bub:deploy"]
 description = "Deploy a bub profile (e.g. mise run bub:deploy yuna)"
-run = "bash ${BUB_ROOT}/deploy.sh ${1:-yuna}"
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+PROFILE="${1:-yuna}"
+bash "${BUB_ROOT}/deploy.sh" "$PROFILE"
+"""
 
 [tasks."bub:write-env"]
 description = "Render env.template for a profile (e.g. mise run bub:write-env yuna)"
@@ -24,4 +29,9 @@ echo "Wrote ${TARGET}"
 
 [tasks."bub:backup"]
 description = "Backup tape for a profile to GitHub Releases (e.g. mise run bub:backup yuna)"
-run = "bash ${BUB_ROOT}/backup.sh ${1:-yuna}"
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+PROFILE="${1:-yuna}"
+bash "${BUB_ROOT}/backup.sh" "$PROFILE"
+"""
