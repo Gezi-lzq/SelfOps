@@ -11,12 +11,12 @@ services:
       - /opt/bub/profiles/${PROFILE}/home:/root
       - /opt/bub/profiles/${PROFILE}/cache/pip:/root/.cache/pip
       - /opt/bub/profiles/${PROFILE}/cache/uv:/root/.cache/uv
-      - /home/gezi/SelfOps/agents/bub/profiles/${PROFILE}/AGENTS.md:/workspace/AGENTS.md
-      - /home/gezi/SelfOps/agents/bub/profiles/${PROFILE}/bub-reqs.txt:/workspace/bub-reqs.txt:ro
-      - /home/gezi/SelfOps/agents/bub/startup.sh:/workspace/startup.sh:ro
+      - ${SELFOPS_ROOT}/agents/bub/profiles/${PROFILE}/AGENTS.md:/workspace/AGENTS.md
+      - ${SELFOPS_ROOT}/agents/bub/profiles/${PROFILE}/bub-reqs.txt:/workspace/bub-reqs.txt:ro
+      - ${SELFOPS_ROOT}/agents/bub/startup.sh:/workspace/startup.sh:ro
       - /usr/bin/gh:/usr/bin/gh:ro
-      - /home/gezi/.config/gh:/root/.config/gh:ro
+      - ${HOME}/.config/gh:/root/.config/gh:ro
       - /opt/bub/bin/gemini:/usr/local/bin/gemini:ro
       - /usr/bin/node:/usr/local/bin/node22:ro
       - /usr/local/lib/node_modules/@google/gemini-cli:/usr/local/lib/node_modules/@google/gemini-cli:ro
-      - /home/gezi/.config/gemini:/root/.config/gemini
+      - ${HOME}/.config/gemini:/root/.config/gemini
