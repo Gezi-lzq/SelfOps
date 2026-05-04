@@ -31,16 +31,23 @@ jobs:
 
       - name: Write env and deploy
         run: |
-          PROFILE="${{ inputs.profile }}"
-          if [ "$PROFILE" = "all" ]; then
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "push" ]; then
+            profile="all"
+          else
+            profile="${{ inputs.profile }}"
+          fi
+
+          if [ "$profile" = "all" ]; then
             for d in "${SELFOPS_ROOT}/agents/bub/profiles"/*/; do
               p="$(basename "$d")"
               mise -C "${SELFOPS_ROOT}/agents/bub" run bub:write-env "$p"
               mise -C "${SELFOPS_ROOT}/agents/bub" run bub:deploy "$p"
             done
           else
-            mise -C "${SELFOPS_ROOT}/agents/bub" run bub:write-env $PROFILE
-            mise -C "${SELFOPS_ROOT}/agents/bub" run bub:deploy $PROFILE
+            mise -C "${SELFOPS_ROOT}/agents/bub" run bub:write-env "$profile"
+            mise -C "${SELFOPS_ROOT}/agents/bub" run bub:deploy "$profile"
           fi
         env:
           BUB_API_KEY: ${{ secrets.BUB_API_KEY }}
