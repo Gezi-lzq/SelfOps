@@ -24,8 +24,15 @@ jobs:
 
       - name: Write env file
         run: |
-          mkdir -p /opt/bub/profiles/yuna
-          cat > /opt/bub/profiles/yuna/env <<'ENVEOF'
+          PROFILE="${{ inputs.profile || 'yuna' }}"
+          if [ "$PROFILE" = "all" ]; then
+            PROFILES=(yuna)
+          else
+            PROFILES=("$PROFILE")
+          fi
+          for p in "${PROFILES[@]}"; do
+            mkdir -p "/opt/bub/profiles/${p}"
+            cat > "/opt/bub/profiles/${p}/env" <<ENVEOF
           BUB_MODEL=${{ secrets.BUB_MODEL }}
           BUB_API_KEY=${{ secrets.BUB_API_KEY }}
           BUB_API_BASE=${{ secrets.BUB_API_BASE }}
@@ -38,7 +45,8 @@ jobs:
           BUB_FEISHU_APP_ID=${{ secrets.BUB_FEISHU_APP_ID }}
           BUB_FEISHU_APP_SECRET=${{ secrets.BUB_FEISHU_APP_SECRET }}
           ENVEOF
-          sed -i 's/^          //' /opt/bub/profiles/yuna/env
+            sed -i 's/^          //' "/opt/bub/profiles/${p}/env"
+          done
 
       - name: Deploy
         run: |
