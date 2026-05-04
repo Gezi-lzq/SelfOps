@@ -7,15 +7,20 @@ LEGACY_HOME="/opt/bub/home"
 
 usage() {
   echo "Usage: $0 <profile|all>"
-  echo "  profile: yuna, or 'all' to deploy every profile"
   exit 1
 }
 
 [ $# -ge 1 ] || usage
 TARGET="$1"
 
+discover_profiles() {
+  for d in "${SCRIPT_DIR}/profiles"/*/; do
+    [ -d "$d" ] && basename "$d"
+  done
+}
+
 if [ "$TARGET" = "all" ]; then
-  PROFILES=(yuna)
+  mapfile -t PROFILES < <(discover_profiles)
 else
   PROFILES=("$TARGET")
 fi
@@ -26,13 +31,11 @@ deploy_profile() {
 
   echo "==> Deploying profile: ${profile}"
 
-  # Create runtime directories
   mkdir -p "${PROFILE_ROOT}/workspace"
   mkdir -p "${PROFILE_ROOT}/home/.bub"
   mkdir -p "${PROFILE_ROOT}/cache/pip"
   mkdir -p "${PROFILE_ROOT}/cache/uv"
 
-  # Sync workspace files from repo
   local profile_dir="${SCRIPT_DIR}/profiles/${profile}"
   if [ -d "${profile_dir}" ]; then
     for f in AGENTS.md bub-reqs.txt; do
@@ -40,31 +43,23 @@ deploy_profile() {
     done
   fi
 
-  # Sync startup.sh
   [ -f "${SCRIPT_DIR}/startup.sh" ] && cp "${SCRIPT_DIR}/startup.sh" "${PROFILE_ROOT}/workspace/startup.sh"
 
-  # Sync shared skills
   if [ -d "${SCRIPT_DIR}/shared/skills" ]; then
     mkdir -p "${PROFILE_ROOT}/workspace/.agents/skills"
     cp -r "${SCRIPT_DIR}/shared/skills/." "${PROFILE_ROOT}/workspace/.agents/skills/"
   fi
 
-  # Sync profile-specific skills
   if [ -d "${profile_dir}/skills" ]; then
     mkdir -p "${PROFILE_ROOT}/workspace/.agents/skills"
     cp -r "${profile_dir}/skills/." "${PROFILE_ROOT}/workspace/.agents/skills/"
   fi
 
-  # Tape migration (one-time, yuna only)
-  if [ "${profile}" = "yuna" ]; then
-    migrate_tape "${profile}"
-  fi
+  migrate_tape "${profile}"
 
-  # Start container
   echo "==> Starting bub-${profile}"
-  docker compose -f "${COMPOSE_FILE}" up -d "${profile}"
+  PROFILE="${profile}" docker compose -f "${COMPOSE_FILE}" -p "bub-${profile}" up -d
 
-  # Health check
   echo "==> Health check for bub-${profile}"
   if docker ps --filter "name=^/bub-${profile}$" --filter "status=running" --format '{{.Names}}' | grep -q "bub-${profile}"; then
     echo "    bub-${profile} is running"

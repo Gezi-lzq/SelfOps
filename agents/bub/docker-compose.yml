@@ -1,17 +1,17 @@
 services:
-  yuna:
+  bub:
     image: ghcr.io/bubbuild/bub:latest
-    container_name: bub-yuna
+    container_name: bub-${PROFILE}
     network_mode: host
     restart: unless-stopped
     env_file:
-      - /opt/bub/profiles/yuna/env
+      - /opt/bub/profiles/${PROFILE}/env
     volumes:
-      - /opt/bub/profiles/yuna/workspace:/workspace
-      - /opt/bub/profiles/yuna/home:/root
-      - /opt/bub/profiles/yuna/home/.bub:/root/.bub
-      - /opt/bub/profiles/yuna/cache/pip:/root/.cache/pip
-      - /opt/bub/profiles/yuna/cache/uv:/root/.cache/uv
+      - /opt/bub/profiles/${PROFILE}/workspace:/workspace
+      - /opt/bub/profiles/${PROFILE}/home:/root
+      - /opt/bub/profiles/${PROFILE}/home/.bub:/root/.bub
+      - /opt/bub/profiles/${PROFILE}/cache/pip:/root/.cache/pip
+      - /opt/bub/profiles/${PROFILE}/cache/uv:/root/.cache/uv
       - /usr/bin/gh:/usr/bin/gh:ro
       - /home/gezi/.config/gh:/root/.config/gh:ro
       - /opt/bub/bin/gemini:/usr/local/bin/gemini:ro

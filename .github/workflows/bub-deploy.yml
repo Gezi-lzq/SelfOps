@@ -22,23 +22,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Write env file
+      - name: Write env and deploy
         run: |
           PROFILE="${{ inputs.profile || 'yuna' }}"
           if [ "$PROFILE" = "all" ]; then
-            PROFILES=(yuna)
+            for d in agents/bub/profiles/*/; do
+              p="$(basename "$d")"
+              mise -C agents/bub run bub:write-env "$p"
+              mise -C agents/bub run bub:deploy "$p"
+            done
           else
-            PROFILES=("$PROFILE")
+            mise -C agents/bub run bub:write-env "$PROFILE"
+            mise -C agents/bub run bub:deploy "$PROFILE"
           fi
-          for p in "${PROFILES[@]}"; do
-            TEMPLATE="agents/bub/profiles/${p}/env.template"
-            if [ ! -f "$TEMPLATE" ]; then
-              echo "No env.template found for profile ${p}" >&2
-              exit 1
-            fi
-            mkdir -p "/opt/bub/profiles/${p}"
-            envsubst < "$TEMPLATE" > "/opt/bub/profiles/${p}/env"
-          done
         env:
           BUB_MODEL: ${{ secrets.BUB_MODEL }}
           BUB_API_KEY: ${{ secrets.BUB_API_KEY }}
@@ -51,8 +47,3 @@ jobs:
           BUB_TELEGRAM_TOKEN: ${{ secrets.BUB_TELEGRAM_TOKEN }}
           BUB_FEISHU_APP_ID: ${{ secrets.BUB_FEISHU_APP_ID }}
           BUB_FEISHU_APP_SECRET: ${{ secrets.BUB_FEISHU_APP_SECRET }}
-
-      - name: Deploy
-        run: |
-          chmod +x agents/bub/deploy.sh
-          bash agents/bub/deploy.sh ${{ inputs.profile || 'yuna' }}
