@@ -16,24 +16,30 @@ on:
           - yuna
           - all
 
+env:
+  SELFOPS_ROOT: /home/gezi/SelfOps
+
 jobs:
   deploy:
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v4
+      - name: Pull latest code
+        run: |
+          git -C "${SELFOPS_ROOT}" fetch origin
+          git -C "${SELFOPS_ROOT}" merge --ff-only ${{ github.sha }}
 
       - name: Write env and deploy
         run: |
           PROFILE="${{ inputs.profile }}"
           if [ "$PROFILE" = "all" ]; then
-            for d in agents/bub/profiles/*/; do
+            for d in "${SELFOPS_ROOT}/agents/bub/profiles"/*/; do
               p="$(basename "$d")"
-              mise -C agents/bub run bub:write-env "$p"
-              mise -C agents/bub run bub:deploy "$p"
+              mise -C "${SELFOPS_ROOT}/agents/bub" run bub:write-env "$p"
+              mise -C "${SELFOPS_ROOT}/agents/bub" run bub:deploy "$p"
             done
           else
-            mise -C agents/bub run bub:write-env $PROFILE
-            mise -C agents/bub run bub:deploy $PROFILE
+            mise -C "${SELFOPS_ROOT}/agents/bub" run bub:write-env $PROFILE
+            mise -C "${SELFOPS_ROOT}/agents/bub" run bub:deploy $PROFILE
           fi
         env:
           BUB_API_KEY: ${{ secrets.BUB_API_KEY }}
