@@ -36,8 +36,14 @@ deploy_profile() {
   mkdir -p "${PROFILE_ROOT}/cache/pip"
   mkdir -p "${PROFILE_ROOT}/cache/uv"
 
+  local compose_args=(-f "${COMPOSE_FILE}")
+  local profile_compose="${SCRIPT_DIR}/profiles/${profile}/docker-compose.yml"
+  if [ -f "${profile_compose}" ]; then
+    compose_args+=(-f "${profile_compose}")
+  fi
+
   echo "==> Starting bub-${profile}"
-  PROFILE="${profile}" docker compose -f "${COMPOSE_FILE}" -p "bub-${profile}" up -d
+  PROFILE="${profile}" docker compose "${compose_args[@]}" -p "bub-${profile}" up -d
 
   echo "==> Health check for bub-${profile}"
   if docker ps --filter "name=^/bub-${profile}$" --filter "status=running" --format '{{.Names}}' | grep -q "bub-${profile}"; then

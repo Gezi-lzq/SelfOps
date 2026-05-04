@@ -1,0 +1,9 @@
+services:
+  bub:
+    volumes:
+      - /usr/bin/gh:/usr/bin/gh:ro
+      - ${HOME}/.config/gh:/root/.config/gh:ro
+      - /opt/bub/bin/gemini:/usr/local/bin/gemini:ro
+      - /usr/bin/node:/usr/local/bin/node22:ro
+      - /usr/local/lib/node_modules/@google/gemini-cli:/usr/local/lib/node_modules/@google/gemini-cli:ro
+      - ${HOME}/.config/gemini:/root/.config/gemini
