@@ -1,0 +1,4 @@
+services:
+  bub:
+    volumes:
+      - ${SELFOPS_ROOT}/agents/bub/profiles/automq-ops/startup.sh:/workspace/startup.sh:ro

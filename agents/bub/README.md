@@ -9,7 +9,7 @@ agents/bub/
   docker-compose.yml       # 公共服务定义，通过 ${PROFILE} 参数化
   deploy.sh                # 部署脚本：创建 runtime 目录 + compose up
   backup.sh                # tape 备份到 GitHub Releases
-  startup.sh               # 容器启动入口
+  startup.sh               # 默认容器启动入口
   mise.toml                # mise tasks: bub:deploy, bub:write-env, bub:backup
   profiles/
     yuna/
@@ -17,6 +17,12 @@ agents/bub/
       bub-reqs.txt         # 插件依赖
       env.template         # 环境变量模板，secrets 通过 envsubst 渲染
       docker-compose.yml   # profile 级 compose override（宿主工具挂载等）
+    automq-ops/
+      AGENTS.md
+      bub-reqs.txt
+      env.template
+      docker-compose.yml   # 也可覆盖 startup.sh 等公共挂载
+      startup.sh
 ```
 
 ## Runtime 布局
@@ -49,9 +55,10 @@ mise -C agents/bub run bub:backup yuna
 
 1. 创建 `profiles/<name>/` 目录
 2. 添加 `AGENTS.md`、`bub-reqs.txt`、`env.template`
-3. 如需额外宿主工具挂载，添加 `docker-compose.yml` override
-4. 在 GitHub repo settings 配置对应 secrets
-5. 执行 `mise -C agents/bub run bub:deploy <name>`
+3. 如需额外挂载或覆盖公共挂载，添加 `docker-compose.yml` override
+4. 如需自定义启动逻辑，可在 profile 下提供 `startup.sh` 并在 override compose 中挂载到 `/workspace/startup.sh`
+5. 在 GitHub repo settings 配置对应 secrets
+6. 执行 `mise -C agents/bub run bub:deploy <name>`
 
 ## Workflows
 
