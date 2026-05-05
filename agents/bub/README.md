@@ -11,6 +11,7 @@ agents/bub/
   backup.sh                # tape 备份到 GitHub Releases
   startup.sh               # 默认容器启动入口
   mise.toml                # mise tasks: bub:deploy, bub:write-env, bub:backup
+  plugins/                 # 自定义 Bub 插件源码根目录
   profiles/
     yuna/
       AGENTS.md            # agent 人设（读写挂载，agent 可修改）
@@ -38,6 +39,8 @@ agents/bub/
   cache/uv/                # uv 缓存
 ```
 
+公共 compose 还会把 `agents/bub/plugins/` 直接挂载到容器内 `/workspace/plugins`，且保持可写，方便在运行中的 agent 容器里直接创建目录和修改插件源码。
+
 ## 使用
 
 ```bash
@@ -59,6 +62,13 @@ mise -C agents/bub run bub:backup yuna
 4. 如需自定义启动逻辑，可在 profile 下提供 `startup.sh` 并在 override compose 中挂载到 `/workspace/startup.sh`
 5. 在 GitHub repo settings 配置对应 secrets
 6. 执行 `mise -C agents/bub run bub:deploy <name>`
+
+## 插件管理
+
+- 官方插件继续通过各 profile 的 `bub-reqs.txt` 声明安装，不做 commit pin。
+- 自定义插件源码统一放在 `agents/bub/plugins/`。
+- profile 通过 `bub-reqs.txt` 中的 `file:///workspace/plugins/<plugin-dir>` 引用需要启用的自定义插件。
+- 不需要在 `startup.sh` 或 `deploy.sh` 中额外同步插件目录。
 
 ## Workflows
 
