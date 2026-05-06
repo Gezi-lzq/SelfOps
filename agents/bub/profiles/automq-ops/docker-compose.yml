@@ -1,6 +1,8 @@
 services:
   bub:
     privileged: true
+    environment:
+      - BUB_ENABLED_CHANNELS=feishu,schedule
     volumes:
       - ${SELFOPS_ROOT}/agents/bub/profiles/automq-ops/startup.sh:/workspace/startup.sh:ro
       - ${HOME}/.codex/auth.json:/root/.codex/auth.json:ro
