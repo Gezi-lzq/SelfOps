@@ -1,5 +1,7 @@
 services:
   bub:
+    environment:
+      - BUB_ENABLED_CHANNELS=qq,telegram,schedule
     volumes:
       - /usr/bin/gh:/usr/bin/gh:ro
       - ${HOME}/.config/gh:/root/.config/gh:ro
