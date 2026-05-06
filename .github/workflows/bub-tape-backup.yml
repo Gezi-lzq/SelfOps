@@ -16,9 +16,16 @@ on:
 env:
   SELFOPS_ROOT: /home/gezi/SelfOps
 
+permissions:
+  contents: write
+
 jobs:
   backup:
     runs-on: self-hosted
+    timeout-minutes: 10
+    concurrency:
+      group: bub-tape-backup
+      cancel-in-progress: true
     steps:
       - name: Pull latest code
         run: |
@@ -26,6 +33,9 @@ jobs:
           git -C "${SELFOPS_ROOT}" merge --ff-only ${{ github.sha }}
 
       - name: Backup tape
-        run: mise -C "${SELFOPS_ROOT}/agents/bub" run bub:backup ${{ inputs.profile }}
+        run: |
+          set -euo pipefail
+          profile="${{ inputs.profile || 'yuna' }}"
+          mise -C "${SELFOPS_ROOT}/agents/bub" run bub:backup "$profile"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

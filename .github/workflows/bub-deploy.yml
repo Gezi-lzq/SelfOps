@@ -23,6 +23,10 @@ env:
 jobs:
   deploy:
     runs-on: self-hosted
+    timeout-minutes: 15
+    concurrency:
+      group: bub-deploy
+      cancel-in-progress: false
     steps:
       - name: Pull latest code
         run: |

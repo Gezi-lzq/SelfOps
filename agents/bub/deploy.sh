@@ -26,6 +26,9 @@ else
   PROFILES=("$TARGET")
 fi
 
+echo "==> Building bub image"
+docker build --pull -t bub:latest "${BUB_REPO}"
+
 deploy_profile() {
   local profile="$1"
   PROFILE_ROOT="/opt/bub/profiles/${profile}"
@@ -42,9 +45,6 @@ deploy_profile() {
   if [ -f "${profile_compose}" ]; then
     compose_args+=(-f "${profile_compose}")
   fi
-
-  echo "==> Building bub image"
-  docker build --pull -t bub:latest "${BUB_REPO}"
 
   echo "==> Starting bub-${profile}"
   PROFILE="${profile}" docker compose "${compose_args[@]}" -p "bub-${profile}" up -d
