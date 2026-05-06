@@ -1,5 +1,5 @@
 bub-tapestore-sqlite @ git+https://github.com/bubbuild/bub-contrib.git#subdirectory=packages/bub-tapestore-sqlite
 bub-feishu @ git+https://github.com/bubbuild/bub-contrib.git#subdirectory=packages/bub-feishu
 bub-schedule @ git+https://github.com/bubbuild/bub-contrib.git#subdirectory=packages/bub-schedule
-bub-codex @ git+https://github.com/Gezi-lzq/bub-contrib.git@90838d0#subdirectory=packages/bub-codex
-bub-http-bridge @ git+https://github.com/Gezi-lzq/bub-contrib.git@90838d0#subdirectory=packages/bub-http-bridge
+bub-codex @ git+https://github.com/Gezi-lzq/bub-contrib.git@25d8e4a#subdirectory=packages/bub-codex
+bub-http-bridge @ git+https://github.com/Gezi-lzq/bub-contrib.git@25d8e4a#subdirectory=packages/bub-http-bridge
