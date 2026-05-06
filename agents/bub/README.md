@@ -71,6 +71,14 @@ mise -C agents/bub run bub:backup yuna
 - 不需要在 `startup.sh` 或 `deploy.sh` 中额外同步插件目录。
 - 部署时会强制重建容器，避免单文件 bind mount 的 `bub-reqs.txt` 在运行容器里继续指向旧 inode。
 
+## 持久化调度
+
+- `automq-ops`、`yuna` 这类已启用 `bub-schedule` 的 profile，不需要额外安装 `at`、`cron` 才能获得基础的延时和周期任务能力。
+- `bub-schedule` 使用 APScheduler，并把任务状态写到容器内 `/root/jobs.json`。
+- `agents/bub/docker-compose.yml` 已把宿主机 `/opt/bub/profiles/<profile>/home` 挂载到容器 `/root`，所以任务定义会跟随 profile home 持久化，镜像重建或容器重建后仍可恢复。
+- 对 Bub 会话内的提醒、延时回查、周期巡检，优先使用内建 `schedule` 能力；只有在需要宿主机级编排、独立于 Bub 进程存活，或对接外部系统调度时，再考虑 `cron`、`at`、`systemd` 一类系统能力。
+- 运行时用法见 `skills/durable-scheduling/`。
+
 ## Workflows
 
 - `bub-deploy.yml` — push 到 main 且 `agents/bub/**` 变化时自动部署

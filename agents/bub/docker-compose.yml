@@ -13,6 +13,7 @@ services:
       - /opt/bub/profiles/${PROFILE}/cache/uv:/root/.cache/uv
       - ${SELFOPS_ROOT}/agents/bub/plugins:/workspace/plugins
       - ${SELFOPS_ROOT}/agents/bub/skills/contrib-workflow:/workspace/.agents/skills/contrib-workflow
+      - ${SELFOPS_ROOT}/agents/bub/skills/durable-scheduling:/workspace/.agents/skills/durable-scheduling
       - ${SELFOPS_ROOT}/agents/bub/profiles/${PROFILE}/AGENTS.md:/workspace/AGENTS.md
       - ${SELFOPS_ROOT}/agents/bub/profiles/${PROFILE}/bub-reqs.txt:/workspace/bub-reqs.txt:ro
       - ${SELFOPS_ROOT}/agents/bub/startup.sh:/workspace/startup.sh:ro
