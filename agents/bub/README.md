@@ -7,7 +7,7 @@
 ```
 agents/bub/
   docker-compose.yml       # 公共服务定义，通过 ${PROFILE} 参数化
-  deploy.sh                # 部署脚本：创建 runtime 目录 + compose up
+  deploy.sh                # 部署脚本：创建 runtime 目录 + force-recreate compose up
   backup.sh                # tape 备份到 GitHub Releases
   startup.sh               # 默认容器启动入口
   mise.toml                # mise tasks: bub:deploy, bub:write-env, bub:backup
@@ -69,6 +69,7 @@ mise -C agents/bub run bub:backup yuna
 - 自定义插件源码统一放在 `agents/bub/plugins/`。
 - profile 通过 `bub-reqs.txt` 中的 `file:///workspace/plugins/<plugin-dir>` 引用需要启用的自定义插件。
 - 不需要在 `startup.sh` 或 `deploy.sh` 中额外同步插件目录。
+- 部署时会强制重建容器，避免单文件 bind mount 的 `bub-reqs.txt` 在运行容器里继续指向旧 inode。
 
 ## Workflows
 
