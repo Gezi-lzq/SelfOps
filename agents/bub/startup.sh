@@ -43,33 +43,44 @@ ensure_link() {
 }
 
 mkdir -p "${WORKSPACE_ROOT}"
+mkdir -p "${WORKSPACE_ROOT}/data"
 
 if command -v gh >/dev/null 2>&1; then
   gh auth setup-git >/dev/null
 fi
 
 if [ -d "${SELFOPS_REPO_DIR}/.git" ]; then
-  if ! (
-    git -C "${SELFOPS_REPO_DIR}" fetch origin "${SELFOPS_REPO_BRANCH}" &&
-      git -C "${SELFOPS_REPO_DIR}" checkout "${SELFOPS_REPO_BRANCH}" &&
-      git -C "${SELFOPS_REPO_DIR}" pull --ff-only origin "${SELFOPS_REPO_BRANCH}"
-  ); then
-    echo "Failed to sync ${SELFOPS_REPO_DIR} to ${SELFOPS_REPO_BRANCH}. Resolve local git state or point SELFOPS_REPO_DIR at a clean clone." >&2
+  fetch_succeeded=1
+  if ! git -C "${SELFOPS_REPO_DIR}" fetch origin "${SELFOPS_REPO_BRANCH}"; then
+    fetch_succeeded=0
+    echo "Warning: failed to fetch origin/${SELFOPS_REPO_BRANCH}; continuing with local ${SELFOPS_REPO_BRANCH} if available." >&2
+  fi
+
+  if ! git -C "${SELFOPS_REPO_DIR}" checkout "${SELFOPS_REPO_BRANCH}"; then
+    echo "Failed to checkout ${SELFOPS_REPO_BRANCH} in ${SELFOPS_REPO_DIR}. Resolve local git state or point SELFOPS_REPO_DIR at a clean clone." >&2
     exit 1
+  fi
+
+  if [ "${fetch_succeeded}" -eq 1 ]; then
+    if ! git -C "${SELFOPS_REPO_DIR}" pull --ff-only origin "${SELFOPS_REPO_BRANCH}"; then
+      echo "Failed to sync ${SELFOPS_REPO_DIR} to ${SELFOPS_REPO_BRANCH}. Resolve local git state or point SELFOPS_REPO_DIR at a clean clone." >&2
+      exit 1
+    fi
+  else
+    echo "Warning: using local ${SELFOPS_REPO_BRANCH} without pull because fetch failed." >&2
   fi
 else
   rm -rf "${SELFOPS_REPO_DIR}"
   clone_selfops
 fi
 
-if [ ! -f "${PROFILE_PROJECTS}" ]; then
-  echo "Missing projects.toml for profile ${PROFILE}: ${PROFILE_PROJECTS}" >&2
-  exit 1
+if [ -f "${PROFILE_PROJECTS}" ]; then
+  SELFOPS_AGENT_RUNTIME_ROOT="${SELFOPS_AGENT_RUNTIME_ROOT}" \
+    "${PYTHON_BIN}" "${SELFOPS_AGENT_RUNTIME_ROOT}/scripts/agent_runtime.py" \
+    apply --force --projects "${PROFILE_PROJECTS}"
+else
+  echo "Warning: missing projects.toml for profile ${PROFILE}: ${PROFILE_PROJECTS}; skipping apply." >&2
 fi
-
-SELFOPS_AGENT_RUNTIME_ROOT="${SELFOPS_AGENT_RUNTIME_ROOT}" \
-  "${PYTHON_BIN}" "${SELFOPS_AGENT_RUNTIME_ROOT}/scripts/agent_runtime.py" \
-  apply --force --projects "${PROFILE_PROJECTS}"
 
 # Keep a stable /workspace/.agents/skills target even when the profile currently declares no skills.
 mkdir -p "${SELFOPS_REPO_DIR}/.agents/skills"

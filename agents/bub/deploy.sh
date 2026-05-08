@@ -47,7 +47,8 @@ deploy_profile() {
   fi
 
   echo "==> Starting bub-${profile}"
-  PROFILE="${profile}" docker compose "${compose_args[@]}" -p "bub-${profile}" up -d --force-recreate
+  export PROFILE="${profile}"
+  docker compose "${compose_args[@]}" -p "bub-${profile}" up -d --force-recreate
 
   echo "==> Health check for bub-${profile}"
   if docker ps --filter "name=^/bub-${profile}$" --filter "status=running" --format '{{.Names}}' | grep -q "bub-${profile}"; then

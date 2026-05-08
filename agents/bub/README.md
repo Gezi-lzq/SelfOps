@@ -42,8 +42,8 @@ agents/bub/
 
 `workspace/` 下还会保留一份 profile 私有、持久化的 `SelfOps/` clone。公共 `startup.sh` 会在容器启动时：
 
-1. `git checkout main && git pull --ff-only`
-2. 使用 `agents/bub/profiles/<profile>/projects.toml` 执行 agent-runtime apply
+1. 尝试同步到 `main`（`fetch` + `checkout` + `pull --ff-only`）；若仅 `fetch` 失败则回退为使用本地 `main` 启动
+2. 若存在 `agents/bub/profiles/<profile>/projects.toml`，执行 agent-runtime apply；缺失时仅告警并跳过
 3. 将 `/workspace/AGENTS.md`、`/workspace/bub-reqs.txt`、`/workspace/plugins`、`/workspace/.agents/skills` 软链接到 clone 内对应路径
 
 这样 agent 在容器内看到的是完整仓库，而不是零散的文件挂载；本地修改也隔离在 profile 自己的持久化 clone 中。
@@ -60,6 +60,11 @@ mise -C agents/bub run bub:write-env yuna
 # 备份 tape
 mise -C agents/bub run bub:backup yuna
 ```
+
+### 首次部署前置
+
+- `docker-compose.yml` 仍会从宿主机挂载 `${SELFOPS_ROOT}/agents/bub/startup.sh` 到容器内 `/workspace/startup.sh`。
+- 因此首次部署前需要先在目标机准备好 `${SELFOPS_ROOT}` 对应的 SelfOps clone（deploy workflow 里的 `git -C "${SELFOPS_ROOT}" fetch/merge` 也依赖该目录已存在）。
 
 ## 新增 Profile
 
