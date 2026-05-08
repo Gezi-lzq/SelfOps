@@ -23,7 +23,7 @@ clone_selfops() {
 
 checkout_selfops_branch() {
   if ! git -C "${SELFOPS_REPO_DIR}" checkout "${SELFOPS_REPO_BRANCH}"; then
-    echo "Failed to checkout ${SELFOPS_REPO_BRANCH} in ${SELFOPS_REPO_DIR}. Resolve local git state or point SELFOPS_REPO_DIR at a clean clone." >&2
+    echo "Failed to checkout ${SELFOPS_REPO_BRANCH} in ${SELFOPS_REPO_DIR}. Resolve local git state or remove ${SELFOPS_REPO_DIR} to trigger a fresh clone." >&2
     exit 1
   fi
 }
@@ -64,9 +64,8 @@ if [ -d "${SELFOPS_REPO_DIR}/.git" ]; then
       exit 1
     fi
   else
-    echo "Warning: failed to fetch origin/${SELFOPS_REPO_BRANCH}; continuing with local ${SELFOPS_REPO_BRANCH} if available." >&2
     checkout_selfops_branch
-    echo "Warning: using local ${SELFOPS_REPO_BRANCH} without pull because fetch failed." >&2
+    echo "Warning: failed to fetch origin/${SELFOPS_REPO_BRANCH}; using local ${SELFOPS_REPO_BRANCH} without pull." >&2
   fi
 else
   rm -rf "${SELFOPS_REPO_DIR}"
