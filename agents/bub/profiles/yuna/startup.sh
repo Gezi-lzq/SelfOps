@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-/app/.venv/bin/python /workspace/selfops/dev/agent-runtime/scripts/agent_runtime.py \
-  apply --force --projects /workspace/selfops/agents/bub/profiles/yuna/projects.toml
+SELFOPS_REPO_DIR="${SELFOPS_REPO_DIR:-/workspace/selfops}"
+PROFILE_PROJECTS="${PROFILE_PROJECTS:-${SELFOPS_REPO_DIR}/agents/bub/profiles/yuna/projects.toml}"
+
+/app/.venv/bin/python "${SELFOPS_REPO_DIR}/dev/agent-runtime/scripts/agent_runtime.py" \
+  apply --force --projects "${PROFILE_PROJECTS}"
 
 exec /app/.venv/bin/bub gateway
