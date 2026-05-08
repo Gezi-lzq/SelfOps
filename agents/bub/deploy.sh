@@ -50,6 +50,7 @@ sync_selfops_workspace() {
   ensure_link "${workspace_root}/AGENTS.md" "${selfops_dir}/agents/bub/profiles/${profile}/AGENTS.md"
   ensure_link "${workspace_root}/bub-reqs.txt" "${selfops_dir}/agents/bub/profiles/${profile}/bub-reqs.txt"
   ensure_link "${workspace_root}/plugins" "${selfops_dir}/agents/bub/plugins"
+  ensure_link "${workspace_root}/startup.sh" "${selfops_dir}/agents/bub/profiles/${profile}/startup.sh"
 }
 
 deploy_profile() {

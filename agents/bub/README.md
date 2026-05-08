@@ -44,7 +44,7 @@ agents/bub/
 `workspace/` 下会保留一份 profile 私有、持久化的 `selfops/` clone。`deploy.sh` 会在宿主机侧：
 
 1. 同步 `/opt/bub/profiles/<profile>/workspace/selfops` 到 `${SELFOPS_REPO_BRANCH}`
-2. 将 `/workspace/AGENTS.md`、`/workspace/bub-reqs.txt`、`/workspace/plugins` 软链接到 `selfops` clone 内对应路径
+2. 将 `/workspace/AGENTS.md`、`/workspace/bub-reqs.txt`、`/workspace/plugins`、`/workspace/startup.sh` 软链接到 `selfops` clone 内对应路径
 3. 启动容器，容器内 `/workspace/startup.sh` 指向 profile 自己的 `startup.sh`
 
 profile 启动脚本负责执行 `agent_runtime.py apply --projects ...` 和 profile 自己的业务逻辑。
