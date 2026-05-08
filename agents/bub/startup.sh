@@ -23,7 +23,7 @@ clone_selfops() {
 
 checkout_selfops_branch() {
   if ! git -C "${SELFOPS_REPO_DIR}" checkout "${SELFOPS_REPO_BRANCH}"; then
-    echo "Failed to checkout ${SELFOPS_REPO_BRANCH} in ${SELFOPS_REPO_DIR}. Resolve local git state or remove ${SELFOPS_REPO_DIR} and restart to trigger a fresh clone." >&2
+    echo "Failed to checkout ${SELFOPS_REPO_BRANCH} in ${SELFOPS_REPO_DIR}. Resolve local git state or remove ${SELFOPS_REPO_DIR}, then restart container so startup can clone it again." >&2
     exit 1
   fi
 }
@@ -60,7 +60,7 @@ if [ -d "${SELFOPS_REPO_DIR}/.git" ]; then
   if git -C "${SELFOPS_REPO_DIR}" fetch origin "${SELFOPS_REPO_BRANCH}"; then
     checkout_selfops_branch
     if ! git -C "${SELFOPS_REPO_DIR}" pull --ff-only origin "${SELFOPS_REPO_BRANCH}"; then
-      echo "Failed to sync ${SELFOPS_REPO_DIR} to ${SELFOPS_REPO_BRANCH}. Resolve local git state or remove ${SELFOPS_REPO_DIR} and restart to trigger a fresh clone." >&2
+      echo "Failed to sync ${SELFOPS_REPO_DIR} to ${SELFOPS_REPO_BRANCH}. Resolve local git state or remove ${SELFOPS_REPO_DIR}, then restart container so startup can clone it again." >&2
       exit 1
     fi
   else
