@@ -222,6 +222,9 @@ source = { type = "public", spec = "jackwener/opencli" }
 [skills.cmux-multi-agent]
 source = { type = "owned" }
 
+[skills.contrib-workflow]
+source = { type = "owned" }
+
 [skills.feishu]
 source = { type = "local_path", path = "~/.agents/skills/feishu" }
 materialized_path = "materialized/skills/feishu"
@@ -383,4 +386,3 @@ skills = [
   "enterprise-devkit",
   "enterprise-e2e",
 ]
-

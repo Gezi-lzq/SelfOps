@@ -7,6 +7,7 @@ __pycache__/
 /dev/agent-runtime/skills-lock.json
 /dev/agent-runtime/materialized/skills/*
 !/dev/agent-runtime/materialized/skills/cmux-multi-agent/
+!/dev/agent-runtime/materialized/skills/contrib-workflow/
 
 # Agent runtime directories generated for this repository.
 /.codex/

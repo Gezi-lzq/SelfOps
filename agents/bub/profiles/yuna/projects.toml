@@ -1,0 +1,5 @@
+[projects."/workspace/SelfOps"]
+agents = ["agents"]
+bundles = []
+include = ["contrib-workflow"]
+exclude = []
