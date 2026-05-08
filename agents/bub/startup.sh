@@ -49,9 +49,14 @@ if command -v gh >/dev/null 2>&1; then
 fi
 
 if [ -d "${SELFOPS_REPO_DIR}/.git" ]; then
-  git -C "${SELFOPS_REPO_DIR}" fetch origin "${SELFOPS_REPO_BRANCH}"
-  git -C "${SELFOPS_REPO_DIR}" checkout "${SELFOPS_REPO_BRANCH}"
-  git -C "${SELFOPS_REPO_DIR}" pull --ff-only origin "${SELFOPS_REPO_BRANCH}"
+  if ! (
+    git -C "${SELFOPS_REPO_DIR}" fetch origin "${SELFOPS_REPO_BRANCH}" &&
+      git -C "${SELFOPS_REPO_DIR}" checkout "${SELFOPS_REPO_BRANCH}" &&
+      git -C "${SELFOPS_REPO_DIR}" pull --ff-only origin "${SELFOPS_REPO_BRANCH}"
+  ); then
+    echo "Failed to sync ${SELFOPS_REPO_DIR} to ${SELFOPS_REPO_BRANCH}. Resolve local git state or set SELFOPS_REPO_DIR/PROFILE_PROJECTS to a clean clone." >&2
+    exit 1
+  fi
 else
   rm -rf "${SELFOPS_REPO_DIR}"
   clone_selfops
@@ -66,6 +71,7 @@ SELFOPS_AGENT_RUNTIME_ROOT="${SELFOPS_AGENT_RUNTIME_ROOT}" \
   "${PYTHON_BIN}" "${SELFOPS_AGENT_RUNTIME_ROOT}/scripts/agent_runtime.py" \
   apply --force --projects "${PROFILE_PROJECTS}"
 
+# Keep a stable /workspace/.agents/skills target even when the profile currently declares no skills.
 mkdir -p "${SELFOPS_REPO_DIR}/.agents/skills"
 ensure_link "${WORKSPACE_ROOT}/AGENTS.md" "${PROFILE_ROOT}/AGENTS.md"
 ensure_link "${WORKSPACE_ROOT}/bub-reqs.txt" "${PROFILE_ROOT}/bub-reqs.txt"
