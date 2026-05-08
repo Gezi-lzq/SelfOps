@@ -50,9 +50,9 @@ if command -v gh >/dev/null 2>&1; then
 fi
 
 if [ -d "${SELFOPS_REPO_DIR}/.git" ]; then
-  fetch_succeeded=1
+  fetch_failed=0
   if ! git -C "${SELFOPS_REPO_DIR}" fetch origin "${SELFOPS_REPO_BRANCH}"; then
-    fetch_succeeded=0
+    fetch_failed=1
     echo "Warning: failed to fetch origin/${SELFOPS_REPO_BRANCH}; continuing with local ${SELFOPS_REPO_BRANCH} if available." >&2
   fi
 
@@ -61,7 +61,7 @@ if [ -d "${SELFOPS_REPO_DIR}/.git" ]; then
     exit 1
   fi
 
-  if [ "${fetch_succeeded}" -eq 1 ]; then
+  if [ "${fetch_failed}" -eq 0 ]; then
     if ! git -C "${SELFOPS_REPO_DIR}" pull --ff-only origin "${SELFOPS_REPO_BRANCH}"; then
       echo "Failed to sync ${SELFOPS_REPO_DIR} to ${SELFOPS_REPO_BRANCH}. Resolve local git state or point SELFOPS_REPO_DIR at a clean clone." >&2
       exit 1
