@@ -106,8 +106,20 @@ def read_toml(path: Path) -> dict[str, Any]:
         return tomllib.load(fh)
 
 
-def load_registry() -> tuple[dict[str, Any], dict[str, Any]]:
-    return read_toml(SKILLS_PATH), read_toml(PROJECTS_PATH)
+def resolve_projects_path(projects_path: str | Path | None = None) -> Path:
+    if projects_path is None:
+        return PROJECTS_PATH
+    path = Path(projects_path).expanduser()
+    if not path.is_absolute():
+        fail(f"projects path must be absolute: {projects_path}")
+    resolved = path.resolve()
+    if not resolved.exists():
+        fail(f"missing config: {resolved}")
+    return resolved
+
+
+def load_registry(projects_path: str | Path | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
+    return read_toml(SKILLS_PATH), read_toml(resolve_projects_path(projects_path))
 
 
 def resolve_repo_path(raw: str) -> Path:
@@ -175,8 +187,8 @@ def discover_projects(scan_dirs: list[str]) -> dict[str, list[str]]:
     return found
 
 
-def scan(discover: list[str] | None = None) -> dict[str, Any]:
-    _, projects_cfg = load_registry()
+def scan(discover: list[str] | None = None, projects_path: str | Path | None = None) -> dict[str, Any]:
+    _, projects_cfg = load_registry(projects_path)
     projects: dict[str, Any] = {}
 
     # Registered projects
@@ -331,9 +343,9 @@ def source_sync_action(skill_name: str, skill: dict[str, Any]) -> Action | None:
     return Action("config_error", skill=skill_name, source=source, reason=f"unsupported source type: {source_type}")
 
 
-def plan() -> dict[str, Any]:
-    skills_cfg, projects_cfg = load_registry()
-    actual = scan()
+def plan(projects_path: str | Path | None = None) -> dict[str, Any]:
+    skills_cfg, projects_cfg = load_registry(projects_path)
+    actual = scan(projects_path=projects_path)
     actions: list[Action] = []
     desired_tree: dict[str, Any] = {}
     all_desired_skills: set[str] = set()
@@ -434,8 +446,8 @@ def remove_path(path: Path) -> None:
 DESTRUCTIVE_ACTIONS = {"remove_path", "replace_path", "update_link"}
 
 
-def apply_plan(force: bool = False) -> dict[str, Any]:
-    planned = plan()
+def apply_plan(force: bool = False, projects_path: str | Path | None = None) -> dict[str, Any]:
+    planned = plan(projects_path=projects_path)
     applied: list[dict[str, Any]] = []
     skipped: list[dict[str, Any]] = []
     warned: list[dict[str, Any]] = []
@@ -679,22 +691,28 @@ def main() -> None:
     scan_cmd = sub.add_parser("scan")
     scan_cmd.add_argument("--discover", nargs="*", metavar="DIR",
                           help="Also scan directories for unregistered projects (default: ~/Dev)")
-    sub.add_parser("plan")
+    scan_cmd.add_argument("--projects", metavar="PATH",
+                          help="Use a specific projects.toml instead of registry/projects.toml")
+    plan_cmd = sub.add_parser("plan")
+    plan_cmd.add_argument("--projects", metavar="PATH",
+                          help="Use a specific projects.toml instead of registry/projects.toml")
     apply_cmd = sub.add_parser("apply")
     apply_cmd.add_argument("--force", action="store_true",
                            help="Execute destructive actions (remove, replace, update)")
+    apply_cmd.add_argument("--projects", metavar="PATH",
+                           help="Use a specific projects.toml instead of registry/projects.toml")
     args = parser.parse_args()
 
     if args.command == "scan":
         discover = args.discover
         if discover is not None and len(discover) == 0:
-            _, projects_cfg = load_registry()
+            _, projects_cfg = load_registry(args.projects)
             discover = projects_cfg.get("scan_dirs", ["~/Dev"])
-        print_scan(scan(discover=discover))
+        print_scan(scan(discover=discover, projects_path=args.projects))
     elif args.command == "plan":
-        print_plan(plan())
+        print_plan(plan(projects_path=args.projects))
     elif args.command == "apply":
-        apply_plan(force=args.force)
+        apply_plan(force=args.force, projects_path=args.projects)
 
 
 if __name__ == "__main__":

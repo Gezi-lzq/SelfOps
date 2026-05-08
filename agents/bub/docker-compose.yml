@@ -4,6 +4,8 @@ services:
     container_name: bub-${PROFILE}
     network_mode: host
     restart: unless-stopped
+    environment:
+      - PROFILE=${PROFILE}
     env_file:
       - /opt/bub/profiles/${PROFILE}/env
     volumes:
@@ -11,8 +13,4 @@ services:
       - /opt/bub/profiles/${PROFILE}/home:/root
       - /opt/bub/profiles/${PROFILE}/cache/pip:/root/.cache/pip
       - /opt/bub/profiles/${PROFILE}/cache/uv:/root/.cache/uv
-      - ${SELFOPS_ROOT}/agents/bub/plugins:/workspace/plugins
-      - ${SELFOPS_ROOT}/agents/bub/skills/contrib-workflow:/workspace/.agents/skills/contrib-workflow
-      - ${SELFOPS_ROOT}/agents/bub/profiles/${PROFILE}/AGENTS.md:/workspace/AGENTS.md
-      - ${SELFOPS_ROOT}/agents/bub/profiles/${PROFILE}/bub-reqs.txt:/workspace/bub-reqs.txt:ro
-      - ${SELFOPS_ROOT}/agents/bub/startup.sh:/workspace/startup.sh:ro
+      - /opt/bub/profiles/${PROFILE}/workspace/startup.sh:/workspace/startup.sh:ro

@@ -5,12 +5,15 @@ WORKSPACE_ROOT="/workspace"
 REPO_DIR="${WORKSPACE_ROOT}/automq-workspace"
 REPO_SLUG="AutoMQ/automq-workspace"
 REPO_BRANCH="feat/gezi"
+SELFOPS_REPO_DIR="${SELFOPS_REPO_DIR:-/workspace/selfops}"
+PROFILE_PROJECTS="${PROFILE_PROJECTS:-${SELFOPS_REPO_DIR}/agents/bub/profiles/automq-ops/projects.toml}"
 
 mkdir -p "${WORKSPACE_ROOT}"
 
-if command -v gh >/dev/null 2>&1; then
-  gh auth setup-git >/dev/null
-fi
+/app/.venv/bin/python "${SELFOPS_REPO_DIR}/dev/agent-runtime/scripts/agent_runtime.py" \
+  apply --force --projects "${PROFILE_PROJECTS}"
+
+gh auth setup-git >/dev/null
 
 if [ -d "${REPO_DIR}/.git" ]; then
   git -C "${REPO_DIR}" fetch origin "${REPO_BRANCH}"
@@ -19,13 +22,6 @@ if [ -d "${REPO_DIR}/.git" ]; then
 else
   rm -rf "${REPO_DIR}"
   gh repo clone "${REPO_SLUG}" "${REPO_DIR}" -- --branch "${REPO_BRANCH}" --single-branch
-fi
-
-# bub-codex manages /workspace/.agents/skills during turn execution.
-# Remove the legacy symlink if it exists so pathlib.mkdir(..., exist_ok=True)
-# does not fail with FileExistsError.
-if [ -L "${WORKSPACE_ROOT}/.agents/skills" ]; then
-  rm -f "${WORKSPACE_ROOT}/.agents/skills"
 fi
 
 exec /app/.venv/bin/bub gateway

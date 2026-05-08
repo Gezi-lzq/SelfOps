@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'agents/bub/**'
+      - 'dev/agent-runtime/**'
   workflow_dispatch:
     inputs:
       profile:
