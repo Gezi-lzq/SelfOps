@@ -50,23 +50,21 @@ if command -v gh >/dev/null 2>&1; then
 fi
 
 if [ -d "${SELFOPS_REPO_DIR}/.git" ]; then
-  fetch_failed=0
-  if ! git -C "${SELFOPS_REPO_DIR}" fetch origin "${SELFOPS_REPO_BRANCH}"; then
-    fetch_failed=1
-    echo "Warning: failed to fetch origin/${SELFOPS_REPO_BRANCH}; continuing with local ${SELFOPS_REPO_BRANCH} if available." >&2
-  fi
-
-  if ! git -C "${SELFOPS_REPO_DIR}" checkout "${SELFOPS_REPO_BRANCH}"; then
-    echo "Failed to checkout ${SELFOPS_REPO_BRANCH} in ${SELFOPS_REPO_DIR}. Resolve local git state or point SELFOPS_REPO_DIR at a clean clone." >&2
-    exit 1
-  fi
-
-  if [ "${fetch_failed}" -eq 0 ]; then
+  if git -C "${SELFOPS_REPO_DIR}" fetch origin "${SELFOPS_REPO_BRANCH}"; then
+    if ! git -C "${SELFOPS_REPO_DIR}" checkout "${SELFOPS_REPO_BRANCH}"; then
+      echo "Failed to checkout ${SELFOPS_REPO_BRANCH} in ${SELFOPS_REPO_DIR}. Resolve local git state or point SELFOPS_REPO_DIR at a clean clone." >&2
+      exit 1
+    fi
     if ! git -C "${SELFOPS_REPO_DIR}" pull --ff-only origin "${SELFOPS_REPO_BRANCH}"; then
       echo "Failed to sync ${SELFOPS_REPO_DIR} to ${SELFOPS_REPO_BRANCH}. Resolve local git state or point SELFOPS_REPO_DIR at a clean clone." >&2
       exit 1
     fi
   else
+    echo "Warning: failed to fetch origin/${SELFOPS_REPO_BRANCH}; continuing with local ${SELFOPS_REPO_BRANCH} if available." >&2
+    if ! git -C "${SELFOPS_REPO_DIR}" checkout "${SELFOPS_REPO_BRANCH}"; then
+      echo "Failed to checkout ${SELFOPS_REPO_BRANCH} in ${SELFOPS_REPO_DIR}. Resolve local git state or point SELFOPS_REPO_DIR at a clean clone." >&2
+      exit 1
+    fi
     echo "Warning: using local ${SELFOPS_REPO_BRANCH} without pull because fetch failed." >&2
   fi
 else
