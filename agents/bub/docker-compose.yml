@@ -13,4 +13,4 @@ services:
       - /opt/bub/profiles/${PROFILE}/home:/root
       - /opt/bub/profiles/${PROFILE}/cache/pip:/root/.cache/pip
       - /opt/bub/profiles/${PROFILE}/cache/uv:/root/.cache/uv
-      - ${SELFOPS_ROOT}/agents/bub/startup.sh:/workspace/startup.sh:ro
+      - /opt/bub/profiles/${PROFILE}/workspace/selfops/agents/bub/profiles/${PROFILE}/startup.sh:/workspace/startup.sh:ro

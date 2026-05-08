@@ -1,5 +1,5 @@
 [projects."/workspace/selfops"]
 agents = ["agents"]
 bundles = []
-include = ["contrib-workflow"]
+include = ["lark-doc", "lark-shared"]
 exclude = []

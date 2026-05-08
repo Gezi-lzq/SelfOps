@@ -82,3 +82,7 @@ class AgentRuntimeProjectsPathTest(unittest.TestCase):
             link_path.resolve(),
             self.root / "materialized" / "skills" / "contrib-workflow",
         )
+
+    def test_rejects_relative_projects_path(self):
+        with self.assertRaises(SystemExit):
+            self.agent_runtime.plan(projects_path="projects.toml")

@@ -110,18 +110,12 @@ def resolve_projects_path(projects_path: str | Path | None = None) -> Path:
     if projects_path is None:
         return PROJECTS_PATH
     path = Path(projects_path).expanduser()
-    if path.is_absolute():
-        resolved = path.resolve()
-        if resolved.exists():
-            return resolved
+    if not path.is_absolute():
+        fail(f"projects path must be absolute: {projects_path}")
+    resolved = path.resolve()
+    if not resolved.exists():
         fail(f"missing config: {resolved}")
-    cwd_path = (Path.cwd() / path).resolve()
-    if cwd_path.exists():
-        return cwd_path
-    repo_path = resolve_repo_path(str(projects_path))
-    if repo_path.exists():
-        return repo_path
-    fail(f"missing config: {projects_path} (checked {cwd_path} and {repo_path})")
+    return resolved
 
 
 def load_registry(projects_path: str | Path | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
