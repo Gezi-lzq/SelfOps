@@ -14,10 +14,10 @@ mkdir -p "${WORKSPACE_ROOT}"
 gh auth setup-git >/dev/null
 
 if [ -d "${REPO_DIR}/.git" ]; then
-  git -C "${REPO_DIR}" pull --ff-only
+  git -C "${REPO_DIR}" pull --ff-only origin "${REPO_BRANCH}"
 else
   rm -rf "${REPO_DIR}"
-  gh repo clone "${REPO_SLUG}" "${REPO_DIR}" -- -b "${REPO_BRANCH}" --single-branch
+  gh repo clone "${REPO_SLUG}" "${REPO_DIR}" -- --branch "${REPO_BRANCH}" --single-branch
 fi
 
 exec /app/.venv/bin/bub gateway
