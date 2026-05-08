@@ -8,7 +8,7 @@ SELFOPS_REPO_BRANCH="${SELFOPS_REPO_BRANCH:-main}"
 SELFOPS_REPO_DIR="${SELFOPS_REPO_DIR:-${WORKSPACE_ROOT}/SelfOps}"
 SELFOPS_AGENT_RUNTIME_ROOT="${SELFOPS_AGENT_RUNTIME_ROOT:-${SELFOPS_REPO_DIR}/dev/agent-runtime}"
 PROFILE_ROOT="${SELFOPS_REPO_DIR}/agents/bub/profiles/${PROFILE}"
-PROFILE_PROJECTS="${PROFILE_ROOT}/projects.toml"
+PROFILE_PROJECTS="${PROFILE_PROJECTS:-${PROFILE_ROOT}/projects.toml}"
 PYTHON_BIN="${PYTHON_BIN:-/app/.venv/bin/python}"
 BUB_BIN="${BUB_BIN:-/app/.venv/bin/bub}"
 
@@ -58,6 +58,7 @@ SELFOPS_AGENT_RUNTIME_ROOT="${SELFOPS_AGENT_RUNTIME_ROOT}" \
   "${PYTHON_BIN}" "${SELFOPS_AGENT_RUNTIME_ROOT}/scripts/agent_runtime.py" \
   apply --force --projects "${PROFILE_PROJECTS}"
 
+mkdir -p "${SELFOPS_REPO_DIR}/.agents/skills"
 ensure_link "${WORKSPACE_ROOT}/AGENTS.md" "${PROFILE_ROOT}/AGENTS.md"
 ensure_link "${WORKSPACE_ROOT}/bub-reqs.txt" "${PROFILE_ROOT}/bub-reqs.txt"
 ensure_link "${WORKSPACE_ROOT}/plugins" "${SELFOPS_REPO_DIR}/agents/bub/plugins"

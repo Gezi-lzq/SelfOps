@@ -109,7 +109,7 @@ def read_toml(path: Path) -> dict[str, Any]:
 def resolve_projects_path(projects_path: str | Path | None = None) -> Path:
     if projects_path is None:
         return PROJECTS_PATH
-    path = Path(str(projects_path)).expanduser()
+    path = Path(projects_path).expanduser()
     if path.is_absolute():
         return path.resolve()
     cwd_path = (Path.cwd() / path).resolve()

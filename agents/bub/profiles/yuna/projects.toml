@@ -1,3 +1,4 @@
+# startup.sh clones the repo to /workspace/SelfOps by default.
 [projects."/workspace/SelfOps"]
 agents = ["agents"]
 bundles = []

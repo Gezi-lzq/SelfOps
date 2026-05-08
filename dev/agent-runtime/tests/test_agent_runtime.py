@@ -3,6 +3,7 @@ import os
 import sys
 import tempfile
 import unittest
+import uuid
 from pathlib import Path
 
 
@@ -10,7 +11,7 @@ SCRIPT_PATH = Path(__file__).resolve().parents[1] / "scripts" / "agent_runtime.p
 
 
 def load_agent_runtime(root: Path):
-    module_name = f"agent_runtime_test_{next(tempfile._get_candidate_names())}"
+    module_name = f"agent_runtime_test_{uuid.uuid4().hex}"
     spec = importlib.util.spec_from_file_location(module_name, SCRIPT_PATH)
     module = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = module
