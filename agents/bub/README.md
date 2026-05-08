@@ -42,7 +42,7 @@ agents/bub/
 
 `workspace/` 下还会保留一份 profile 私有、持久化的 `SelfOps/` clone。公共 `startup.sh` 会在容器启动时：
 
-1. 尝试同步到 `main`（`fetch` + `checkout` + `pull --ff-only`）；若仅 `fetch` 失败则回退为使用本地 `main` 启动
+1. 尝试同步到 `${SELFOPS_REPO_BRANCH}`（`fetch` + `checkout` + `pull --ff-only`）；若仅 `fetch` 失败则回退为使用本地分支启动
 2. 若存在 `agents/bub/profiles/<profile>/projects.toml`，执行 agent-runtime apply；缺失时仅告警并跳过
 3. 将 `/workspace/AGENTS.md`、`/workspace/bub-reqs.txt`、`/workspace/plugins`、`/workspace/.agents/skills` 软链接到 clone 内对应路径
 

@@ -21,6 +21,13 @@ clone_selfops() {
   gh repo clone "${SELFOPS_REPO_SLUG}" "${SELFOPS_REPO_DIR}" -- --branch "${SELFOPS_REPO_BRANCH}" --single-branch
 }
 
+checkout_selfops_branch() {
+  if ! git -C "${SELFOPS_REPO_DIR}" checkout "${SELFOPS_REPO_BRANCH}"; then
+    echo "Failed to checkout ${SELFOPS_REPO_BRANCH} in ${SELFOPS_REPO_DIR}. Resolve local git state or point SELFOPS_REPO_DIR at a clean clone." >&2
+    exit 1
+  fi
+}
+
 ensure_link() {
   local path="$1"
   local target="$2"
@@ -51,20 +58,14 @@ fi
 
 if [ -d "${SELFOPS_REPO_DIR}/.git" ]; then
   if git -C "${SELFOPS_REPO_DIR}" fetch origin "${SELFOPS_REPO_BRANCH}"; then
-    if ! git -C "${SELFOPS_REPO_DIR}" checkout "${SELFOPS_REPO_BRANCH}"; then
-      echo "Failed to checkout ${SELFOPS_REPO_BRANCH} in ${SELFOPS_REPO_DIR}. Resolve local git state or point SELFOPS_REPO_DIR at a clean clone." >&2
-      exit 1
-    fi
+    checkout_selfops_branch
     if ! git -C "${SELFOPS_REPO_DIR}" pull --ff-only origin "${SELFOPS_REPO_BRANCH}"; then
       echo "Failed to sync ${SELFOPS_REPO_DIR} to ${SELFOPS_REPO_BRANCH}. Resolve local git state or point SELFOPS_REPO_DIR at a clean clone." >&2
       exit 1
     fi
   else
     echo "Warning: failed to fetch origin/${SELFOPS_REPO_BRANCH}; continuing with local ${SELFOPS_REPO_BRANCH} if available." >&2
-    if ! git -C "${SELFOPS_REPO_DIR}" checkout "${SELFOPS_REPO_BRANCH}"; then
-      echo "Failed to checkout ${SELFOPS_REPO_BRANCH} in ${SELFOPS_REPO_DIR}. Resolve local git state or point SELFOPS_REPO_DIR at a clean clone." >&2
-      exit 1
-    fi
+    checkout_selfops_branch
     echo "Warning: using local ${SELFOPS_REPO_BRANCH} without pull because fetch failed." >&2
   fi
 else
