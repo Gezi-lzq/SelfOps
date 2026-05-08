@@ -115,7 +115,10 @@ def resolve_projects_path(projects_path: str | Path | None = None) -> Path:
     cwd_path = (Path.cwd() / path).resolve()
     if cwd_path.exists():
         return cwd_path
-    return resolve_repo_path(str(projects_path))
+    repo_path = resolve_repo_path(str(projects_path))
+    if repo_path.exists():
+        return repo_path
+    fail(f"missing config: {projects_path} (checked {cwd_path} and {repo_path})")
 
 
 def load_registry(projects_path: str | Path | None = None) -> tuple[dict[str, Any], dict[str, Any]]:

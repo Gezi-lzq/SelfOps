@@ -25,6 +25,14 @@ ensure_link() {
   local path="$1"
   local target="$2"
 
+  case "${path}" in
+    "${WORKSPACE_ROOT}"/*) ;;
+    *)
+      echo "Refusing to replace path outside ${WORKSPACE_ROOT}: ${path}" >&2
+      exit 1
+      ;;
+  esac
+
   mkdir -p "$(dirname "${path}")"
   if [ -L "${path}" ]; then
     rm -f "${path}"
