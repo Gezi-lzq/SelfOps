@@ -29,7 +29,7 @@ def load_agent_runtime(root: Path):
     finally:
         os.environ.clear()
         os.environ.update(original_env)
-    return module
+    return module_name, module
 
 
 class AgentRuntimeProjectsPathTest(unittest.TestCase):
@@ -55,9 +55,10 @@ class AgentRuntimeProjectsPathTest(unittest.TestCase):
             encoding="utf-8",
         )
 
-        self.agent_runtime = load_agent_runtime(self.root)
+        self.module_name, self.agent_runtime = load_agent_runtime(self.root)
 
     def tearDown(self):
+        sys.modules.pop(self.module_name, None)
         self.tmpdir.cleanup()
 
     def test_plan_uses_custom_projects_file(self):

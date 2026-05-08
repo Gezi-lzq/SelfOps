@@ -111,7 +111,10 @@ def resolve_projects_path(projects_path: str | Path | None = None) -> Path:
         return PROJECTS_PATH
     path = Path(projects_path).expanduser()
     if path.is_absolute():
-        return path.resolve()
+        resolved = path.resolve()
+        if resolved.exists():
+            return resolved
+        fail(f"missing config: {resolved}")
     cwd_path = (Path.cwd() / path).resolve()
     if cwd_path.exists():
         return cwd_path

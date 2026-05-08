@@ -54,7 +54,7 @@ if [ -d "${SELFOPS_REPO_DIR}/.git" ]; then
       git -C "${SELFOPS_REPO_DIR}" checkout "${SELFOPS_REPO_BRANCH}" &&
       git -C "${SELFOPS_REPO_DIR}" pull --ff-only origin "${SELFOPS_REPO_BRANCH}"
   ); then
-    echo "Failed to sync ${SELFOPS_REPO_DIR} to ${SELFOPS_REPO_BRANCH}. Resolve local git state or set SELFOPS_REPO_DIR/PROFILE_PROJECTS to a clean clone." >&2
+    echo "Failed to sync ${SELFOPS_REPO_DIR} to ${SELFOPS_REPO_BRANCH}. Resolve local git state or point SELFOPS_REPO_DIR at a clean clone." >&2
     exit 1
   fi
 else
