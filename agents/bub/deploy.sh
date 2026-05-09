@@ -47,10 +47,10 @@ sync_selfops_workspace() {
     git clone --branch "${SELFOPS_REPO_BRANCH}" --single-branch "${SELFOPS_ROOT}" "${selfops_dir}"
   fi
 
-  ensure_link "${workspace_root}/AGENTS.md" "${selfops_dir}/agents/bub/profiles/${profile}/AGENTS.md"
-  ensure_link "${workspace_root}/bub-reqs.txt" "${selfops_dir}/agents/bub/profiles/${profile}/bub-reqs.txt"
-  ensure_link "${workspace_root}/plugins" "${selfops_dir}/agents/bub/plugins"
-  ensure_link "${workspace_root}/startup.sh" "${selfops_dir}/agents/bub/profiles/${profile}/startup.sh"
+  ensure_link "${workspace_root}/AGENTS.md" "selfops/agents/bub/profiles/${profile}/AGENTS.md"
+  ensure_link "${workspace_root}/bub-reqs.txt" "selfops/agents/bub/profiles/${profile}/bub-reqs.txt"
+  ensure_link "${workspace_root}/plugins" "selfops/agents/bub/plugins"
+  ensure_link "${workspace_root}/startup.sh" "selfops/agents/bub/profiles/${profile}/startup.sh"
 }
 
 deploy_profile() {
