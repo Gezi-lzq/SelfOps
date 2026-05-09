@@ -1,5 +1,11 @@
 [projects."/workspace/selfops"]
 agents = ["agents"]
 bundles = []
+include = []
+exclude = []
+
+[projects."@global"]
+agents = ["codex"]
+bundles = []
 include = ["lark-doc", "lark-shared"]
 exclude = []

@@ -7,8 +7,6 @@ services:
       - ${HOME}/.codex/auth.json:/root/.codex/auth.json:ro
       - ${HOME}/.codex/config.toml:/root/.codex/config.toml:ro
       - ${HOME}/.config/gh:/root/.config/gh:ro
-      - ${SELFOPS_ROOT}/dev/agent-runtime/.agents/skills/lark-doc:/root/.codex/skills/lark-doc:ro
-      - ${SELFOPS_ROOT}/dev/agent-runtime/.agents/skills/lark-shared:/root/.codex/skills/lark-shared:ro
       - ${HOME}/.lark-cli:/root/.lark-cli:ro
       - ${HOME}/.local/share/lark-cli:/root/.local/share/lark-cli:ro
       - /usr/local/bin/lark-cli:/usr/local/bin/lark-cli:ro
