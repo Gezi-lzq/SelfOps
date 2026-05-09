@@ -38,13 +38,17 @@ sync_selfops_workspace() {
   local workspace_root="${profile_root}/workspace"
   local selfops_dir="${workspace_root}/selfops"
 
+  local remote_url
+  remote_url="$(git -C "${SELFOPS_ROOT}" remote get-url origin)"
+
   if [ -d "${selfops_dir}/.git" ]; then
+    git -C "${selfops_dir}" remote set-url origin "${remote_url}"
     git -C "${selfops_dir}" fetch origin "${SELFOPS_REPO_BRANCH}"
     git -C "${selfops_dir}" checkout "${SELFOPS_REPO_BRANCH}"
     git -C "${selfops_dir}" pull --ff-only origin "${SELFOPS_REPO_BRANCH}"
   else
     rm -rf "${selfops_dir}"
-    git clone --branch "${SELFOPS_REPO_BRANCH}" --single-branch "${SELFOPS_ROOT}" "${selfops_dir}"
+    git clone --branch "${SELFOPS_REPO_BRANCH}" --single-branch "${remote_url}" "${selfops_dir}"
   fi
 
   ensure_link "${workspace_root}/AGENTS.md" "selfops/agents/bub/profiles/${profile}/AGENTS.md"
