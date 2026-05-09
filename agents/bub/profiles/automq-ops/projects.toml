@@ -6,6 +6,6 @@ exclude = []
 
 [projects."@global"]
 agents = ["codex"]
-bundles = []
+bundles = ["memory"]
 include = ["lark-doc", "lark-shared"]
 exclude = []
