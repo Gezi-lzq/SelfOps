@@ -51,6 +51,14 @@ sync_selfops_workspace() {
     git clone --branch "${SELFOPS_REPO_BRANCH}" --single-branch "${remote_url}" "${selfops_dir}"
   fi
 
+  # Sync public skill cache so container startup doesn't need network for npx fetch
+  local host_cache="${SELFOPS_ROOT}/dev/agent-runtime/.agents/skills"
+  local dest_cache="${selfops_dir}/dev/agent-runtime/.agents/skills"
+  if [ -d "${host_cache}" ]; then
+    mkdir -p "${dest_cache}"
+    rsync -a --delete "${host_cache}/" "${dest_cache}/"
+  fi
+
   ensure_link "${workspace_root}/AGENTS.md" "selfops/agents/bub/profiles/${profile}/AGENTS.md"
   ensure_link "${workspace_root}/bub-reqs.txt" "selfops/agents/bub/profiles/${profile}/bub-reqs.txt"
   ensure_link "${workspace_root}/plugins" "selfops/agents/bub/plugins"
