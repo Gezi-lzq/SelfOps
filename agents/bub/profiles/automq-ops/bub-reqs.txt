@@ -1,7 +1,7 @@
 bub-tapestore-sqlite @ git+https://github.com/bubbuild/bub-contrib.git#subdirectory=packages/bub-tapestore-sqlite
-bub-feishu @ git+https://github.com/bubbuild/bub-contrib.git#subdirectory=packages/bub-feishu
+bub-feishu @ git+https://github.com/Gezi-lzq/bub-contrib.git@0125a8a#subdirectory=packages/bub-feishu
 bub-schedule @ git+https://github.com/bubbuild/bub-contrib.git#subdirectory=packages/bub-schedule
-bub-codex @ git+https://github.com/Gezi-lzq/bub-contrib.git@3742509#subdirectory=packages/bub-codex
-bub-http-bridge @ git+https://github.com/Gezi-lzq/bub-contrib.git@3742509#subdirectory=packages/bub-http-bridge
+bub-codex @ git+https://github.com/Gezi-lzq/bub-contrib.git@0125a8a#subdirectory=packages/bub-codex
+bub-http-bridge @ git+https://github.com/Gezi-lzq/bub-contrib.git@0125a8a#subdirectory=packages/bub-http-bridge
 nowledge-mem-bub
 nmem-cli
