@@ -5,7 +5,7 @@ services:
       - BUB_ENABLED_CHANNELS=feishu,schedule,http-bridge
     volumes:
       - ${HOME}/.codex/auth.json:/root/.codex/auth.json:ro
-      - ${HOME}/.codex/config.toml:/root/.codex/config.toml:ro
+      - ${HOME}/.codex/config.toml:/root/.codex/config.toml
       - ${HOME}/.config/gh:/root/.config/gh:ro
       - ${HOME}/.lark-cli:/root/.lark-cli:ro
       - ${HOME}/.local/share/lark-cli:/root/.local/share/lark-cli:ro
