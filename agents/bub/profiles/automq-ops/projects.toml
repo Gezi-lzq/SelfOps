@@ -1,7 +1,7 @@
 [projects."/workspace/selfops"]
 agents = ["agents"]
 bundles = []
-include = []
+include = ["self-enhancement"]
 exclude = []
 
 [projects."@global"]

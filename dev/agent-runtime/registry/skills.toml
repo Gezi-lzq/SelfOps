@@ -222,7 +222,7 @@ source = { type = "public", spec = "jackwener/opencli" }
 [skills.cmux-multi-agent]
 source = { type = "owned" }
 
-[skills.contrib-workflow]
+[skills.self-enhancement]
 source = { type = "owned" }
 
 [skills.feishu]

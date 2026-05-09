@@ -1,5 +1,11 @@
 [projects."/workspace/selfops"]
 agents = ["agents"]
 bundles = []
-include = ["contrib-workflow"]
+include = ["self-enhancement"]
+exclude = []
+
+[projects."@global"]
+agents = ["codex"]
+bundles = ["memory"]
+include = []
 exclude = []
