@@ -5,7 +5,9 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 COMPOSE_FILE="${SCRIPT_DIR}/docker-compose.yml"
 export SELFOPS_ROOT="${SELFOPS_ROOT:-$(cd "${SCRIPT_DIR}/../.." && pwd)}"
 SELFOPS_REPO_BRANCH="${SELFOPS_REPO_BRANCH:-main}"
-BUB_REPO="${BUB_REPO:-${HOME}/Dev/bub}"
+BUB_REPO="${BUB_REPO:-/opt/bub/src}"
+BUB_GIT_URL="${BUB_GIT_URL:-https://github.com/Gezi-lzq/bub.git}"
+BUB_GIT_BRANCH="${BUB_GIT_BRANCH:-main}"
 
 usage() {
   echo "Usage: $0 <profile|all>"
@@ -25,6 +27,15 @@ if [ "$TARGET" = "all" ]; then
   mapfile -t PROFILES < <(discover_profiles)
 else
   PROFILES=("$TARGET")
+fi
+
+echo "==> Syncing bub source"
+if [ -d "${BUB_REPO}/.git" ]; then
+  git -C "${BUB_REPO}" fetch origin "${BUB_GIT_BRANCH}"
+  git -C "${BUB_REPO}" reset --hard "origin/${BUB_GIT_BRANCH}"
+else
+  rm -rf "${BUB_REPO}"
+  git clone --branch "${BUB_GIT_BRANCH}" --single-branch "${BUB_GIT_URL}" "${BUB_REPO}"
 fi
 
 echo "==> Building bub image"
