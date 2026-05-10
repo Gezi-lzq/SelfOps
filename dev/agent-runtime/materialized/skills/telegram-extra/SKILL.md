@@ -2,6 +2,7 @@
 name: telegram-extra
 description: |
   Telegram 扩展能力。当 agent 需要发送贴纸、reaction 等超出纯文本消息的操作时使用。
+  触发场景：(1) 发送贴纸回复用户 (2) 查询贴纸包内容 (3) 用贴纸表达情绪
 ---
 
 # Telegram Extra
@@ -10,35 +11,46 @@ Extended Telegram capabilities beyond basic text messaging.
 
 ## Sticker Sending
 
-Send stickers via Telegram Bot API using `file_id`.
-
-### Command Template
+### Query a sticker set
 
 ```bash
-# Send a sticker
+uv run /workspace/selfops/dev/agent-runtime/materialized/skills/telegram-extra/scripts/telegram_sticker_set.py <SET_NAME>
+
+# Filter by emoji
+uv run /workspace/selfops/dev/agent-runtime/materialized/skills/telegram-extra/scripts/telegram_sticker_set.py UtyaDuck --emoji 👍
+```
+
+### Send a sticker
+
+```bash
 uv run /workspace/selfops/dev/agent-runtime/materialized/skills/telegram-extra/scripts/telegram_sticker.py --chat-id <CHAT_ID> --sticker <FILE_ID>
 
 # Reply with a sticker
 uv run /workspace/selfops/dev/agent-runtime/materialized/skills/telegram-extra/scripts/telegram_sticker.py --chat-id <CHAT_ID> --sticker <FILE_ID> --reply-to <MESSAGE_ID>
 ```
 
-### How to get sticker file_id
+### Workflow
 
-When a user sends a sticker, the inbound message contains `media.file_id`. Save interesting ones for later use.
+1. Get sticker set name from user's message (`media.set_name`)
+2. Query the set to find a suitable sticker by emoji
+3. Send it with `telegram_sticker.py`
 
-### Known Sticker IDs
+### Favorite sticker sets
 
-| Emoji | Set | file_id |
-|-------|-----|---------|
-| 👍 | UtyaDuck | `CAACAgIAAxkBAAIDNGoAAbdU2Dn-wBmNEj5cYSazv7wmYwAC_gADVp29CtoEYTAu-df_OwQ` |
-
-(Add more as they are discovered.)
+- `UtyaDuck` — cute duck, 40 stickers, good for casual reactions
 
 ## Script Interface
 
 ### `telegram_sticker.py`
 
-- `--chat-id`, `-c`: required, target chat ID
-- `--sticker`, `-s`: required, sticker file_id or HTTP URL
-- `--token`, `-t`: optional (defaults to `BUB_TELEGRAM_TOKEN`)
-- `--reply-to`, `-r`: optional, message ID to reply to
+- `--chat-id`, `-c`: required
+- `--sticker`, `-s`: required (file_id or URL)
+- `--reply-to`, `-r`: optional
+- `--token`, `-t`: optional
+
+### `telegram_sticker_set.py`
+
+- positional `name`: required (sticker set name)
+- `--emoji`, `-e`: optional filter
+- `--json`, `-j`: output as JSON
+- `--token`, `-t`: optional
