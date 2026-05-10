@@ -1,4 +1,10 @@
-# Telegram Extra Skill
+---
+name: telegram-extra
+description: |
+  Telegram 扩展能力。当 agent 需要发送贴纸、reaction 等超出纯文本消息的操作时使用。
+---
+
+# Telegram Extra
 
 Extended Telegram capabilities beyond basic text messaging.
 
