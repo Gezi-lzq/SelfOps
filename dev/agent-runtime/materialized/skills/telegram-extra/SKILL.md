@@ -37,7 +37,10 @@ uv run /workspace/selfops/dev/agent-runtime/materialized/skills/telegram-extra/s
 
 ### Favorite sticker sets
 
-- `UtyaDuck` — cute duck, 40 stickers, good for casual reactions
+- `UtyaDuck` — 可爱鸭子，40个，适合日常回应
+- `Pusheen` — 胖猫，30个，超可爱，最喜欢的
+- `HotCherry` — 樱桃小人，34个，表情丰富
+- `AnimatedCats` — 动态猫，10个，适合活泼场景
 
 ## Script Interface
 
