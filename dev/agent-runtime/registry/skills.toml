@@ -225,6 +225,9 @@ source = { type = "owned" }
 [skills.self-enhancement]
 source = { type = "owned" }
 
+[skills.telegram-extra]
+source = { type = "owned" }
+
 [skills.feishu]
 source = { type = "local_path", path = "~/.agents/skills/feishu" }
 materialized_path = "materialized/skills/feishu"
