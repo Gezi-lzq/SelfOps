@@ -1,278 +1,267 @@
 ---
 name: cmux-multi-agent
-description: Use when you need to dispatch tasks to multiple parallel kiro-cli agents via cmux workspaces. Enables Controller-Worker pattern where Controller dispatches tasks, Workers execute independently and notify back on completion. Use for any parallelizable work like code generation, verification, screenshot collection, research, or bulk file operations.
+description: Use when coordinating multiple CLI workers through cmux workspaces, especially when tasks need clear handoff files, independent execution, screen monitoring, and later controller review.
 ---
 
-# CMUX Multi-Agent Workflow
+# cmux Multi-Agent Orchestration
 
-Dispatch tasks to parallel kiro-cli Worker agents via cmux terminal workspaces. Controller (this agent) orchestrates, Workers execute independently and notify Controller on completion by sending a message directly into Controller's kiro-cli session.
+Use cmux as the terminal orchestration layer for delegating work to multiple CLI workers. Treat this skill as the starting point for arranging work: split tasks, open worker workspaces, hand off instructions clearly, monitor progress, and integrate results.
 
-## Architecture
+This skill currently supports:
 
-```
-Controller (this workspace)           Worker N (new workspace)
-    │                                      │
-    ├── cmux identify ─── note own ref     │
-    ├── Write task prompt file ────────────►
-    ├── cmux new-workspace --command ──────► kiro-cli starts
-    ├── cmux send (/tools trust-all) ──────► Unlock tools
-    ├── cmux send (task instruction) ──────► Read prompt, execute
-    │                                      │
-    │   Controller is FREE to do other     ├── Execute task...
-    │   work while Workers run             ├── Write result file
-    │                                      │
-    │◄── cmux send to Controller surface ──┤  "✅ Worker N done"
-    │   (message appears as user input)    │
-    │                                      │
-    ├── Read result file                   │
-    └── Cleanup workspace                  │
-```
+- Claude workers: `claude --dangerously-skip-permissions`
+- Codex workers: `codex --sandbox danger-full-access -c 'model_reasoning_summary_format=experimental' --search`
 
-## When to Use
+Do not design around permissions here. The worker command already encodes the intended execution mode.
 
-- 2+ independent tasks that don't share state
-- Bulk operations across multiple files/modules
-- Tasks that benefit from parallel execution (code gen, verification, screenshots, research)
-- Long-running tasks where Controller should remain free
+## Core Model
 
-## When NOT to Use
+Controller:
+- The current agent session.
+- Owns task decomposition, worker launch, handoff quality, monitoring, result review, and final integration.
+- Does not assume workers will callback.
 
-- Tasks with sequential dependencies (use serial execution)
-- Tasks that modify the same files (will conflict)
-- Simple tasks faster to do directly
+Worker:
+- A CLI agent running in a cmux workspace.
+- Receives one bounded task.
+- Writes durable output files that the Controller can read later.
+- May callback if instructed, but callback is optional and must not be the only completion signal.
 
-## Task File Protocol
+cmux workspace:
+- The default isolation unit for a worker.
+- Created with `cmux new-workspace`.
+- Read with `cmux read-screen`.
+- Written to with `cmux send` plus `cmux send-key`.
 
-Create a `.tasks/` directory in the project root:
+## When To Use
 
-```
+Use this skill when:
+
+- You need to split one larger goal into independent worker tasks.
+- You want workers to run in visible cmux workspaces.
+- You need a durable handoff file instead of a fragile chat-only prompt.
+- You need to monitor whether a worker is alive, idle, blocked, or producing output.
+- You want Claude and Codex workers available as execution choices.
+
+Do not use this skill when:
+
+- The next step is sequential and blocks on one local decision.
+- Tasks will edit the same files without a clear owner.
+- A direct local command or one local edit is faster than delegation.
+
+## Worker Selection
+
+Choose one worker per task.
+
+| Worker | Use For | Launch Command |
+|---|---|---|
+| Claude | Broad implementation, refactoring, prose-heavy reasoning, tasks that benefit from long-form planning | `claude --dangerously-skip-permissions` |
+| Codex | Codebase editing, command-heavy verification, search-heavy investigation, tasks where Codex tooling is useful | `codex --sandbox danger-full-access -c 'model_reasoning_summary_format=experimental' --search` |
+
+Keep the Controller responsible for task boundaries. Do not ask multiple workers to decide ownership among themselves.
+
+## Task Handoff
+
+Create a `.tasks/` directory in the project root or another explicit task directory:
+
+```text
 .tasks/
-  ├── {task-id}.prompt.md      # Controller writes task description
-  ├── {task-id}.result.md      # Worker writes results
-  └── {task-id}.ack            # Controller marks as processed
+  20260513-183000-cmux-plan.md
+  20260513-183015-worker-a.prompt.md
+  20260513-183015-worker-a.result.md
+  20260513-183015-worker-a.notes.md
+  20260513-183015-worker-a.done
 ```
 
-## Worker Prompt Template
+Name each task file with a timestamped task id: `{YYYYMMDD-HHMMSS}-{task-slug}`. Use the same task id prefix for the prompt, result, notes, and done files. The timestamp is mandatory because worker tasks are often repeated with similar names across multiple orchestration rounds.
 
-Every Worker prompt MUST include this protocol section. Choose one notification method based on the scenario.
+Every worker prompt must be self-contained enough to execute after launch. Include:
 
-### Method A: Send message to Controller's kiro-cli (preferred, non-blocking)
+- Goal: what the worker must accomplish.
+- Context: files, commands, docs, and assumptions already known.
+- Ownership: files or areas the worker may modify, and areas it must not touch.
+- Constraints: coding style, risk boundaries, and anything the Controller already decided.
+- Output contract: exact result file path and expected contents.
+- Verification: commands to run, or explicit reason no verification is expected.
+- Stop conditions: when to stop and report ambiguity instead of guessing.
 
-Worker sends a message directly into Controller's kiro-cli session. Controller stays free while Workers run — no blocking, no polling. Replace `{task-id}`, `{N}`, `{controller-workspace}`, and `{controller-surface}`:
+Do not overload the worker with the Controller's entire reasoning trace. Give enough context to prevent wasted search, while preserving the worker's freedom to choose its own execution path.
+
+## Prompt Template
+
+Use this structure for each `{YYYYMMDD-HHMMSS}-{task-slug}.prompt.md`:
 
 ```markdown
-## Worker 协议
+# Worker Task: {short-title}
 
-完成任务后必须严格执行以下 2 步：
-1. 将结果写入 `{tasks-dir}/{task-id}.result.md`
-2. 执行以下命令通知 Controller（直接写入 Controller 的 kiro-cli 会话）：
-   ```bash
-   cmux send --workspace {controller-workspace} --surface {controller-surface} '✅ Worker {N} 任务完成，结果已写入 {tasks-dir}/{task-id}.result.md，请读取结果并关闭我的 workspace。'
-   sleep 0.3
-   cmux send-key --workspace {controller-workspace} --surface {controller-surface} Enter
-   ```
+## Goal
+{One precise outcome.}
+
+## Context
+- Repository: `{repo-path}`
+- Current branch/state: {known state if relevant}
+- Required reading:
+  - `{path}`
+  - `{path}`
+- Useful commands:
+  - `{command}`
+
+## Ownership
+You own:
+- `{path-or-area}`
+
+Do not modify:
+- `{path-or-area}`
+
+Coordinate by result file only. Do not assume other workers will read your workspace.
+
+## Execution Guidance
+Choose your own investigation and implementation order.
+Prefer small, focused edits.
+If the task definition conflicts with the codebase, stop and explain the conflict in the result file.
+Do not revert unrelated user or worker changes.
+
+## Output Contract
+Write your final result to:
+`{tasks-dir}/{YYYYMMDD-HHMMSS}-{task-slug}.result.md`
+
+The result must include:
+- Summary of what you did or found.
+- Files changed, if any.
+- Verification run and outcomes.
+- Open risks or follow-up required.
+
+When finished, also create:
+`{tasks-dir}/{YYYYMMDD-HHMMSS}-{task-slug}.done`
+
+Callback to Controller is optional. The durable files are the source of truth.
 ```
 
-### Method B: Signal via wait-for (blocking, for sequential orchestration)
+## Controller Workflow
 
-Controller blocks until Worker signals. Useful when Controller needs all results before proceeding. **Note:** `wait-for` blocks the bash process, so Controller's kiro-cli session cannot do anything else during the wait. Only use this when you genuinely need to block. Replace `{task-id}` and `{signal-name}`:
-
-```markdown
-## Worker 协议
-
-完成任务后必须严格执行以下 2 步：
-1. 将结果写入 `{tasks-dir}/{task-id}.result.md`
-2. 执行以下命令发送完成信号：
-   ```bash
-   cmux wait-for -S {signal-name}
-   ```
-```
-
-Controller side:
-```bash
-# Wait for one Worker
-cmux wait-for worker-1-done --timeout 300
-
-# Or wait for all in parallel
-cmux wait-for worker-1-done --timeout 300 &
-cmux wait-for worker-2-done --timeout 300 &
-cmux wait-for worker-3-done --timeout 300 &
-wait
-```
-
-## Controller Operations
-
-### Step 0: Identify Controller workspace
-
-This is critical — the refs are needed for Workers to send messages back.
-
-```bash
-cmux identify
-# Record: workspace_ref (e.g. workspace:48) and surface_ref (e.g. surface:50)
-```
-
-### Step 1: Create task prompt files
-
-Write detailed prompt files with:
-- Clear task description
-- Worker protocol section (with Controller's workspace/surface refs filled in)
-- Input/output file paths
-- Acceptance criteria
-
-### Step 2: Launch Workers
-
-For each Worker:
+1. Identify current cmux context:
 
 ```bash
-# Create workspace — parse the returned ref (output format: "OK workspace:N")
-WS_REF=$(cmux new-workspace --name "worker-1" --cwd /path/to/project --command "kiro-cli chat" | awk '{print $2}')
-# WS_REF is now e.g. "workspace:50"
-
-# Wait for kiro-cli to initialize (~10s)
-sleep 10
-
-# Verify readiness (look for prompt like "Ready when you are!")
-cmux read-screen --workspace "$WS_REF" 2>&1 | tail -3
-
-# CRITICAL: Trust all tools before dispatching (prevents approval blocking)
-cmux send --workspace "$WS_REF" '/tools trust-all'
-sleep 0.3
-cmux send-key --workspace "$WS_REF" 'Enter'
-sleep 3
-
-# Dispatch task
-cmux send --workspace "$WS_REF" '请阅读 {tasks-dir}/{task-id}.prompt.md，严格按照任务内容和 Worker 协议执行。现在开始。'
-sleep 0.3
-cmux send-key --workspace "$WS_REF" 'Enter'
+cmux identify --json
 ```
 
-After dispatching, Controller is **free** — no blocking, no polling. Continue other work or wait for notifications.
+2. Create task prompt files before launching workers.
 
-### Step 3: Receive results
-
-**If using Method A (non-blocking):** Workers send completion messages directly into Controller's kiro-cli session. Controller processes them as they arrive — read the result file and continue.
-
-**If using Method B (blocking):** Controller waits for signals:
-```bash
-cmux wait-for worker-1-done --timeout 300
-```
-
-In both cases:
-```bash
-cat {tasks-dir}/{task-id}.result.md
-touch {tasks-dir}/{task-id}.ack
-```
-
-### Step 4: Cleanup
+3. Launch one cmux workspace per worker:
 
 ```bash
-cmux close-workspace --workspace workspace:N
+cmux new-workspace --name "worker-a" --cwd /path/to/repo --command "claude --dangerously-skip-permissions"
 ```
 
-## Critical Rules
-
-### 1. Always send-key Enter after cmux send
-
-`cmux send` types text but does NOT press Enter. Always follow with:
+or:
 
 ```bash
-cmux send --workspace workspace:N 'content'
-sleep 0.3
-cmux send-key --workspace workspace:N 'Enter'
+cmux new-workspace --name "worker-b" --cwd /path/to/repo --command "codex --sandbox danger-full-access -c 'model_reasoning_summary_format=experimental' --search"
 ```
 
-The `sleep 0.3` prevents race conditions between text input and Enter key.
+4. Capture the returned `workspace:N` ref.
 
-### 2. Always /tools trust-all before dispatching
-
-kiro-cli requires tool approval by default. Without trust-all, Workers block on every tool use. This MUST be the first command after kiro-cli starts.
-
-### 3. Never assign same files to multiple Workers
-
-Parallel Workers modifying the same file will conflict. Split tasks by file ownership.
-
-### 4. Wait for kiro-cli readiness
-
-After starting kiro-cli, wait ~10s before sending commands. Verify with:
+5. Wait until the worker CLI is visibly ready:
 
 ```bash
-cmux read-screen --workspace workspace:N 2>&1 | tail -3
+cmux read-screen --workspace workspace:N --scrollback --lines 80
 ```
 
-### 5. Always include both workspace AND surface in Worker notification commands
-
-Workers must target the exact surface of Controller's kiro-cli, not just the workspace. Use both `--workspace` and `--surface` from Step 0's `cmux identify` output.
-
-## Batch Launch Pattern
-
-For launching N Workers efficiently:
+6. Dispatch the handoff by telling the worker to read the prompt file:
 
 ```bash
-# Create all workspaces and collect refs
-WS_REFS=()
-for i in $(seq 1 N); do
-  ref=$(cmux new-workspace --name "worker-${i}" --cwd /path/to/project --command "kiro-cli chat" | awk '{print $2}')
-  WS_REFS+=("$ref")
-done
-
-# Wait for all to be ready
-sleep 12
-
-# Trust-all for all
-for ref in "${WS_REFS[@]}"; do
-  cmux send --workspace "$ref" '/tools trust-all'
-  sleep 0.3
-  cmux send-key --workspace "$ref" 'Enter'
-done
-sleep 3
-
-# Dispatch all tasks
-for i in $(seq 0 $((N-1))); do
-  cmux send --workspace "${WS_REFS[$i]}" "请阅读 {tasks-dir}/task-$((i+1)).prompt.md，严格按照任务内容和 Worker 协议执行。现在开始。"
-  sleep 0.3
-  cmux send-key --workspace "${WS_REFS[$i]}" 'Enter'
-done
+cmux send --workspace workspace:N "Read .tasks/20260513-183015-worker-a.prompt.md and execute it. Follow the Output Contract exactly."
+cmux send-key --workspace workspace:N Enter
 ```
 
-## Monitoring Workers
+7. Verify the text was submitted, not merely typed:
 
 ```bash
-# Read last 5 lines of Worker screen
-cmux read-screen --workspace workspace:N 2>&1 | tail -5
-
-# Read scrollback for full history
-cmux read-screen --workspace workspace:N --scrollback --lines 200
-
-# Find workspace by name
-cmux find-window worker-1
-
-# List all workspaces
-cmux list-workspaces
+cmux read-screen --workspace workspace:N --scrollback --lines 80
 ```
 
-## Useful cmux Commands Reference
+If the command is still sitting on the input line, send Enter again or target the exact surface from `cmux tree --workspace workspace:N`.
+
+8. Monitor workers while doing non-overlapping Controller work.
+
+9. When a worker appears complete, read its result file and inspect its workspace before integrating.
+
+## Monitoring
+
+Use screen state plus durable files. Do not rely on callback.
+
+```bash
+cmux read-screen --workspace workspace:N --scrollback --lines 120
+cmux tree --workspace workspace:N
+test -f .tasks/20260513-183015-worker-a.done
+test -f .tasks/20260513-183015-worker-a.result.md
+```
+
+Interpretation:
+
+| Signal | Meaning | Controller Action |
+|---|---|---|
+| CLI prompt is ready but no task text appears | Worker may not have received handoff | Resend the dispatch text and verify screen |
+| Task text is visible on input line only | Enter may not have submitted | Send Enter again or target exact surface |
+| Worker is reading files/running commands | Worker is active | Leave it running unless blocked too long |
+| Approval/prompt/login UI appears | Worker is blocked | Decide whether to interact, relaunch, or take over locally |
+| `.done` exists and result file exists | Worker has completed its contract | Review output and changes |
+| Worker says done but result file is missing | Completion is not durable | Ask worker to write the result file or reconstruct from screen |
+
+## Handoff Quality Rules
+
+- Give each worker one clear task.
+- Give each worker a disjoint ownership boundary.
+- Prefer file paths and commands over vague module names.
+- Tell workers where to write results before they begin.
+- Make the result file the authoritative completion record.
+- Keep callback optional.
+- Keep Controller integration local; workers should not merge each other's changes.
+
+## Failure Recovery
+
+If a worker never starts:
+- Read its screen.
+- Confirm the workspace ref is correct.
+- Resend the handoff.
+- If still idle, close or ignore the workspace and relaunch with a clearer command.
+
+If a worker is blocked:
+- Determine whether the block is CLI readiness, login, prompt submission, command failure, or task ambiguity.
+- Prefer fixing the handoff once over repeatedly nudging the worker.
+- If the block is task ambiguity, update the prompt file and resend a short instruction to reread it.
+
+If a worker modifies out-of-scope files:
+- Do not blindly revert.
+- Inspect the diff.
+- Keep useful changes only if they do not conflict with ownership.
+- Record the scope violation in Controller notes so future handoffs are tighter.
+
+If multiple workers conflict:
+- Stop assigning new work in the conflicting area.
+- Review both result files.
+- Integrate manually from the Controller session.
+
+## Useful cmux Commands
 
 | Command | Purpose |
-|---------|---------|
-| `cmux identify` | Get current workspace/surface refs |
-| `cmux new-workspace --name X --cwd Y --command Z` | Create workspace and run command |
-| `cmux send --workspace W --surface S 'text'` | Type text into specific surface |
-| `cmux send-key --workspace W --surface S 'Enter'` | Press key in specific surface |
-| `cmux read-screen --workspace W` | Read visible terminal content |
-| `cmux read-screen --workspace W --scrollback --lines N` | Read scrollback history |
-| `cmux notify --title T --body B` | Send desktop notification |
-| `cmux find-window QUERY` | Find workspace by name/content |
-| `cmux list-workspaces` | List all workspaces |
-| `cmux close-workspace --workspace W` | Close a workspace |
-| `cmux pipe-pane --workspace W --command 'cmd'` | Pipe terminal output to command |
+|---|---|
+| `cmux identify --json` | Identify current workspace and surface |
+| `cmux new-workspace --name X --cwd Y --command Z` | Launch a worker workspace |
+| `cmux read-screen --workspace W --scrollback --lines N` | Inspect worker terminal output |
+| `cmux send --workspace W "text"` | Type text into worker terminal |
+| `cmux send-key --workspace W Enter` | Submit typed text |
+| `cmux tree --workspace W` | Inspect panes and surfaces when targeting is unclear |
+| `cmux select-workspace --workspace W` | Focus a worker workspace |
+| `cmux close-workspace --workspace W` | Close a completed or abandoned worker workspace |
+| `cmux list-workspaces` | List active workspaces |
 
-## Task Splitting Guidelines
+## Common Mistakes
 
-| Scenario | Split Strategy |
-|----------|---------------|
-| Code generation (multiple modules) | One Worker per module/package |
-| Verification/testing | One Worker per component group |
-| Screenshot collection | One Worker per page group |
-| Research/analysis | One Worker per topic/repo |
-| Bug fixes | One Worker per file set (no overlap) |
-| Documentation | One Worker per chapter/section |
+- Launching workers before writing prompt files.
+- Sending a long task directly through `cmux send` instead of using a handoff file.
+- Assuming `send-key Enter` worked without reading the screen afterward.
+- Treating callback as required for completion.
+- Giving two workers overlapping edit ownership.
+- Asking workers to coordinate with each other instead of reporting back to Controller-owned result files.
+- Forgetting that the Controller must review worker output before claiming the larger task is complete.
