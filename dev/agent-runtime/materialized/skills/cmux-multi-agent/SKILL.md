@@ -74,10 +74,9 @@ Create a `.tasks/` directory in the project root or another explicit task direct
   20260513-183015-worker-a.prompt.md
   20260513-183015-worker-a.result.md
   20260513-183015-worker-a.notes.md
-  20260513-183015-worker-a.done
 ```
 
-Name each task file with a timestamped task id: `{YYYYMMDD-HHMMSS}-{task-slug}`. Use the same task id prefix for the prompt, result, notes, and done files. The timestamp is mandatory because worker tasks are often repeated with similar names across multiple orchestration rounds.
+Name each task file with a timestamped task id: `{YYYYMMDD-HHMMSS}-{task-slug}`. Use the same task id prefix for the prompt, result, and notes files. The timestamp is mandatory because worker tasks are often repeated with similar names across multiple orchestration rounds.
 
 Every worker prompt must be self-contained enough to execute after launch. Include:
 
@@ -134,7 +133,7 @@ If the task definition conflicts with the codebase, stop and explain the conflic
 Do not revert unrelated user or worker changes.
 
 ## Output Contract
-Write your final result to:
+When the task is complete and the worker session is ready to end, write your final result to:
 `{tasks-dir}/{YYYYMMDD-HHMMSS}-{task-slug}.result.md`
 
 The result must include:
@@ -143,10 +142,7 @@ The result must include:
 - Verification run and outcomes.
 - Open risks or follow-up required.
 
-When finished, also create:
-`{tasks-dir}/{YYYYMMDD-HHMMSS}-{task-slug}.done`
-
-Callback to Controller is optional. The durable files are the source of truth.
+Do not write the result file merely because more user input is needed. Continue the conversation in the worker workspace instead. Callback to Controller is optional. The final result file is the source of truth.
 ```
 
 ## Controller Workflow
@@ -208,7 +204,6 @@ Use durable files and dispatch records first. Do not rely on callback or continu
 
 ```bash
 cmux tree --workspace workspace:N
-test -f .tasks/20260513-183015-worker-a.done
 test -f .tasks/20260513-183015-worker-a.result.md
 ```
 
@@ -221,8 +216,8 @@ Interpretation:
 | CLI prompt is ready but no startup prompt appears | Worker command may have been malformed | Relaunch with a corrected `--command`; do not keep trying typed handoff first |
 | Worker is reading files/running commands | Worker is active | Leave it running unless blocked too long |
 | Approval/prompt/login UI appears | Worker is blocked | Decide whether to interact, relaunch, or take over locally |
-| `.done` exists and result file exists | Worker has completed its contract | Review output and changes |
-| Worker says done but result file is missing | Completion is not durable | Ask worker to write the result file or reconstruct from screen |
+| Result file exists | Worker has completed its contract and the session is ready to end | Review output and changes |
+| Worker says done but result file is missing | Completion is not durable | Ask worker to write the result file |
 
 ## Handoff Quality Rules
 
