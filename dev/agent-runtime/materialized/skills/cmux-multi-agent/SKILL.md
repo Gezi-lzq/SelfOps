@@ -1,11 +1,11 @@
 ---
 name: cmux-multi-agent
-description: Use when coordinating multiple CLI workers through cmux workspaces, especially when tasks need clear handoff files, independent execution, screen monitoring, and later controller review.
+description: Use when coordinating interactive CLI workers through cmux workspaces, especially when tasks need clear handoff files, stable command-injected startup, independent user follow-up, and durable result records.
 ---
 
 # cmux Multi-Agent Orchestration
 
-Use cmux as the terminal orchestration layer for delegating work to multiple CLI workers. Treat this skill as the starting point for arranging work: split tasks, open worker workspaces, hand off instructions clearly, monitor progress, and integrate results.
+Use cmux as the terminal orchestration layer for delegating work to multiple CLI workers. Treat this skill as the starting point for arranging work: split tasks, write clear handoff files, open worker workspaces with the handoff injected in the startup command, and leave the worker available for interactive follow-up.
 
 This skill currently supports:
 
@@ -18,20 +18,23 @@ Do not design around permissions here. The worker command already encodes the in
 
 Controller:
 - The current agent session.
-- Owns task decomposition, worker launch, handoff quality, monitoring, result review, and final integration.
+- Owns task decomposition, handoff quality, command-injected worker launch, dispatch records, and any final review requested by the user.
+- Does not drive worker progress through repeated terminal input.
 - Does not assume workers will callback.
 
 Worker:
 - A CLI agent running in a cmux workspace.
-- Receives one bounded task.
+- Receives one bounded task through its startup prompt.
+- Remains interactive so the user can continue requirement confirmation or execution discussion directly in the worker workspace.
 - Writes durable output files that the Controller can read later.
 - May callback if instructed, but callback is optional and must not be the only completion signal.
 
 cmux workspace:
 - The default isolation unit for a worker.
 - Created with `cmux new-workspace`.
-- Read with `cmux read-screen`.
-- Written to with `cmux send` plus `cmux send-key`.
+- Launched with a full worker command that includes the handoff prompt path.
+- Read with `cmux read-screen` only for smoke checks or failure diagnosis.
+- Written to with `cmux send` plus `cmux send-key` only as a fallback for an already-running workspace, not as the normal dispatch path.
 
 ## When To Use
 
@@ -40,7 +43,8 @@ Use this skill when:
 - You need to split one larger goal into independent worker tasks.
 - You want workers to run in visible cmux workspaces.
 - You need a durable handoff file instead of a fragile chat-only prompt.
-- You need to monitor whether a worker is alive, idle, blocked, or producing output.
+- You need the user to continue interacting with a downstream agent after the Controller prepares context.
+- You want stable startup that avoids waiting for CLI readiness and simulating typed input.
 - You want Claude and Codex workers available as execution choices.
 
 Do not use this skill when:
@@ -55,8 +59,8 @@ Choose one worker per task.
 
 | Worker | Use For | Launch Command |
 |---|---|---|
-| Claude | Broad implementation, refactoring, prose-heavy reasoning, tasks that benefit from long-form planning | `claude --dangerously-skip-permissions` |
-| Codex | Codebase editing, command-heavy verification, search-heavy investigation, tasks where Codex tooling is useful | `codex --sandbox danger-full-access -c 'model_reasoning_summary_format=experimental' --search` |
+| Claude | Broad implementation, refactoring, prose-heavy reasoning, tasks that benefit from long-form planning | `claude --dangerously-skip-permissions "{startup prompt}"` |
+| Codex | Codebase editing, command-heavy verification, search-heavy investigation, tasks where Codex tooling is useful | `codex --sandbox danger-full-access -c 'model_reasoning_summary_format=experimental' --search --cd /path/to/repo "{startup prompt}"` |
 
 Keep the Controller responsible for task boundaries. Do not ask multiple workers to decide ownership among themselves.
 
@@ -78,9 +82,11 @@ Name each task file with a timestamped task id: `{YYYYMMDD-HHMMSS}-{task-slug}`.
 Every worker prompt must be self-contained enough to execute after launch. Include:
 
 - Goal: what the worker must accomplish.
+- Mode: whether the worker should execute immediately or first continue requirement confirmation with the user.
 - Context: files, commands, docs, and assumptions already known.
 - Ownership: files or areas the worker may modify, and areas it must not touch.
 - Constraints: coding style, risk boundaries, and anything the Controller already decided.
+- Communication language: usually Chinese unless the user explicitly requested another language.
 - Output contract: exact result file path and expected contents.
 - Verification: commands to run, or explicit reason no verification is expected.
 - Stop conditions: when to stop and report ambiguity instead of guessing.
@@ -100,11 +106,17 @@ Use this structure for each `{YYYYMMDD-HHMMSS}-{task-slug}.prompt.md`:
 ## Context
 - Repository: `{repo-path}`
 - Current branch/state: {known state if relevant}
+- Communication: Use Chinese when communicating with the user unless the user explicitly requested another language.
 - Required reading:
   - `{path}`
   - `{path}`
 - Useful commands:
   - `{command}`
+
+## Mode
+{One of: `confirm-first`, `execute-after-confirmation`, `execute-now`.}
+
+If mode is `confirm-first`, start by restating your understanding in Chinese and ask the user only for the missing details needed for the next step. Do not mark the task done merely because more user input is needed.
 
 ## Ownership
 You own:
@@ -147,51 +159,54 @@ cmux identify --json
 
 2. Create task prompt files before launching workers.
 
-3. Launch one cmux workspace per worker:
+3. Launch one cmux workspace per worker with the handoff path injected directly in the startup command.
+
+For Codex:
 
 ```bash
-cmux new-workspace --name "worker-a" --cwd /path/to/repo --command "claude --dangerously-skip-permissions"
+cmux new-workspace \
+  --name "worker-b" \
+  --cwd /path/to/repo \
+  --command "codex --sandbox danger-full-access -c 'model_reasoning_summary_format=experimental' --search --cd /path/to/repo 'Use Chinese when communicating with the user. Read /absolute/path/.tasks/20260513-183015-worker-b.prompt.md and follow it exactly. Start by restating your understanding and continue with the mode specified in the prompt.'"
 ```
 
-or:
+For Claude:
 
 ```bash
-cmux new-workspace --name "worker-b" --cwd /path/to/repo --command "codex --sandbox danger-full-access -c 'model_reasoning_summary_format=experimental' --search"
+cmux new-workspace \
+  --name "worker-a" \
+  --cwd /path/to/repo \
+  --command "claude --dangerously-skip-permissions 'Use Chinese when communicating with the user. Read /absolute/path/.tasks/20260513-183015-worker-a.prompt.md and follow it exactly. Start by restating your understanding and continue with the mode specified in the prompt.'"
 ```
 
-4. Capture the returned `workspace:N` ref.
+4. Capture the returned `workspace:N` ref and record it in the dispatch log.
 
-5. Wait until the worker CLI is visibly ready:
+5. Stop. The worker is now an interactive downstream agent. The user can switch to the workspace and continue the conversation directly.
 
-```bash
-cmux read-screen --workspace workspace:N --scrollback --lines 80
-```
-
-6. Dispatch the handoff by telling the worker to read the prompt file:
+The normal dispatch path must not rely on:
 
 ```bash
-cmux send --workspace workspace:N "Read .tasks/20260513-183015-worker-a.prompt.md and execute it. Follow the Output Contract exactly."
+cmux send --workspace workspace:N "..."
 cmux send-key --workspace workspace:N Enter
 ```
 
-7. Verify the text was submitted, not merely typed:
+Use those commands only for fallback recovery of an already-running workspace.
+
+6. Optional smoke check: if needed, inspect the screen once to confirm the process started and the startup prompt is visible.
 
 ```bash
 cmux read-screen --workspace workspace:N --scrollback --lines 80
 ```
 
-If the command is still sitting on the input line, send Enter again or target the exact surface from `cmux tree --workspace workspace:N`.
+This check is diagnostic. It is not the dispatch mechanism.
 
-8. Monitor workers while doing non-overlapping Controller work.
-
-9. When a worker appears complete, read its result file and inspect its workspace before integrating.
+7. When the user later asks for review or integration, read the worker result files and inspect the workspace as needed.
 
 ## Monitoring
 
-Use screen state plus durable files. Do not rely on callback.
+Use durable files and dispatch records first. Do not rely on callback or continuous screen polling.
 
 ```bash
-cmux read-screen --workspace workspace:N --scrollback --lines 120
 cmux tree --workspace workspace:N
 test -f .tasks/20260513-183015-worker-a.done
 test -f .tasks/20260513-183015-worker-a.result.md
@@ -201,8 +216,9 @@ Interpretation:
 
 | Signal | Meaning | Controller Action |
 |---|---|---|
-| CLI prompt is ready but no task text appears | Worker may not have received handoff | Resend the dispatch text and verify screen |
-| Task text is visible on input line only | Enter may not have submitted | Send Enter again or target exact surface |
+| Workspace was created and process is running | Startup command was accepted | Record workspace ref and let the user continue with the worker |
+| Startup prompt is visible in the worker session | Handoff was injected at launch | No `cmux send` is needed |
+| CLI prompt is ready but no startup prompt appears | Worker command may have been malformed | Relaunch with a corrected `--command`; do not keep trying typed handoff first |
 | Worker is reading files/running commands | Worker is active | Leave it running unless blocked too long |
 | Approval/prompt/login UI appears | Worker is blocked | Decide whether to interact, relaunch, or take over locally |
 | `.done` exists and result file exists | Worker has completed its contract | Review output and changes |
@@ -214,6 +230,8 @@ Interpretation:
 - Give each worker a disjoint ownership boundary.
 - Prefer file paths and commands over vague module names.
 - Tell workers where to write results before they begin.
+- Inject the handoff prompt path in the worker startup command.
+- Keep the worker interactive for user follow-up unless the user explicitly asks for a background-only task.
 - Make the result file the authoritative completion record.
 - Keep callback optional.
 - Keep Controller integration local; workers should not merge each other's changes.
@@ -223,13 +241,16 @@ Interpretation:
 If a worker never starts:
 - Read its screen.
 - Confirm the workspace ref is correct.
-- Resend the handoff.
-- If still idle, close or ignore the workspace and relaunch with a clearer command.
+- Confirm the startup command contains the absolute prompt path.
+- Relaunch with a clearer command.
 
 If a worker is blocked:
-- Determine whether the block is CLI readiness, login, prompt submission, command failure, or task ambiguity.
-- Prefer fixing the handoff once over repeatedly nudging the worker.
-- If the block is task ambiguity, update the prompt file and resend a short instruction to reread it.
+- Determine whether the block is login/auth, malformed startup command, command failure, or task ambiguity.
+- If the block is task ambiguity, update the prompt file and ask the user to continue directly in the worker workspace, or relaunch if the initial context was materially wrong.
+
+If the startup command failed to inject the prompt:
+- Prefer relaunching the workspace with a corrected `--command`.
+- Use `cmux send` / `cmux send-key` only as a one-off recovery if relaunching would lose useful ongoing conversation.
 
 If a worker modifies out-of-scope files:
 - Do not blindly revert.
@@ -247,10 +268,10 @@ If multiple workers conflict:
 | Command | Purpose |
 |---|---|
 | `cmux identify --json` | Identify current workspace and surface |
-| `cmux new-workspace --name X --cwd Y --command Z` | Launch a worker workspace |
-| `cmux read-screen --workspace W --scrollback --lines N` | Inspect worker terminal output |
-| `cmux send --workspace W "text"` | Type text into worker terminal |
-| `cmux send-key --workspace W Enter` | Submit typed text |
+| `cmux new-workspace --name X --cwd Y --command Z` | Launch an interactive worker workspace with the handoff injected in `Z` |
+| `cmux read-screen --workspace W --scrollback --lines N` | Inspect worker terminal output for diagnostics |
+| `cmux send --workspace W "text"` | Fallback only: type text into an already-running terminal |
+| `cmux send-key --workspace W Enter` | Fallback only: submit typed text |
 | `cmux tree --workspace W` | Inspect panes and surfaces when targeting is unclear |
 | `cmux select-workspace --workspace W` | Focus a worker workspace |
 | `cmux close-workspace --workspace W` | Close a completed or abandoned worker workspace |
@@ -259,8 +280,9 @@ If multiple workers conflict:
 ## Common Mistakes
 
 - Launching workers before writing prompt files.
-- Sending a long task directly through `cmux send` instead of using a handoff file.
-- Assuming `send-key Enter` worked without reading the screen afterward.
+- Starting an empty interactive CLI and then trying to inject the task with `cmux send`.
+- Sending a long task directly through `cmux send` instead of injecting a handoff file path in the startup command.
+- Treating screen polling as the dispatch mechanism instead of a diagnostic fallback.
 - Treating callback as required for completion.
 - Giving two workers overlapping edit ownership.
 - Asking workers to coordinate with each other instead of reporting back to Controller-owned result files.
