@@ -59,6 +59,13 @@
   - 当前 Workspaces：`1`
   - task wakeup websocket 已连接
   - repo cache 已能通过 GitHub SSH 访问 `AutoMQ/automq`、`AutoMQ/automqbox`、`AutoMQ/automq-kafka-enterprise`
+- 安装 Matt Pocock skills 到 `.agents`
+  - 来源：`https://github.com/mattpocock/skills`
+  - 源仓库：`/home/debian/.agents/sources/mattpocock-skills`
+  - 生效目录：`/home/debian/.agents/skills`
+  - 安装方式：非 deprecated skills 以软链接方式接入
+  - 当前 commit：`be55a79`
+  - 当前数量：`25`
 - 创建 `/home/debian/work`
 - 为 `/data/services`、`/data/backups` 添加 README
 - 部署单机 k3s，data-dir 使用 `/data/k3s`
