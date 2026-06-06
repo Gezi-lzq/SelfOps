@@ -25,6 +25,7 @@ sops = "latest"
 age = "latest"
 restic = "latest"
 rclone = "latest"
+terraform = "1.13.3"
 
 [env]
 GOPATH = "{{ env.HOME }}/go"

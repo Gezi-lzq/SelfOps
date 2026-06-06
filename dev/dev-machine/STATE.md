@@ -25,6 +25,7 @@
 - 将 SelfOps 迁到 `/home/debian/SelfOps`
 - 将 Docker data-root 迁到 `/data/docker`
 - 通过 `mise` 安装 base CLI 和 lab CLI
+- 通过 `mise` 安装 Terraform，版本 `1.13.3`
 - 通过 apt 安装 `htop`、`ncdu`、`rsync`
 - 配置 `gh` 登录 GitHub，并启用 git credential helper
 - 安装并认证 `lark-cli`，版本 `1.0.48`
