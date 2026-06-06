@@ -24,8 +24,10 @@ data "netbird_reverse_proxy_domain" "free" {
 }
 
 resource "netbird_reverse_proxy_service" "homepage" {
+  count = var.enable_homepage_reverse_proxy ? 1 : 0
+
   name   = var.homepage_service_name
-  domain = data.netbird_reverse_proxy_domain.free.domain
+  domain = "${var.homepage_service_name}.${data.netbird_reverse_proxy_domain.free.domain}"
 
   enabled           = true
   pass_host_header  = true

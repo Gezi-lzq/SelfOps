@@ -2,7 +2,7 @@
 
 管理 `gezi-dev` 相关的 NetBird 配置。
 
-当前目标：为 Homepage 创建 NetBird Reverse Proxy 公网入口。
+当前状态：NetBird Reverse Proxy 已试用后放弃，默认不创建资源。
 
 ## 前置条件
 
@@ -25,16 +25,17 @@ terraform init
 terraform plan
 ```
 
-## 创建 Homepage Reverse Proxy
+## 试用 Homepage Reverse Proxy
 
 ```bash
-terraform apply
+terraform apply \
+  -var='enable_homepage_reverse_proxy=true'
 ```
 
 Terraform 会：
 - 查找 peer：`gezi-dev`
 - 使用 NetBird free reverse proxy domain
-- 创建 HTTP Reverse Proxy Service：`gezi-home`
+- 创建 HTTP Reverse Proxy Service：`gezi-dev-home`
 - 将公网请求转发到 `gezi-dev:80`
 - 开启 `pass_host_header` 和 `rewrite_redirects`
 - 开启 password auth
@@ -53,23 +54,34 @@ terraform apply \
   -var='homepage_proxy_password=change-me'
 ```
 
-## 后续
+## 试用记录
 
-创建成功后，读取 output 的公网域名，并同步到 Homepage：
-- `HOMEPAGE_ALLOWED_HOSTS`
-- Ingress host
+2026-06-06 首次执行 `terraform plan` 成功，计划只创建 `netbird_reverse_proxy_service.homepage`。
 
-## 当前阻塞
-
-2026-06-06 执行 `terraform plan` 成功，计划只创建 `netbird_reverse_proxy_service.homepage`。
-
-`terraform apply` 创建服务时报错：
+第一次 `terraform apply` 创建服务时报错：
 
 ```text
 permission denied
 ```
 
-该 PAT 可以读取 peer 和 reverse proxy domain，但不能创建 Reverse Proxy Service。
-需要换用具备 Reverse Proxy 创建权限的 NetBird PAT，或确认当前 NetBird 账号 / 租户已开通 Reverse Proxy 管理能力。
+调整 PAT 为 admin 后，创建权限问题解决。
+
+随后发现 provider/API 实际需要把 `domain` 传成完整域名：
+
+```text
+gezi-dev-home.eu1.netbird.services
+```
+
+而不是仅传 base domain `eu1.netbird.services`。
+
+曾创建：
+
+```text
+gezi-dev-home.eu1.netbird.services
+```
+
+试用结论：该方案访问体验偏卡，当前不采用。
+
+Reverse Proxy Service 已通过 Terraform destroy 删除。Terraform 默认 `enable_homepage_reverse_proxy=false`，避免误创建。
 
 本地 `terraform.tfstate` 保留在开发机该目录下，不提交仓库。

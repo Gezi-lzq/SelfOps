@@ -17,7 +17,9 @@ kubectl -n homepage rollout status deploy/homepage
 curl -H "Host: home.gezi-dev.local" http://100.117.255.204/
 ```
 
-浏览器访问后续优先通过 NetBird Reverse Proxy，或在本机 hosts / DNS 中解析 `home.gezi-dev.local`。
+浏览器内网访问可以通过本机 hosts / DNS 解析 `home.gezi-dev.local`。
+
+NetBird Reverse Proxy 已试用后放弃，当前不作为 Homepage 公网入口。
 
 ## 清理
 

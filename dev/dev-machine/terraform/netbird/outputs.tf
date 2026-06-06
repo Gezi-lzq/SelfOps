@@ -1,16 +1,16 @@
 output "homepage_reverse_proxy_domain" {
-  description = "NetBird reverse proxy base domain for Homepage."
-  value       = netbird_reverse_proxy_service.homepage.domain
+  description = "NetBird reverse proxy domain for Homepage."
+  value       = try(netbird_reverse_proxy_service.homepage[0].domain, null)
 }
 
 output "homepage_reverse_proxy_hostname" {
   description = "Expected public hostname for Homepage."
-  value       = "${var.homepage_service_name}.${netbird_reverse_proxy_service.homepage.domain}"
+  value       = try(netbird_reverse_proxy_service.homepage[0].domain, null)
 }
 
 output "homepage_reverse_proxy_service_id" {
   description = "NetBird reverse proxy service ID for Homepage."
-  value       = netbird_reverse_proxy_service.homepage.id
+  value       = try(netbird_reverse_proxy_service.homepage[0].id, null)
 }
 
 output "homepage_target_peer_id" {

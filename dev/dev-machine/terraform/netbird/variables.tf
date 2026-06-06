@@ -23,10 +23,16 @@ variable "gezi_dev_peer_name" {
   default     = "gezi-dev"
 }
 
+variable "enable_homepage_reverse_proxy" {
+  description = "Whether to create the Homepage NetBird Reverse Proxy service."
+  type        = bool
+  default     = false
+}
+
 variable "homepage_service_name" {
   description = "NetBird Reverse Proxy service name for Homepage."
   type        = string
-  default     = "gezi-home"
+  default     = "gezi-dev-home"
 }
 
 variable "homepage_proxy_password" {
@@ -34,4 +40,3 @@ variable "homepage_proxy_password" {
   type        = string
   sensitive   = true
 }
-

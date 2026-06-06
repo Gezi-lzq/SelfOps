@@ -53,12 +53,15 @@
 - 添加 NetBird Terraform 目录：
   - `dev/dev-machine/terraform/netbird`
   - 用于管理 Homepage Reverse Proxy
-- 尝试通过 Terraform 创建 NetBird Reverse Proxy：
-  - `plan` 成功，只创建 `netbird_reverse_proxy_service.homepage`
-  - `apply` 因 PAT 权限不足返回 `permission denied`
+- 试用 NetBird Reverse Proxy：
+  - Service：`gezi-dev-home`
+  - Domain：`gezi-dev-home.eu1.netbird.services`
+  - 目标：`gezi-dev:80`
+  - 已通过 Terraform destroy 删除
+  - 结论：访问体验偏卡，当前不采用
   - state 保留在开发机本地，不提交仓库
+- 恢复 Homepage Ingress 和 `HOMEPAGE_ALLOWED_HOSTS`，仅保留内网访问 Host
 
 ## 待完成
 
-- [ ] 评估 NetBird Reverse Proxy 作为当前阶段公网入口
 - [ ] 有自有域名 / Cloudflare zone 后，再评估 `cloudflare-tunnel-ingress-controller`
