@@ -26,6 +26,7 @@
 - 将 Docker data-root 迁到 `/data/docker`
 - 通过 `mise` 安装 base CLI 和 lab CLI
 - 通过 `mise` 安装 Terraform，版本 `1.13.3`
+- 通过 `mise` 安装 `just`，版本 `1.51.0`
 - 通过 apt 安装 `htop`、`ncdu`、`rsync`
 - 配置 `gh` 登录 GitHub，并启用 git credential helper
   - 登录用户：`Gezi-lzq`
