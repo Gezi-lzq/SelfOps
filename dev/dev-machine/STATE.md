@@ -28,6 +28,15 @@
 - 通过 `mise` 安装 Terraform，版本 `1.13.3`
 - 通过 apt 安装 `htop`、`ncdu`、`rsync`
 - 配置 `gh` 登录 GitHub，并启用 git credential helper
+  - 登录用户：`Gezi-lzq`
+  - token scope 包含 `repo`
+- 配置 GitHub SSH over 443
+  - SSH Host：`github.com` -> `ssh.github.com:443`
+  - SSH 用户：`git`
+  - IdentityFile：`~/.ssh/id_ed25519_github`
+  - 已添加 `ssh.github.com:443` known_hosts
+  - `ssh -T git@github.com` 已验证为 `Gezi-lzq`
+  - 已移除 GitHub SSH 到 HTTPS 的全局 rewrite
 - 安装并配置 Codex CLI，版本 `0.137.0`
   - 配置位置：`/home/debian/.codex/config.toml`
   - provider：`https://muyuan.do/v1`
@@ -36,6 +45,19 @@
 - 安装并认证 `lark-cli`，版本 `1.0.48`
   - bot 身份：ready
   - user 身份：ready
+- 安装并配置 Multica CLI，版本 `0.3.17`
+  - server_url：`https://api.multica.ai`
+  - app_url：`https://multica.ai`
+  - 登录用户：`zhenqi Li (lzqtxwd@gmail.com)`
+  - Workspace：`lzqtxwd's Workspace`
+  - Workspace ID：`bdc30359-b067-46aa-b892-7848f9b091e8`
+  - daemon 由 systemd user service 管理：`~/.config/systemd/user/multica.service`
+  - 已启用 `loginctl enable-linger debian`
+  - systemd PATH 包含 mise Node 目录，确保 daemon 能找到 `codex`
+  - 当前 Agents：`codex`
+  - 当前 Workspaces：`1`
+  - task wakeup websocket 已连接
+  - repo cache 已能通过 GitHub SSH 访问 `AutoMQ/automq`、`AutoMQ/automqbox`、`AutoMQ/automq-kafka-enterprise`
 - 创建 `/home/debian/work`
 - 为 `/data/services`、`/data/backups` 添加 README
 - 部署单机 k3s，data-dir 使用 `/data/k3s`
