@@ -27,6 +27,9 @@
 - 通过 `mise` 安装 base CLI 和 lab CLI
 - 通过 apt 安装 `htop`、`ncdu`、`rsync`
 - 配置 `gh` 登录 GitHub，并启用 git credential helper
+- 安装并认证 `lark-cli`，版本 `1.0.48`
+  - bot 身份：ready
+  - user 身份：ready
 - 创建 `/home/debian/work`
 - 为 `/data/services`、`/data/backups` 添加 README
 - 部署单机 k3s，data-dir 使用 `/data/k3s`
@@ -39,5 +42,4 @@
 
 ## 待完成
 
-- [ ] 在开发机上安装并认证 `lark-cli`
 - [ ] 后续按需评估 `cloudflare-tunnel-ingress-controller`
