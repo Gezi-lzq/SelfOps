@@ -63,9 +63,10 @@
   - 来源：`https://github.com/mattpocock/skills`
   - 源仓库：`/home/debian/.agents/sources/mattpocock-skills`
   - 生效目录：`/home/debian/.agents/skills`
-  - 安装方式：非 deprecated skills 以软链接方式接入
+  - 安装方式：参考上游 `scripts/link-skills.sh` 的筛选规则，非 deprecated skills 复制为本地缓存目录
   - 当前 commit：`be55a79`
   - 当前数量：`25`
+  - 旧 symlink 目录备份：`/home/debian/.agents/skills.symlink-backup-20260607`
 - 创建 `/home/debian/work`
 - 为 `/data/services`、`/data/backups` 添加 README
 - 部署单机 k3s，data-dir 使用 `/data/k3s`
