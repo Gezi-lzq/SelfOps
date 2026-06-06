@@ -47,4 +47,4 @@
 
 ## 待完成
 
-- [ ] 后续按需评估 `cloudflare-tunnel-ingress-controller`
+- [ ] 有自有域名 / Cloudflare zone 后，再评估 `cloudflare-tunnel-ingress-controller`

@@ -67,5 +67,17 @@ kubectl -n dev-machine-lab delete pvc data-redis-0 --wait=true
 curl -H "Host: whoami.gezi-dev.local" http://100.117.255.204/
 ```
 
-公网访问后续再评估 `cloudflare-tunnel-ingress-controller` 或临时 tunnel。
+公网访问当前暂不部署 `cloudflare-tunnel-ingress-controller`。
 
+原因：
+- 当前没有接入 Cloudflare 的自有域名 / zone。
+- controller 的主要价值是把 Ingress host 自动映射到 Cloudflare DNS 和 Tunnel。
+- 没有 zone 时，无法验证 `Ingress host -> Cloudflare DNS -> Tunnel -> k3s Service` 的完整链路。
+
+临时公网访问可以使用 cloudflared quick tunnel：
+
+```bash
+cloudflared tunnel --url http://127.0.0.1:80
+```
+
+quick tunnel 会生成临时 `*.trycloudflare.com` 地址，适合短期验证，不纳入长期服务管理。
