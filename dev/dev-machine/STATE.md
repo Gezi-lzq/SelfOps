@@ -28,6 +28,11 @@
 - 通过 `mise` 安装 Terraform，版本 `1.13.3`
 - 通过 apt 安装 `htop`、`ncdu`、`rsync`
 - 配置 `gh` 登录 GitHub，并启用 git credential helper
+- 安装并配置 Codex CLI，版本 `0.137.0`
+  - 配置位置：`/home/debian/.codex/config.toml`
+  - provider：`https://muyuan.do/v1`
+  - 使用 HTTP Responses，关闭 WebSocket
+  - smoke test 返回 `ok`
 - 安装并认证 `lark-cli`，版本 `1.0.48`
   - bot 身份：ready
   - user 身份：ready
