@@ -49,6 +49,9 @@
   - 无 PVC
   - Ingress host：`home.gezi-dev.local`
   - 通过 Traefik + NetBird IP 访问返回 HTTP 200
+- 添加 NetBird Terraform 目录：
+  - `dev/dev-machine/terraform/netbird`
+  - 用于管理 Homepage Reverse Proxy
 
 ## 待完成
 
