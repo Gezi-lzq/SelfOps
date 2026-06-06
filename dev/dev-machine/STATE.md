@@ -52,6 +52,10 @@
 - 添加 NetBird Terraform 目录：
   - `dev/dev-machine/terraform/netbird`
   - 用于管理 Homepage Reverse Proxy
+- 尝试通过 Terraform 创建 NetBird Reverse Proxy：
+  - `plan` 成功，只创建 `netbird_reverse_proxy_service.homepage`
+  - `apply` 因 PAT 权限不足返回 `permission denied`
+  - state 保留在开发机本地，不提交仓库
 
 ## 待完成
 

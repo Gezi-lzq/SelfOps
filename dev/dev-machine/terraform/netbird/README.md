@@ -58,3 +58,18 @@ terraform apply \
 创建成功后，读取 output 的公网域名，并同步到 Homepage：
 - `HOMEPAGE_ALLOWED_HOSTS`
 - Ingress host
+
+## 当前阻塞
+
+2026-06-06 执行 `terraform plan` 成功，计划只创建 `netbird_reverse_proxy_service.homepage`。
+
+`terraform apply` 创建服务时报错：
+
+```text
+permission denied
+```
+
+该 PAT 可以读取 peer 和 reverse proxy domain，但不能创建 Reverse Proxy Service。
+需要换用具备 Reverse Proxy 创建权限的 NetBird PAT，或确认当前 NetBird 账号 / 租户已开通 Reverse Proxy 管理能力。
+
+本地 `terraform.tfstate` 保留在开发机该目录下，不提交仓库。
