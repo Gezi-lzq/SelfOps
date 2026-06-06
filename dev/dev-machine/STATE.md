@@ -44,6 +44,11 @@
   - Redis StatefulSet 可使用 local-path PVC
   - 删除 StatefulSet 后 PVC 会保留，需显式删除 PVC 或 Namespace
   - 删除 PVC 后 `/data/volumes/k3s` 测试目录会回收
+- 部署第一个长期 k3s 应用：`homepage`
+  - 用作开发机入口页
+  - 无 PVC
+  - Ingress host：`home.gezi-dev.local`
+  - 通过 Traefik + NetBird IP 访问返回 HTTP 200
 
 ## 待完成
 

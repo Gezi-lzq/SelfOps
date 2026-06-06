@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+  namespace: homepage
+data:
+  settings.yaml: |
+    title: gezi-dev
+    description: PVE development machine
+    theme: dark
+    color: slate
+    statusStyle: dot
+    disableIndexing: true
+    layout:
+      Development:
+        style: row
+        columns: 3
+      Runtime:
+        style: row
+        columns: 3
+      Access:
+        style: row
+        columns: 3
+  services.yaml: |
+    - Development:
+        - SelfOps:
+            href: https://github.com/Gezi-lzq/SelfOps/tree/machine/gezi-dev/dev/dev-machine
+            description: Machine state and ops ledger
+            icon: github.svg
+        - k3s:
+            href: http://100.117.255.204/
+            description: Traefik entrypoint through NetBird
+            icon: kubernetes.svg
+        - Workdir:
+            href: http://100.117.255.204/
+            description: /home/debian/work
+            icon: debian.svg
+    - Runtime:
+        - Docker:
+            href: http://100.117.255.204/
+            description: data-root /data/docker
+            icon: docker.svg
+        - Volumes:
+            href: http://100.117.255.204/
+            description: k3s local-path /data/volumes/k3s
+            icon: kubernetes.svg
+        - Backups:
+            href: http://100.117.255.204/
+            description: /data/backups
+            icon: restic.svg
+    - Access:
+        - NetBird:
+            href: http://100.117.255.204/
+            description: Private access to gezi-dev
+            icon: netbird.svg
+        - PVE:
+            href: https://10.0.0.12:8006/
+            description: Proxmox node pve1
+            icon: proxmox.svg
+        - Public Entry:
+            href: http://100.117.255.204/
+            description: Next experiment is NetBird Reverse Proxy
+            icon: cloudflare.svg
+  bookmarks.yaml: |
+    - SelfOps:
+        - GitHub:
+            - abbr: GH
+              href: https://github.com/Gezi-lzq/SelfOps
+        - Machine Branch:
+            - abbr: GM
+              href: https://github.com/Gezi-lzq/SelfOps/tree/machine/gezi-dev
+    - Docs:
+        - Homepage:
+            - abbr: HP
+              href: https://gethomepage.dev/
+        - NetBird Reverse Proxy:
+            - abbr: NB
+              href: https://docs.netbird.io/manage/reverse-proxy
+  widgets.yaml: |
+    - resources:
+        cpu: true
+        memory: true
+    - search:
+        provider: duckduckgo
+        target: _blank
+  kubernetes.yaml: |
+    mode: disabled
+  docker.yaml: ""
