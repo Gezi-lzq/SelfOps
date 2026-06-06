@@ -39,6 +39,11 @@
   - smoke Pod 输出 `ok`
   - PVC 目录创建在 `/data/volumes/k3s`
   - 删除 Namespace 后测试目录已回收
+- 完成 k3s 最小应用实验：
+  - Ingress smoke app 可通过 Traefik + NetBird IP 访问
+  - Redis StatefulSet 可使用 local-path PVC
+  - 删除 StatefulSet 后 PVC 会保留，需显式删除 PVC 或 Namespace
+  - 删除 PVC 后 `/data/volumes/k3s` 测试目录会回收
 
 ## 待完成
 
