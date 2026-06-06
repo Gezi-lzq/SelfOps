@@ -31,20 +31,21 @@ resource "netbird_reverse_proxy_service" "homepage" {
   pass_host_header  = true
   rewrite_redirects = true
 
-  targets {
-    target_id   = data.netbird_peer.gezi_dev.id
-    target_type = "peer"
-    protocol    = "http"
-    port        = 80
-    path        = "/"
-    enabled     = true
-  }
+  targets = [
+    {
+      target_id   = data.netbird_peer.gezi_dev.id
+      target_type = "peer"
+      protocol    = "http"
+      port        = 80
+      path        = "/"
+      enabled     = true
+    }
+  ]
 
-  auth {
-    password_auth {
+  auth = {
+    password_auth = {
       enabled  = true
       password = var.homepage_proxy_password
     }
   }
 }
-

@@ -43,7 +43,8 @@ Terraform 会：
 
 - NetBird PAT 不写入仓库，使用 `NB_PAT`
 - Reverse Proxy password 不写入仓库，使用 Terraform sensitive variable
-- `terraform.tfvars`、state、lock 文件不提交
+- `terraform.tfvars` 和 state 文件不提交
+- `.terraform.lock.hcl` 应提交，用于锁定 provider 版本和校验和
 
 示例：
 
@@ -57,4 +58,3 @@ terraform apply \
 创建成功后，读取 output 的公网域名，并同步到 Homepage：
 - `HOMEPAGE_ALLOWED_HOSTS`
 - Ingress host
-
