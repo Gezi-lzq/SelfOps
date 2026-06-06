@@ -47,4 +47,5 @@
 
 ## 待完成
 
+- [ ] 评估 NetBird Reverse Proxy 作为当前阶段公网入口
 - [ ] 有自有域名 / Cloudflare zone 后，再评估 `cloudflare-tunnel-ingress-controller`

@@ -67,7 +67,20 @@ kubectl -n dev-machine-lab delete pvc data-redis-0 --wait=true
 curl -H "Host: whoami.gezi-dev.local" http://100.117.255.204/
 ```
 
-公网访问当前暂不部署 `cloudflare-tunnel-ingress-controller`。
+公网入口策略：
+
+1. 默认私网访问：Traefik + NetBird。
+2. 下一步公网实验：NetBird Reverse Proxy。
+3. 临时公网备用：cloudflared quick tunnel。
+4. 长期 Cloudflare 入口：有自有域名 / Cloudflare zone 后，再评估 `cloudflare-tunnel-ingress-controller`。
+
+NetBird Reverse Proxy 可作为当前阶段的公网暴露选型：
+- 不要求先有自有域名。
+- 可把开发机上的内网服务暴露为公网 HTTPS 入口。
+- 适合先验证“公网访问 k3s Traefik 服务”的使用体验。
+- 后续需要确认 beta 稳定性、访问控制和日志能力。
+
+`cloudflare-tunnel-ingress-controller` 当前暂不部署。
 
 原因：
 - 当前没有接入 Cloudflare 的自有域名 / zone。
