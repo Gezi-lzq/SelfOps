@@ -27,6 +27,8 @@
 - 通过 `mise` 安装 base CLI 和 lab CLI
 - 通过 apt 安装 `htop`、`ncdu`、`rsync`
 - 配置 `gh` 登录 GitHub，并启用 git credential helper
+- 创建 `/home/debian/work`
+- 为 `/data/services`、`/data/backups` 添加 README
 - 部署单机 k3s，data-dir 使用 `/data/k3s`
 - 配置 k3s local-path 数据目录为 `/data/volumes/k3s`
 - 保留 Traefik 作为默认 Ingress
