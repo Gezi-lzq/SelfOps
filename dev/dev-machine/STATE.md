@@ -38,6 +38,15 @@
   - 已添加 `ssh.github.com:443` known_hosts
   - `ssh -T git@github.com` 已验证为 `Gezi-lzq`
   - 已移除 GitHub SSH 到 HTTPS 的全局 rewrite
+- 配置 Git 身份与自动签名
+  - `user.name`：`Gezi-lzq`
+  - `user.email`：`lzqtxwd@gmail.com`
+  - 签名方式：SSH signing
+  - `gpg.format`：`ssh`
+  - `user.signingkey`：`~/.ssh/id_ed25519_github.pub`
+  - `gpg.ssh.allowedSignersFile`：`~/.config/git/allowed_signers`
+  - `commit.gpgsign`：`true`
+  - 非交互 signed commit 已验证为 `Good "git" signature`
 - 安装并配置 Codex CLI，版本 `0.137.0`
   - 配置位置：`/home/debian/.codex/config.toml`
   - provider：`https://muyuan.do/v1`
