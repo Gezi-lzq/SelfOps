@@ -1,6 +1,6 @@
 # 开发机当前状态
 
-日期：2026-06-06
+日期：2026-06-07
 
 ## 当前状态
 
@@ -43,6 +43,18 @@
   - provider：`https://muyuan.do/v1`
   - 使用 HTTP Responses，关闭 WebSocket
   - smoke test 返回 `ok`
+- 安装并配置 Nowledge Mem for Codex CLI
+  - 参考文档：`https://mem.nowledge.co/docs/integrations/codex-cli.mdx`
+  - `nmem` CLI：`0.8.8`
+  - 安装方式：`uv tool install nmem-cli --upgrade`
+  - nmem client：连接本机 Nowledge server 的 NetBird 地址 `http://100.117.221.179:14242`
+  - nmem config：`/home/debian/.nowledge-mem/config.json`
+  - Codex marketplace：`nowledge-community` -> `https://github.com/nowledge-co/community.git`
+  - Codex plugin：`nowledge-mem@nowledge-community`，版本 `0.1.13`，已 enabled
+  - Codex MCP：`nowledge-mem` -> `http://100.117.221.179:14242/mcp/`，已 enabled
+  - Stop hook：`/home/debian/.codex/hooks/nowledge-mem-stop-save.py`
+  - hooks config：`/home/debian/.codex/hooks.json`
+  - 验证：`nmem status` ok，`codex mcp list` enabled，Working Memory 可读取，Codex transcript import 可搜索
 - 安装并认证 `lark-cli`，版本 `1.0.48`
   - bot 身份：ready
   - user 身份：ready
