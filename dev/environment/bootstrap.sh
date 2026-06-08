@@ -6,6 +6,7 @@ CONFIG_SRC="$SCRIPT_DIR/config.toml"
 CONFIG_DST="$HOME/.config/mise/config.toml"
 
 ACTIVATE_SHELL=""
+ACTIVATE_PROFILE=1
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -15,9 +16,12 @@ while [[ $# -gt 0 ]]; do
     --activate-bash)
       ACTIVATE_SHELL="bash"
       ;;
+    --no-activate-profile)
+      ACTIVATE_PROFILE=0
+      ;;
     *)
       echo "unknown argument: $1" >&2
-      echo "usage: bash dev/environment/bootstrap.sh [--activate-zsh|--activate-bash]" >&2
+      echo "usage: bash dev/environment/bootstrap.sh [--activate-zsh|--activate-bash] [--no-activate-profile]" >&2
       exit 2
       ;;
   esac
@@ -61,6 +65,75 @@ ensure_shell_activation() {
   echo "added mise activation to $rc_file"
 }
 
+ensure_profile_shims() {
+  local profile_file="$HOME/.profile"
+  local start_marker="# SelfOps managed mise shims: begin"
+  local end_marker="# SelfOps managed mise shims: end"
+
+  touch "$profile_file"
+
+  local block
+  block="$(cat <<'EOF'
+# SelfOps managed mise shims: begin
+if [ -x "$HOME/.local/bin/mise" ]; then
+    eval "$($HOME/.local/bin/mise activate bash --shims)"
+fi
+# SelfOps managed mise shims: end
+EOF
+)"
+
+  local tmp_file
+  tmp_file="$(mktemp)"
+  awk -v block="$block" -v start="$start_marker" -v end="$end_marker" '
+    $0 == start {
+      skip = 1
+      next
+    }
+    index($0, end) == 1 {
+      skip = 0
+      after_block = 1
+      suffix = substr($0, length(end) + 1)
+      if (suffix != "") {
+        print suffix
+        after_block = 0
+      }
+      next
+    }
+    skip {
+      next
+    }
+    after_block && $0 == "" {
+      next
+    }
+    after_block {
+      after_block = 0
+    }
+    !inserted && /^# if running bash$/ {
+      printf "%s\n\n", block
+      inserted = 1
+    }
+    { print }
+    END {
+      if (!inserted) {
+        printf "\n%s\n", block
+      }
+    }
+  ' "$profile_file" > "$tmp_file"
+
+  if cmp -s "$tmp_file" "$profile_file"; then
+    echo "mise shims already present in $profile_file"
+  else
+    cat "$tmp_file" > "$profile_file"
+    echo "ensured mise shims in $profile_file"
+  fi
+
+  rm -f "$tmp_file"
+}
+
+if [[ "$ACTIVATE_PROFILE" -eq 1 ]]; then
+  ensure_profile_shims
+fi
+
 case "$ACTIVATE_SHELL" in
   zsh)
     ensure_shell_activation "zsh" "$HOME/.zshrc"
@@ -82,6 +155,9 @@ if [[ -z "$ACTIVATE_SHELL" ]]; then
 next step:
   add `eval "$($HOME/.local/bin/mise activate zsh)"` to ~/.zshrc
   or rerun this script with --activate-zsh
+
+profile shims:
+  ~/.profile has been configured so login/non-interactive shells can resolve mise tools
 EOF
 else
   echo
