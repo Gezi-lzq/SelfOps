@@ -1,6 +1,6 @@
 # 开发机目标状态
 
-日期：2026-06-06
+日期：2026-06-09
 
 目标：把 `gezi-dev` 作为长期个人开发机，用 SelfOps 记录配置、依赖和关键变更。
 
@@ -50,11 +50,13 @@
 - base CLI：`kubectl`、`helm`、`k9s`、`stern`、`jq`、`yq`、`rg`、`fd`、`fzf`、`tmux`、`gh`
 - lab CLI：`cloudflared`、`sops`、`age`、`restic`、`rclone`
 - 业务 CLI：`lark-cli`
+- AI API gateway：`CLIProxyAPI`
 - apt 工具：`htop`、`ncdu`
 - 后续可选：`cloudflare-tunnel-ingress-controller`、`metrics-server`、`cert-manager`
 
-其中 base CLI 和 lab CLI 优先由 `dev/environment/config.toml` 的 `mise` 全局配置管理。
-`lark-cli` 不走 `mise`，按官方/现有安装方式管理；认证状态不写入仓库。
+其中 base CLI、lab CLI 和 `lark-cli` 优先由 `dev/environment/config.toml` 的 `mise` 全局配置管理。
+`lark-cli` 作为 `npm:@larksuite/cli` 管理；认证状态不写入仓库。
+`CLIProxyAPI` 不走 `mise`，按官方 Linux installer 管理；本地 API key、OAuth 凭据和 provider token 不写入仓库。
 `metrics-server`、`cert-manager` 属于 k3s 集群组件，不作为本机 CLI 安装。
 
 ## 运行时约定

@@ -11,13 +11,14 @@
 - `pnpm`
 - `python`
 - `uv`
-- 全局 npm CLI：`@openai/codex`、`@playwright/cli`、`agent-browser`
+- 全局 npm CLI：`@openai/codex`、`@playwright/cli`、`agent-browser`、`@larksuite/cli`
 
 说明：
 
 - `npx` 不单独安装，它随 `node`/`npm` 一起提供
 - `pnpm` 作为独立全局工具由 `mise` 管理，不依赖 `corepack`
 - Codex、Playwright CLI、agent-browser 这类 npm 全局工具在 `config.toml` 中声明，由 mise npm backend 安装
+- `lark-cli` 由 `mise` 的 npm backend 管理，认证状态仍保存在本机用户目录，不写入仓库
 - `go` 由 mise 管理版本，GOPATH 设为 `~/go`（Go 默认值），`go install` 的二进制放在 `~/go/bin`
 
 ## 文件布局

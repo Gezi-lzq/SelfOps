@@ -1,6 +1,6 @@
 # 开发机当前状态
 
-日期：2026-06-07
+日期：2026-06-09
 
 ## 当前状态
 
@@ -14,6 +14,12 @@
 - k3s local-path：`/data/volumes/k3s`
 - k3s 版本：`v1.35.5+k3s1`
 - k3s 节点状态：`Ready`
+- CLIProxyAPI 版本：`7.1.56`
+- CLIProxyAPI 安装目录：`/home/debian/cliproxyapi`
+- CLIProxyAPI 配置：`/home/debian/cliproxyapi/config.yaml`
+- CLIProxyAPI 管理密钥文件：`/home/debian/cliproxyapi/.management-secret`，权限 `600`，不提交仓库
+- CLIProxyAPI 监听：`0.0.0.0:8317`
+- CLIProxyAPI systemd user service：`cliproxyapi.service`，当前运行中，尚未 enable
 
 ## 已完成
 
@@ -65,8 +71,32 @@
   - hooks config：`/home/debian/.codex/hooks.json`
   - 验证：`nmem status` ok，`codex mcp list` enabled，Working Memory 可读取，Codex transcript import 可搜索
 - 安装并认证 `lark-cli`，版本 `1.0.48`
+  - 管理方式：`mise` npm backend（`npm:@larksuite/cli`）
   - bot 身份：ready
   - user 身份：ready
+- 安装 Lark agent skills 到 `.agents`
+  - 来源：`larksuite/cli`
+  - 生效目录：`/home/debian/.agents/skills`
+  - 安装方式：`npx skills add larksuite/cli -g -y`
+  - 当前数量：`26`
+- 安装并配置 CLIProxyAPI，版本 `7.1.56`
+  - 安装方式：官方 Linux installer
+  - 安装目录：`/home/debian/cliproxyapi`
+  - release asset：`CLIProxyAPI_7.1.56_linux_amd64.tar.gz`
+  - asset variant：`default`
+  - config：`/home/debian/cliproxyapi/config.yaml`
+  - 已生成本地 API key，但不写入 SelfOps
+  - 已删除示例占位 API key
+  - `host` 已改为 `0.0.0.0`，允许通过 NetBird 域名访问
+  - `remote-management.allow-remote` 已开启
+  - 已设置 `remote-management.secret-key`，明文管理密钥不写入 SelfOps
+  - 明文管理密钥仅保存在 `/home/debian/cliproxyapi/.management-secret`
+  - systemd user service：`/home/debian/.config/systemd/user/cliproxyapi.service`
+  - 验证：`cli-proxy-api` 可执行文件输出版本 `7.1.56`
+  - 已启动 `cliproxyapi.service`
+  - 验证：服务日志显示监听 `0.0.0.0:8317`
+  - 验证：`/management.html` GET 返回 HTTP 200
+  - 验证：`/v0/management/debug` 使用管理密钥返回 `{"debug":false}`
 - 安装并配置 Multica CLI，版本 `0.3.17`
   - server_url：`https://api.multica.ai`
   - app_url：`https://multica.ai`
@@ -122,3 +152,5 @@
 ## 待完成
 
 - [ ] 有自有域名 / Cloudflare zone 后，再评估 `cloudflare-tunnel-ingress-controller`
+- [ ] 为 CLIProxyAPI 执行所需 provider OAuth 登录，例如 Codex、Claude 或 Gemini
+- [ ] 需要开机自启时 enable `cliproxyapi.service`
