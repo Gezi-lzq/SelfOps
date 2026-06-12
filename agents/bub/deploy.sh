@@ -31,6 +31,7 @@ fi
 
 echo "==> Syncing bub source"
 if [ -d "${BUB_REPO}/.git" ]; then
+  git -C "${BUB_REPO}" remote set-url origin "${BUB_GIT_URL}"
   git -C "${BUB_REPO}" fetch origin "${BUB_GIT_BRANCH}"
   git -C "${BUB_REPO}" reset --hard "origin/${BUB_GIT_BRANCH}"
 else
