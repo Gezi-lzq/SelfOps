@@ -1,6 +1,6 @@
 # 开发机当前状态
 
-日期：2026-06-09
+日期：2026-06-12
 
 ## 当前状态
 
@@ -74,6 +74,14 @@
   - 管理方式：`mise` npm backend（`npm:@larksuite/cli`）
   - bot 身份：ready
   - user 身份：ready
+- 安装并认证 `lody`，版本 `0.59.1`
+  - 管理方式：`mise` npm backend（`npm:lody`）
+  - 登录用户：`Gezi-lzq (lzqtxwd@gmail.com)`
+  - 机器名：`gezi-dev`
+  - Machine ID：`222e26e23c99426783f1393aa1486a1f`
+  - daemon：`lody daemon`，当前运行中，`Connectivity: online`
+  - 本地认证状态保存在用户目录，不写入仓库
+  - 首次安装后已对 `better-sqlite3` 执行 `npm rebuild`，生成 Node 26 可用的原生 binding
 - 安装 Lark agent skills 到 `.agents`
   - 来源：`larksuite/cli`
   - 生效目录：`/home/debian/.agents/skills`
