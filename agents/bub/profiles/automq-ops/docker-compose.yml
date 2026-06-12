@@ -2,7 +2,7 @@ services:
   bub:
     privileged: true
     environment:
-      - BUB_ENABLED_CHANNELS=feishu,schedule,http-bridge
+      - BUB_ENABLED_CHANNELS=feishu,schedule
     volumes:
       - ${HOME}/.codex/auth.json:/root/.codex/auth.json:ro
       - ${HOME}/.codex/config.toml:/root/.codex/config.toml
