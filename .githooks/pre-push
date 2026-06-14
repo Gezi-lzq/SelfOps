@@ -1,0 +1,27 @@
+#!/bin/sh
+set -eu
+
+protected_branch="refs/heads/main"
+zero_sha="0000000000000000000000000000000000000000"
+
+while read -r local_ref local_sha remote_ref remote_sha
+do
+  [ "${remote_ref}" = "${protected_branch}" ] || continue
+
+  if [ "${local_sha}" = "${zero_sha}" ]; then
+    echo "pre-push: refusing to delete main" >&2
+    exit 1
+  fi
+
+  if [ "${remote_sha}" = "${zero_sha}" ]; then
+    continue
+  fi
+
+  if git merge-base --is-ancestor "${remote_sha}" "${local_sha}"; then
+    continue
+  fi
+
+  echo "pre-push: refusing non-fast-forward update to main" >&2
+  echo "pre-push: pull/rebase first; force pushes to main are not allowed" >&2
+  exit 1
+done
