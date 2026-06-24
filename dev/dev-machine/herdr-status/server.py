@@ -152,7 +152,7 @@ def copy_button(url: str) -> str:
     return (
         "<button class='copy-link' type='button' "
         f"data-copy-url='{html.escape(url, quote=True)}' "
-        "aria-label='Copy terminal link'>Copy</button>"
+        "aria-label='Copy terminal link'>Link</button>"
     )
 
 
@@ -162,7 +162,7 @@ def render_html(doc: dict[str, Any]) -> bytes:
     summary = " ".join(
         f"<span class='pill {html.escape(key)}'>{html.escape(key)} {value}</span>"
         for key, value in sorted(counts.items())
-    ) or "<span class='muted'>No agents detected</span>"
+    ) or "<span class='muted'>No agents</span>"
 
     session_cards = []
     for session in sorted(doc["sessions"], key=session_priority):
@@ -173,7 +173,7 @@ def render_html(doc: dict[str, Any]) -> bytes:
         errors = session.get("errors", [])
         session_url = terminal_url(ttyd_url, str(session["name"])) if ttyd_url else ""
         session_link = (
-            f"<a class='terminal-link' href='{html.escape(session_url)}'>Open</a>"
+            f"<a class='terminal-link' href='{html.escape(session_url)}'>Session</a>"
             if session_url
             else ""
         )
@@ -192,7 +192,7 @@ def render_html(doc: dict[str, Any]) -> bytes:
                 focus = " focused" if agent.get("focused") else ""
                 agent_url = terminal_url(ttyd_url, str(session["name"]), target) if ttyd_url and target else ""
                 agent_link = (
-                    f"<a class='terminal-link compact' href='{html.escape(agent_url)}'>Attach</a>"
+                    f"<a class='terminal-link compact' href='{html.escape(agent_url)}'>Agent</a>"
                     if agent_url
                     else ""
                 )
@@ -206,7 +206,7 @@ def render_html(doc: dict[str, Any]) -> bytes:
                     "</div>"
                 )
         else:
-            rows.append("<div class='empty'>No agents detected in this session.</div>")
+            rows.append("<div class='empty'>No agents in this session.</div>")
 
         workspace_line = ", ".join(
             html.escape(f"{w.get('label') or w.get('workspace_id')}:{w.get('agent_status', 'unknown')}")
@@ -222,14 +222,14 @@ def render_html(doc: dict[str, Any]) -> bytes:
             "<section class='card'>"
             f"<div class='card-head'><h2>{name}</h2><span class='agent-actions'>{session_link}{session_copy}"
             f"<span class='session-state {'running' if running else 'stopped'}'>{'running' if running else 'stopped'}</span></span></div>"
-            f"<div class='workspaces'>{workspace_line or 'No workspace summary'}</div>"
+            f"<div class='workspaces'>{workspace_line or 'No workspaces'}</div>"
             f"{''.join(rows)}"
             f"{error_html}"
             "</section>"
         )
 
     terminal_link = (
-        f"<a class='terminal-link' href='{html.escape(ttyd_url)}'>Default terminal</a>"
+        f"<a class='terminal-link' href='{html.escape(ttyd_url)}'>Default</a>"
         if ttyd_url
         else ""
     )
@@ -370,7 +370,7 @@ def render_html(doc: dict[str, Any]) -> bytes:
     <h1>Herdr Status</h1>
     <div class="meta">
       <span>{html.escape(doc["generated_at_iso"])}</span>
-      <span>refresh {REFRESH_SECONDS}s</span>
+      <span>{REFRESH_SECONDS}s refresh</span>
       <span>{summary}</span>
       {terminal_link}
     </div>
@@ -385,10 +385,10 @@ def render_html(doc: dict[str, Any]) -> bytes:
       const url = new URL(button.dataset.copyUrl, window.location.href).toString();
       try {{
         await navigator.clipboard.writeText(url);
-        button.textContent = "Copied";
+        button.textContent = "Done";
         button.classList.add("copied");
         window.setTimeout(() => {{
-          button.textContent = "Copy";
+          button.textContent = "Link";
           button.classList.remove("copied");
         }}, 1200);
       }} catch (error) {{

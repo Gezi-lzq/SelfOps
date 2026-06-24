@@ -31,7 +31,7 @@ HERDR_STATUS_PORT=8765
 HERDR_STATUS_TTYD_URL=/terminal/
 ```
 
-`HERDR_STATUS_TTYD_URL` is optional. When set, the page shows an "Open terminal"
+`HERDR_STATUS_TTYD_URL` is optional. When set, the page shows a `Default`
 link. With the `herdr-web` Caddy router, keep it as `/terminal/` so the link
 works under whichever ngrok URL is currently active.
 
@@ -51,7 +51,7 @@ Sessions and agents are sorted by attention priority:
 blocked > working > unknown > idle > done > stopped
 ```
 
-Each generated terminal link has a `Copy` button that copies the absolute URL
+Each generated terminal link has a `Link` button that copies the absolute URL
 for use on another device.
 
 ## Browser Routes
