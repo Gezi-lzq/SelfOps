@@ -1,7 +1,7 @@
 [Unit]
-Description=Local path router for Herdr browser access
-After=network-online.target herdr-web-ttyd.service herdr-status.service
-Requires=herdr-web-ttyd.service herdr-status.service
+Description=Local Caddy router for dev-machine public access
+After=network-online.target herdr-web-ttyd.service herdr-web-ttyd-mobile.service herdr-status.service
+Requires=herdr-web-ttyd.service herdr-web-ttyd-mobile.service herdr-status.service
 
 [Service]
 Type=simple

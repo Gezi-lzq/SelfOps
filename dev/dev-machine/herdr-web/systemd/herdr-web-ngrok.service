@@ -1,7 +1,7 @@
 [Unit]
-Description=ngrok tunnel for Herdr browser terminal
-After=network-online.target herdr-web-ttyd.service
-Requires=herdr-web-ttyd.service
+Description=ngrok tunnel for dev-machine Caddy router
+After=network-online.target herdr-web-proxy.service
+Requires=herdr-web-proxy.service
 
 [Service]
 Type=simple

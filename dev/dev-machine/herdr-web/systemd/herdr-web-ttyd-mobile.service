@@ -1,0 +1,22 @@
+[Unit]
+Description=Herdr mobile browser terminal via ttyd
+After=network-online.target
+
+[Service]
+Type=simple
+Environment=SELFOPS_ROOT=__SELFOPS_ROOT__
+Environment=PATH=%h/.local/share/mise/shims:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+EnvironmentFile=%h/.config/selfops/herdr-web.env
+Environment=HERDR_WEB_TTYD_INSTANCE_PORT=7682
+Environment=HERDR_WEB_TTYD_INSTANCE_BASE_PATH=/terminal-mobile
+Environment=HERDR_WEB_TTYD_FONT_SIZE=20
+Environment=HERDR_WEB_TTYD_LINE_HEIGHT=1.15
+Environment=HERDR_WEB_TTYD_SCROLLBACK=5000
+Environment=HERDR_WEB_TTYD_DISABLE_LEAVE_ALERT=true
+Environment=HERDR_WEB_TTYD_DISABLE_RESIZE_OVERLAY=true
+ExecStart=__SELFOPS_ROOT__/dev/dev-machine/herdr-web/bin/herdr-web-ttyd
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

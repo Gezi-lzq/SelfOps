@@ -70,15 +70,9 @@ curl -H "Host: whoami.gezi-dev.local" http://100.117.255.204/
 公网入口策略：
 
 1. 默认私网访问：Traefik + NetBird。
-2. 下一步公网实验：NetBird Reverse Proxy。
-3. 临时公网备用：cloudflared quick tunnel。
+2. 主要公网出口：`ngrok -> 127.0.0.1:8780 Caddy router`，由 `herdr-web` 管理。
+3. 临时公网备用：cloudflared quick tunnel 指向同一个 Caddy router。
 4. 长期 Cloudflare 入口：有自有域名 / Cloudflare zone 后，再评估 `cloudflare-tunnel-ingress-controller`。
-
-NetBird Reverse Proxy 可作为当前阶段的公网暴露选型：
-- 不要求先有自有域名。
-- 可把开发机上的内网服务暴露为公网 HTTPS 入口。
-- 适合先验证“公网访问 k3s Traefik 服务”的使用体验。
-- 后续需要确认 beta 稳定性、访问控制和日志能力。
 
 `cloudflare-tunnel-ingress-controller` 当前暂不部署。
 
@@ -87,10 +81,13 @@ NetBird Reverse Proxy 可作为当前阶段的公网暴露选型：
 - controller 的主要价值是把 Ingress host 自动映射到 Cloudflare DNS 和 Tunnel。
 - 没有 zone 时，无法验证 `Ingress host -> Cloudflare DNS -> Tunnel -> k3s Service` 的完整链路。
 
-临时公网访问可以使用 cloudflared quick tunnel：
+当前不默认把 k3s Ingress 直接暴露到公网。需要公网访问某个本机服务时，优先把它挂到
+`dev/dev-machine/herdr-web/Caddyfile` 的 `127.0.0.1:8780` path router，再通过 ngrok 暴露。
+
+临时公网备用可以使用 cloudflared quick tunnel 指向同一个 router：
 
 ```bash
-cloudflared tunnel --url http://127.0.0.1:80
+cloudflared tunnel --url http://127.0.0.1:8780
 ```
 
 quick tunnel 会生成临时 `*.trycloudflare.com` 地址，适合短期验证，不纳入长期服务管理。

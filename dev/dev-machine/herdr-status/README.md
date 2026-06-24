@@ -28,22 +28,43 @@ Environment variables:
 ```text
 HERDR_STATUS_HOST=127.0.0.1
 HERDR_STATUS_PORT=8765
-HERDR_STATUS_TTYD_URL=/terminal/
+HERDR_STATUS_TTYD_URL=/herdr/terminal/
+HERDR_STATUS_HISTORY_URL=/herdr/history
+# Optional:
+HERDR_STATUS_TTYD_DESKTOP_URL=/herdr/terminal/
+HERDR_STATUS_TTYD_MOBILE_URL=/herdr/terminal-mobile/
+HERDR_STATUS_TTYD_MOBILE_WIDTH=700
 ```
 
 `HERDR_STATUS_TTYD_URL` is optional. When set, the page shows a `Default`
-link. With the `herdr-web` Caddy router, keep it as `/terminal/` so the link
-works under whichever ngrok URL is currently active.
+link. With the `herdr-web` Caddy router, keep it under `/herdr/terminal/` so
+the link works under whichever ngrok URL is currently active.
+
+When `HERDR_STATUS_TTYD_MOBILE_URL` is set, terminal links are resolved in the
+browser. Viewports at or below `HERDR_STATUS_TTYD_MOBILE_WIDTH` use the mobile
+base URL, while wider screens use `HERDR_STATUS_TTYD_DESKTOP_URL`. The status
+service appends the same ttyd `arg=...` parameters after choosing the base URL.
 
 The dashboard also generates per-session and per-agent terminal links:
 
 ```text
-/terminal/?arg=--session&arg=default
-/terminal/?arg=--session&arg=default&arg=--agent&arg=term_...
+/herdr/terminal/?arg=--session&arg=default
+/herdr/terminal/?arg=--session&arg=default&arg=--agent&arg=term_...
 ```
 
 Those arguments are handled by `herdr-web-session`, which accepts only
 `--session` and `--agent`.
+
+Each detected agent also has a `History` link:
+
+```text
+/history?session=default&pane=w1:p1&lines=400
+```
+
+This renders recent pane output as a normal scrollable HTML page while preserving
+ANSI colors and emphasis. It is useful on mobile browsers where the
+ttyd/xterm.js full-screen terminal may not expose touch scrolling over Herdr's
+pane history.
 
 Sessions and agents are sorted by attention priority:
 
@@ -60,10 +81,16 @@ When installed with `herdr-web`, Caddy exposes these local routes on
 `127.0.0.1:8780` and ngrok forwards the same paths:
 
 ```text
-/           status dashboard
-/api.json   raw status JSON
-/terminal/  ttyd terminal
+/           gezi-dev service homepage
+/herdr      status dashboard entry
+/herdr/api.json   raw status JSON
+/herdr/history    read-only scrollable pane history
+/herdr/terminal/  ttyd terminal
+/herdr/terminal-mobile/  ttyd terminal with larger mobile font
 ```
+
+Only `/herdr` is intended as a homepage entry. The other paths are service
+subroutes used by the Herdr dashboard and ttyd.
 
 ## Scope
 

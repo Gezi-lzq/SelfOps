@@ -2,9 +2,21 @@
 set -euo pipefail
 
 env_file="${HERDR_WEB_ENV_FILE:-$HOME/.config/selfops/herdr-web.env}"
+instance_host="${HERDR_WEB_TTYD_INSTANCE_HOST:-}"
+instance_port="${HERDR_WEB_TTYD_INSTANCE_PORT:-}"
+instance_base_path="${HERDR_WEB_TTYD_INSTANCE_BASE_PATH:-}"
 if [[ -f "$env_file" ]]; then
   # shellcheck disable=SC1090
   source "$env_file"
+fi
+if [[ -n "$instance_host" ]]; then
+  HERDR_WEB_TTYD_HOST="$instance_host"
+fi
+if [[ -n "$instance_port" ]]; then
+  HERDR_WEB_TTYD_PORT="$instance_port"
+fi
+if [[ -n "$instance_base_path" ]]; then
+  HERDR_WEB_TTYD_BASE_PATH="$instance_base_path"
 fi
 
 host="${HERDR_WEB_TTYD_HOST:-127.0.0.1}"
@@ -31,6 +43,22 @@ args=(
   -a \
   -b "${HERDR_WEB_TTYD_BASE_PATH:-/terminal}"
 )
+
+add_client_option() {
+  local key="$1"
+  local value="$2"
+  if [[ -n "$value" ]]; then
+    args+=(-t "$key=$value")
+  fi
+}
+
+add_client_option fontFamily "${HERDR_WEB_TTYD_FONT_FAMILY:-}"
+add_client_option fontSize "${HERDR_WEB_TTYD_FONT_SIZE:-}"
+add_client_option lineHeight "${HERDR_WEB_TTYD_LINE_HEIGHT:-}"
+add_client_option scrollback "${HERDR_WEB_TTYD_SCROLLBACK:-}"
+add_client_option disableLeaveAlert "${HERDR_WEB_TTYD_DISABLE_LEAVE_ALERT:-}"
+add_client_option disableResizeOverlay "${HERDR_WEB_TTYD_DISABLE_RESIZE_OVERLAY:-}"
+add_client_option rendererType "${HERDR_WEB_TTYD_RENDERER_TYPE:-}"
 
 if [[ -n "$credential" ]]; then
   args+=(-c "$credential")

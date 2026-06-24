@@ -5,11 +5,60 @@
 :8780 {
 	bind 127.0.0.1
 
+	# Public path router exposed by ngrok. Add specific routes above the fallback.
+	handle /herdr/terminal-mobile* {
+		uri strip_prefix /herdr
+		reverse_proxy 127.0.0.1:7682
+	}
+
+	handle /herdr/terminal* {
+		uri strip_prefix /herdr
+		reverse_proxy 127.0.0.1:7681
+	}
+
+	handle /herdr/history* {
+		uri strip_prefix /herdr
+		reverse_proxy 127.0.0.1:8765
+	}
+
+	handle /herdr/api.json {
+		uri strip_prefix /herdr
+		reverse_proxy 127.0.0.1:8765
+	}
+
+	handle /terminal-mobile* {
+		reverse_proxy 127.0.0.1:7682
+	}
+
 	handle /terminal* {
 		reverse_proxy 127.0.0.1:7681
 	}
 
-	handle {
+	handle /history* {
 		reverse_proxy 127.0.0.1:8765
+	}
+
+	handle /api.json {
+		reverse_proxy 127.0.0.1:8765
+	}
+
+	handle /herdr {
+		rewrite * /
+		reverse_proxy 127.0.0.1:8765
+	}
+
+	handle /herdr/* {
+		uri strip_prefix /herdr
+		reverse_proxy 127.0.0.1:8765
+	}
+
+	@root path /
+	handle @root {
+		root * public
+		file_server
+	}
+
+	handle {
+		respond "Not found" 404
 	}
 }

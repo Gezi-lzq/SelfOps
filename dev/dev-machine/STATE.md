@@ -20,11 +20,11 @@
 - CLIProxyAPI 管理密钥文件：`/home/debian/cliproxyapi/.management-secret`，权限 `600`，不提交仓库
 - CLIProxyAPI 监听：`0.0.0.0:8317`
 - CLIProxyAPI systemd user service：`cliproxyapi.service`，当前运行中，尚未 enable
-- Herdr 浏览器入口定义：`dev/dev-machine/herdr-web`
-- Herdr 浏览器入口服务：
+- 开发机公网入口定义：`dev/dev-machine/herdr-web`
+- 开发机公网入口服务：
   - `herdr-web-ttyd.service`：本地 `ttyd`，默认监听 `127.0.0.1:7681`
   - `herdr-status.service`：只读手机状态页，默认监听 `127.0.0.1:8765`
-  - `herdr-web-proxy.service`：本地 Caddy path router，监听 `127.0.0.1:8780`
+  - `herdr-web-proxy.service`：本地 Caddy path router，监听 `127.0.0.1:8780`，作为主要公网反向代理出口
   - `herdr-web-ngrok.service`：通过 ngrok 暴露 Caddy router
   - `herdr-web-cloudflared.service`：可选 Cloudflare quick tunnel，绕开 ngrok pooling
   - 本机环境文件：`/home/debian/.config/selfops/herdr-web.env`，不提交仓库
@@ -153,25 +153,20 @@
   - Redis StatefulSet 可使用 local-path PVC
   - 删除 StatefulSet 后 PVC 会保留，需显式删除 PVC 或 Namespace
   - 删除 PVC 后 `/data/volumes/k3s` 测试目录会回收
-- 部署第一个长期 k3s 应用：`homepage`
-  - 用作开发机入口页
-  - 无 PVC
-  - Ingress host：`home.gezi-dev.local`
-  - 通过 Traefik + NetBird IP 访问返回 HTTP 200
-- 添加 NetBird Terraform 目录：
-  - `dev/dev-machine/terraform/netbird`
-  - 用于管理 Homepage Reverse Proxy
-- 试用 NetBird Reverse Proxy：
-  - Service：`gezi-dev-home`
-  - Domain：`gezi-dev-home.eu1.netbird.services`
-  - 目标：`gezi-dev:80`
-  - 已通过 Terraform destroy 删除
+- 已退役 k3s 应用：`homepage`
+  - 原用途：开发机入口页
+  - 退役原因：作用不大，当前不再维护该入口页
+  - 已从本机 k3s 删除 `homepage` namespace、Deployment、Service、Ingress、ConfigMap
+  - 已删除仓库中的 `dev/dev-machine/k3s/apps/homepage` manifests
+  - 该服务无 PVC，无持久数据需要清理
+- NetBird Reverse Proxy 试验已退役：
   - 结论：访问体验偏卡，当前不采用
-  - state 保留在开发机本地，不提交仓库
-- 恢复 Homepage Ingress 和 `HOMEPAGE_ALLOWED_HOSTS`，仅保留内网访问 Host
-- 添加 Herdr 浏览器入口声明：
+  - 已删除仓库中的 `dev/dev-machine/terraform/netbird` 配置
+- `Homepage` 相关 Ingress 和 `HOMEPAGE_ALLOWED_HOSTS` 配置已随应用退役删除
+- 添加开发机公网 Caddy router 声明：
   - 目录：`dev/dev-machine/herdr-web`
-  - 方式：`ttyd` 只监听 localhost，`ngrok` 对外暴露
+  - 方式：本机服务只监听 localhost，由 Caddy `127.0.0.1:8780` 按 path 反代，`ngrok` 对外暴露 Caddy
+  - 当前主要用途：Herdr 状态页、history、desktop/mobile ttyd 终端
   - 默认浏览器终端命令：`herdr --session browser`
   - 管理入口：`mise run herdr-web:*`
 - 安装并验证 Herdr 浏览器入口本地端：
@@ -180,15 +175,25 @@
   - `ngrok` 已通过 `mise run herdr-web:install-ngrok` 安装
   - `mise run herdr-web:install` 已生成 systemd user units 和本机 env 文件
   - `herdr-web-ttyd.service` 已启动，`http://127.0.0.1:7681` 返回 HTTP 401 basic auth
+  - `herdr-web-ttyd-mobile.service` 已启动，`http://127.0.0.1:7682` 返回 HTTP 401 basic auth
   - `herdr-status.service` 已启动，`http://127.0.0.1:8765` 返回 Herdr 状态页
-  - `herdr-web-proxy.service` 已启动，`http://127.0.0.1:8780/` 返回状态页，`/terminal/` 返回 ttyd
+  - `herdr-web-proxy.service` 已启动，`http://127.0.0.1:8780/` 返回状态页，`/terminal/` 和
+    `/terminal-mobile/` 返回 ttyd
   - `ngrok config add-authtoken` 已配置本机 token
   - `herdr-web-ngrok.service` 已启动；因账号 endpoint 已在线，当前本机 env 设置
     `HERDR_WEB_NGROK_POOLING=true`
   - 公网 URL 当前 path 设计：
-    - `/`：只读 Herdr 状态页
-    - `/api.json`：状态 JSON
-    - `/terminal/`：ttyd 终端
+    - `/`：gezi-dev 服务 homepage
+    - 顶层入口只放 `/herdr`：Herdr status dashboard
+    - Herdr 内部/兼容路径：
+      - `/herdr/api.json`：状态 JSON
+      - `/herdr/history`：只读可滚动 pane history，适合手机查看当前执行输出
+      - `/herdr/terminal/`：ttyd 终端
+      - `/herdr/terminal-mobile/`：手机字体配置的 ttyd 终端
+      - `/api.json`、`/history`、`/terminal/`、`/terminal-mobile/`：旧链接兼容别名
+    - Nowledge Mem 不挂到公网 path；其前端资源使用绝对 `/app/assets` 路径，不适合稳定挂在 Caddy 子路径下
+  - 后续新增对外工具时，优先添加到 `dev/dev-machine/herdr-web/Caddyfile` 的 path-specific
+    `handle` block，再通过同一个 ngrok URL 暴露
   - 注意：当前 ngrok endpoint 仍存在旧 backend；pooling 下公网请求可能间歇命中旧 backend 并返回
     `ERR_NGROK_3801`。稳定使用前应在 ngrok 侧关闭旧 endpoint，或配置新的静态 endpoint 后关闭 pooling。
 - 添加 Cloudflare quick tunnel 备选公网入口：

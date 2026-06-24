@@ -37,6 +37,10 @@ render_unit \
   "$systemd_user_dir/herdr-web-ttyd.service"
 
 render_unit \
+  "$selfops_root/dev/dev-machine/herdr-web/systemd/herdr-web-ttyd-mobile.service" \
+  "$systemd_user_dir/herdr-web-ttyd-mobile.service"
+
+render_unit \
   "$selfops_root/dev/dev-machine/herdr-web/systemd/herdr-web-ngrok.service" \
   "$systemd_user_dir/herdr-web-ngrok.service"
 
@@ -58,5 +62,5 @@ echo "Next steps:"
 echo "  1. Ensure ttyd, caddy, and ngrok or cloudflared are installed."
 echo "  2. Authenticate ngrok: ngrok config add-authtoken <token>"
 echo "  3. Review $env_file"
-echo "  4. Start ngrok: systemctl --user start herdr-web-ttyd.service herdr-status.service herdr-web-proxy.service herdr-web-ngrok.service"
-echo "     Or start Cloudflare quick tunnel: systemctl --user start herdr-web-ttyd.service herdr-status.service herdr-web-proxy.service herdr-web-cloudflared.service"
+echo "  4. Start ngrok: systemctl --user start herdr-web-ttyd.service herdr-web-ttyd-mobile.service herdr-status.service herdr-web-proxy.service herdr-web-ngrok.service"
+echo "     Or start Cloudflare quick tunnel: systemctl --user start herdr-web-ttyd.service herdr-web-ttyd-mobile.service herdr-status.service herdr-web-proxy.service herdr-web-cloudflared.service"
