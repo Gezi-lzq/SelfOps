@@ -28,6 +28,7 @@ args=(
   -p "$port" \
   -W \
   -O \
+  -a \
   -b "${HERDR_WEB_TTYD_BASE_PATH:-/terminal}"
 )
 

@@ -13,6 +13,51 @@ fi
 
 session="${HERDR_WEB_SESSION:-browser}"
 cwd="${HERDR_WEB_CWD:-$HOME}"
+agent=""
+
+usage() {
+  cat >&2 <<'EOF'
+Usage: herdr-web-session [--session NAME] [--agent TARGET]
+
+This wrapper accepts only a small URL-safe allowlist from ttyd's ?arg=...
+parameters. It does not expose arbitrary command execution.
+EOF
+}
+
+valid_value() {
+  [[ "$1" =~ ^[A-Za-z0-9._:@/-]+$ ]]
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --session)
+      [[ $# -ge 2 ]] || { usage; exit 2; }
+      valid_value "$2" || { echo "invalid session: $2" >&2; exit 2; }
+      session="$2"
+      shift 2
+      ;;
+    --agent)
+      [[ $# -ge 2 ]] || { usage; exit 2; }
+      valid_value "$2" || { echo "invalid agent target: $2" >&2; exit 2; }
+      agent="$2"
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "unsupported argument: $1" >&2
+      usage
+      exit 2
+      ;;
+  esac
+done
 
 cd "$cwd"
+
+if [[ -n "$agent" ]]; then
+  exec herdr --session "$session" agent attach "$agent" --takeover
+fi
+
 exec herdr --session "$session"

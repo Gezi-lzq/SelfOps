@@ -8,6 +8,7 @@ import subprocess
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
+from urllib.parse import urlencode
 
 
 REFRESH_SECONDS = 5
@@ -101,6 +102,14 @@ def status_class(status: str) -> str:
     return "status unknown"
 
 
+def terminal_url(base_url: str, session: str, agent: str | None = None) -> str:
+    args = ["--session", session]
+    if agent:
+        args.extend(["--agent", agent])
+    separator = "&" if "?" in base_url else "?"
+    return f"{base_url}{separator}{urlencode([('arg', arg) for arg in args])}"
+
+
 def render_html(doc: dict[str, Any]) -> bytes:
     ttyd_url = os.environ.get("HERDR_STATUS_TTYD_URL", "").strip()
     counts = status_counts(doc["sessions"])
@@ -116,6 +125,12 @@ def render_html(doc: dict[str, Any]) -> bytes:
         agents = session.get("agents", [])
         workspaces = session.get("workspaces", [])
         errors = session.get("errors", [])
+        session_url = terminal_url(ttyd_url, str(session["name"])) if ttyd_url else ""
+        session_link = (
+            f"<a class='terminal-link' href='{html.escape(session_url)}'>Open</a>"
+            if session_url
+            else ""
+        )
 
         rows = []
         if agents:
@@ -123,14 +138,21 @@ def render_html(doc: dict[str, Any]) -> bytes:
                 agent_name = html.escape(str(agent.get("agent") or "terminal"))
                 status = html.escape(str(agent.get("agent_status") or "unknown"))
                 cwd = html.escape(str(agent.get("foreground_cwd") or agent.get("cwd") or ""))
+                target = str(agent.get("terminal_id") or agent.get("agent") or "")
                 location = html.escape(
                     f"{agent.get('workspace_id', '?')} / {agent.get('tab_id', '?')} / {agent.get('pane_id', '?')}"
                 )
                 focus = " focused" if agent.get("focused") else ""
+                agent_url = terminal_url(ttyd_url, str(session["name"]), target) if ttyd_url and target else ""
+                agent_link = (
+                    f"<a class='terminal-link compact' href='{html.escape(agent_url)}'>Attach</a>"
+                    if agent_url
+                    else ""
+                )
                 rows.append(
                     "<div class='agent-row'>"
                     f"<div class='agent-main'><strong>{agent_name}</strong>"
-                    f"<span class='{status_class(status)}'>{status}</span></div>"
+                    f"<span class='agent-actions'><span class='{status_class(status)}'>{status}</span>{agent_link}</span></div>"
                     f"<div class='cwd'>{cwd}</div>"
                     f"<div class='location{focus}'>{location}</div>"
                     "</div>"
@@ -150,8 +172,8 @@ def render_html(doc: dict[str, Any]) -> bytes:
 
         session_cards.append(
             "<section class='card'>"
-            f"<div class='card-head'><h2>{name}</h2>"
-            f"<span class='session-state {'running' if running else 'stopped'}'>{'running' if running else 'stopped'}</span></div>"
+            f"<div class='card-head'><h2>{name}</h2><span class='agent-actions'>{session_link}"
+            f"<span class='session-state {'running' if running else 'stopped'}'>{'running' if running else 'stopped'}</span></span></div>"
             f"<div class='workspaces'>{workspace_line or 'No workspace summary'}</div>"
             f"{''.join(rows)}"
             f"{error_html}"
@@ -159,7 +181,7 @@ def render_html(doc: dict[str, Any]) -> bytes:
         )
 
     terminal_link = (
-        f"<a class='terminal-link' href='{html.escape(ttyd_url)}'>Open terminal</a>"
+        f"<a class='terminal-link' href='{html.escape(ttyd_url)}'>Default terminal</a>"
         if ttyd_url
         else ""
     )
@@ -226,6 +248,7 @@ def render_html(doc: dict[str, Any]) -> bytes:
     .agent-row {{ padding: 12px; border-top: 1px solid var(--line); }}
     .agent-row:first-of-type {{ border-top: 0; }}
     .agent-main {{ display: flex; align-items: center; gap: 8px; justify-content: space-between; }}
+    .agent-actions {{ display: inline-flex; align-items: center; gap: 8px; }}
     .cwd {{ margin-top: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; overflow-wrap: anywhere; }}
     .location {{ margin-top: 4px; font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }}
     .location.focused::after {{ content: " focused"; color: var(--working); }}
@@ -256,6 +279,7 @@ def render_html(doc: dict[str, Any]) -> bytes:
       padding: 5px 8px;
       background: var(--panel-2);
     }}
+    .terminal-link.compact {{ min-height: 24px; padding: 3px 8px; font-size: 12px; }}
   </style>
 </head>
 <body>
@@ -315,4 +339,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

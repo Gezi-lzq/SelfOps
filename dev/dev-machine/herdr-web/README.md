@@ -119,6 +119,18 @@ Routes on that URL:
 /terminal/  ttyd browser terminal
 ```
 
+The status dashboard renders direct terminal links for each session and detected
+agent. These links use ttyd URL arguments:
+
+```text
+/terminal/?arg=--session&arg=default
+/terminal/?arg=--session&arg=default&arg=--agent&arg=term_...
+```
+
+The `herdr-web-session` wrapper intentionally accepts only `--session` and
+`--agent`, then runs either `herdr --session <name>` or
+`herdr --session <name> agent attach <target> --takeover`.
+
 Follow logs:
 
 ```bash

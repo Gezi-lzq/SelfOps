@@ -35,6 +35,16 @@ HERDR_STATUS_TTYD_URL=/terminal/
 link. With the `herdr-web` Caddy router, keep it as `/terminal/` so the link
 works under whichever ngrok URL is currently active.
 
+The dashboard also generates per-session and per-agent terminal links:
+
+```text
+/terminal/?arg=--session&arg=default
+/terminal/?arg=--session&arg=default&arg=--agent&arg=term_...
+```
+
+Those arguments are handled by `herdr-web-session`, which accepts only
+`--session` and `--agent`.
+
 ## Browser Routes
 
 When installed with `herdr-web`, Caddy exposes these local routes on
