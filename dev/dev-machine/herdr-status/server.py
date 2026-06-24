@@ -295,20 +295,23 @@ def render_html(doc: dict[str, Any]) -> bytes:
     .workspaces {{ padding: 10px 12px; font-size: 13px; border-bottom: 1px solid var(--line); }}
     .agent-row {{ padding: 12px; border-top: 1px solid var(--line); }}
     .agent-row:first-of-type {{ border-top: 0; }}
-    .agent-main {{ display: flex; align-items: center; gap: 8px; justify-content: space-between; }}
-    .agent-actions {{ display: inline-flex; align-items: center; gap: 8px; }}
+    .agent-main {{ display: flex; align-items: center; gap: 10px; justify-content: space-between; }}
+    .agent-actions {{ display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }}
     .cwd {{ margin-top: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; overflow-wrap: anywhere; }}
     .location {{ margin-top: 4px; font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }}
     .location.focused::after {{ content: " focused"; color: var(--working); }}
     .status, .session-state, .pill {{
       display: inline-flex;
       align-items: center;
-      min-height: 24px;
-      padding: 3px 8px;
+      justify-content: center;
+      height: 28px;
+      padding: 0 10px;
       border-radius: 999px;
       font-size: 12px;
+      line-height: 1;
       border: 1px solid var(--line);
       background: #15181c;
+      white-space: nowrap;
     }}
     .working {{ color: var(--working); }}
     .blocked {{ color: var(--blocked); }}
@@ -320,25 +323,46 @@ def render_html(doc: dict[str, Any]) -> bytes:
     .error {{ padding: 10px 12px; color: var(--blocked); border-top: 1px solid var(--line); font-size: 13px; }}
     .empty {{ padding: 12px; }}
     .terminal-link {{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 32px;
+      min-width: 64px;
       color: var(--text);
       text-decoration: none;
       border: 1px solid var(--line);
       border-radius: 6px;
-      padding: 5px 8px;
+      padding: 0 12px;
       background: var(--panel-2);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1;
+      white-space: nowrap;
     }}
-    .terminal-link.compact {{ min-height: 24px; padding: 3px 8px; font-size: 12px; }}
+    .terminal-link.compact {{ height: 28px; min-width: 62px; padding: 0 10px; font-size: 12px; }}
     .copy-link {{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 28px;
+      min-width: 54px;
       color: var(--muted);
       background: transparent;
       border: 1px solid var(--line);
       border-radius: 6px;
-      min-height: 24px;
-      padding: 3px 8px;
+      padding: 0 10px;
       font: inherit;
       font-size: 12px;
+      line-height: 1;
+      white-space: nowrap;
     }}
     .copy-link.copied {{ color: var(--working); border-color: rgba(88, 196, 163, 0.6); }}
+    @media (max-width: 520px) {{
+      .card-head {{ align-items: flex-start; flex-direction: column; }}
+      .card-head .agent-actions {{ justify-content: flex-start; }}
+      .agent-main {{ align-items: flex-start; flex-direction: column; }}
+      .agent-actions {{ justify-content: flex-start; }}
+    }}
   </style>
 </head>
 <body>
