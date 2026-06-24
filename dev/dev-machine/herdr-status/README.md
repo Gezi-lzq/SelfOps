@@ -45,6 +45,15 @@ The dashboard also generates per-session and per-agent terminal links:
 Those arguments are handled by `herdr-web-session`, which accepts only
 `--session` and `--agent`.
 
+Sessions and agents are sorted by attention priority:
+
+```text
+blocked > working > unknown > idle > done > stopped
+```
+
+Each generated terminal link has a `Copy` button that copies the absolute URL
+for use on another device.
+
 ## Browser Routes
 
 When installed with `herdr-web`, Caddy exposes these local routes on

@@ -12,6 +12,13 @@ from urllib.parse import urlencode
 
 
 REFRESH_SECONDS = 5
+STATUS_PRIORITY = {
+    "blocked": 0,
+    "working": 1,
+    "unknown": 2,
+    "idle": 3,
+    "done": 4,
+}
 
 
 def run_json(argv: list[str], timeout: float = 2.5) -> tuple[dict[str, Any] | None, str | None]:
@@ -102,12 +109,51 @@ def status_class(status: str) -> str:
     return "status unknown"
 
 
+def status_priority(status: str) -> int:
+    return STATUS_PRIORITY.get(status, STATUS_PRIORITY["unknown"])
+
+
+def session_priority(session: dict[str, Any]) -> tuple[int, str]:
+    if not session.get("running"):
+        return 5, str(session.get("name") or "")
+
+    statuses = [
+        str(agent.get("agent_status") or "unknown")
+        for agent in session.get("agents", [])
+    ]
+    statuses.extend(
+        str(workspace.get("agent_status") or "unknown")
+        for workspace in session.get("workspaces", [])
+    )
+
+    if not statuses:
+        return status_priority("unknown"), str(session.get("name") or "")
+
+    return min(status_priority(status) for status in statuses), str(session.get("name") or "")
+
+
+def agent_priority(agent: dict[str, Any]) -> tuple[int, str]:
+    status = str(agent.get("agent_status") or "unknown")
+    label = str(agent.get("agent") or agent.get("terminal_id") or "")
+    return status_priority(status), label
+
+
 def terminal_url(base_url: str, session: str, agent: str | None = None) -> str:
     args = ["--session", session]
     if agent:
         args.extend(["--agent", agent])
     separator = "&" if "?" in base_url else "?"
     return f"{base_url}{separator}{urlencode([('arg', arg) for arg in args])}"
+
+
+def copy_button(url: str) -> str:
+    if not url:
+        return ""
+    return (
+        "<button class='copy-link' type='button' "
+        f"data-copy-url='{html.escape(url, quote=True)}' "
+        "aria-label='Copy terminal link'>Copy</button>"
+    )
 
 
 def render_html(doc: dict[str, Any]) -> bytes:
@@ -119,7 +165,7 @@ def render_html(doc: dict[str, Any]) -> bytes:
     ) or "<span class='muted'>No agents detected</span>"
 
     session_cards = []
-    for session in doc["sessions"]:
+    for session in sorted(doc["sessions"], key=session_priority):
         name = html.escape(str(session["name"]))
         running = bool(session["running"])
         agents = session.get("agents", [])
@@ -131,10 +177,11 @@ def render_html(doc: dict[str, Any]) -> bytes:
             if session_url
             else ""
         )
+        session_copy = copy_button(session_url)
 
         rows = []
         if agents:
-            for agent in agents:
+            for agent in sorted(agents, key=agent_priority):
                 agent_name = html.escape(str(agent.get("agent") or "terminal"))
                 status = html.escape(str(agent.get("agent_status") or "unknown"))
                 cwd = html.escape(str(agent.get("foreground_cwd") or agent.get("cwd") or ""))
@@ -149,10 +196,11 @@ def render_html(doc: dict[str, Any]) -> bytes:
                     if agent_url
                     else ""
                 )
+                agent_copy = copy_button(agent_url)
                 rows.append(
                     "<div class='agent-row'>"
                     f"<div class='agent-main'><strong>{agent_name}</strong>"
-                    f"<span class='agent-actions'><span class='{status_class(status)}'>{status}</span>{agent_link}</span></div>"
+                    f"<span class='agent-actions'><span class='{status_class(status)}'>{status}</span>{agent_link}{agent_copy}</span></div>"
                     f"<div class='cwd'>{cwd}</div>"
                     f"<div class='location{focus}'>{location}</div>"
                     "</div>"
@@ -172,7 +220,7 @@ def render_html(doc: dict[str, Any]) -> bytes:
 
         session_cards.append(
             "<section class='card'>"
-            f"<div class='card-head'><h2>{name}</h2><span class='agent-actions'>{session_link}"
+            f"<div class='card-head'><h2>{name}</h2><span class='agent-actions'>{session_link}{session_copy}"
             f"<span class='session-state {'running' if running else 'stopped'}'>{'running' if running else 'stopped'}</span></span></div>"
             f"<div class='workspaces'>{workspace_line or 'No workspace summary'}</div>"
             f"{''.join(rows)}"
@@ -280,6 +328,17 @@ def render_html(doc: dict[str, Any]) -> bytes:
       background: var(--panel-2);
     }}
     .terminal-link.compact {{ min-height: 24px; padding: 3px 8px; font-size: 12px; }}
+    .copy-link {{
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      min-height: 24px;
+      padding: 3px 8px;
+      font: inherit;
+      font-size: 12px;
+    }}
+    .copy-link.copied {{ color: var(--working); border-color: rgba(88, 196, 163, 0.6); }}
   </style>
 </head>
 <body>
@@ -295,6 +354,24 @@ def render_html(doc: dict[str, Any]) -> bytes:
   <main>
     {''.join(session_cards)}
   </main>
+  <script>
+    document.addEventListener("click", async (event) => {{
+      const button = event.target.closest("[data-copy-url]");
+      if (!button) return;
+      const url = new URL(button.dataset.copyUrl, window.location.href).toString();
+      try {{
+        await navigator.clipboard.writeText(url);
+        button.textContent = "Copied";
+        button.classList.add("copied");
+        window.setTimeout(() => {{
+          button.textContent = "Copy";
+          button.classList.remove("copied");
+        }}, 1200);
+      }} catch (error) {{
+        window.prompt("Copy terminal link", url);
+      }}
+    }});
+  </script>
 </body>
 </html>"""
     return body.encode("utf-8")
