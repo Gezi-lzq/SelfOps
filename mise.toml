@@ -82,6 +82,42 @@ run = "docker-compose ps"
 description = "Expose Grafana via Cloudflare quick tunnel"
 run = "cloudflared tunnel --url http://localhost:3000"
 
+[tasks."herdr-web:install"]
+description = "Install Herdr browser-access systemd user units"
+run = "bash dev/dev-machine/herdr-web/install.sh"
+
+[tasks."herdr-web:install-ngrok"]
+description = "Install ngrok v3 into ~/.local/bin without sudo"
+run = "bash dev/dev-machine/herdr-web/install-ngrok-user.sh"
+
+[tasks."herdr-web:start"]
+description = "Start Herdr browser access through ttyd and ngrok"
+run = "systemctl --user start herdr-web-ttyd.service herdr-web-ngrok.service"
+
+[tasks."herdr-web:stop"]
+description = "Stop Herdr browser access"
+run = "systemctl --user stop herdr-web-ngrok.service herdr-web-ttyd.service"
+
+[tasks."herdr-web:status"]
+description = "Show Herdr browser-access service status"
+run = "systemctl --user status herdr-web-ttyd.service herdr-web-ngrok.service --no-pager"
+
+[tasks."herdr-web:logs"]
+description = "Follow Herdr browser-access service logs"
+run = "journalctl --user -fu herdr-web-ttyd.service -fu herdr-web-ngrok.service"
+
+[tasks."herdr-web:url"]
+description = "Print the current ngrok HTTPS URL for Herdr browser access"
+run = "bash dev/dev-machine/herdr-web/bin/herdr-web-url"
+
+[tasks."herdr-web:enable"]
+description = "Enable Herdr browser-access services on user login"
+run = "systemctl --user enable herdr-web-ttyd.service herdr-web-ngrok.service"
+
+[tasks."herdr-web:disable"]
+description = "Disable Herdr browser-access services on user login"
+run = "systemctl --user disable herdr-web-ngrok.service herdr-web-ttyd.service"
+
 [tasks."agent:scan"]
 description = "Scan configured roots for existing agent skills"
 run = "mise -C dev/agent-runtime run agent:scan"

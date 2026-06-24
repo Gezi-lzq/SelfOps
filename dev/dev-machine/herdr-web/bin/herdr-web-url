@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v curl >/dev/null 2>&1; then
+  echo "curl not found in PATH" >&2
+  exit 127
+fi
+
+json="$(curl -fsS http://127.0.0.1:4040/api/tunnels)"
+
+if command -v jq >/dev/null 2>&1; then
+  jq -r '.tunnels[] | select(.proto == "https") | .public_url' <<<"$json" | head -1
+else
+  printf '%s\n' "$json"
+fi
+

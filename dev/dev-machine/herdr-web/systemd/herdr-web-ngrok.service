@@ -1,0 +1,16 @@
+[Unit]
+Description=ngrok tunnel for Herdr browser terminal
+After=network-online.target herdr-web-ttyd.service
+Requires=herdr-web-ttyd.service
+
+[Service]
+Type=simple
+Environment=SELFOPS_ROOT=__SELFOPS_ROOT__
+Environment=PATH=%h/.local/share/mise/shims:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+EnvironmentFile=%h/.config/selfops/herdr-web.env
+ExecStart=__SELFOPS_ROOT__/dev/dev-machine/herdr-web/bin/herdr-web-ngrok
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

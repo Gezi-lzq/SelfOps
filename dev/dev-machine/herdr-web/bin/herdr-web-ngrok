@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+env_file="${HERDR_WEB_ENV_FILE:-$HOME/.config/selfops/herdr-web.env}"
+if [[ -f "$env_file" ]]; then
+  # shellcheck disable=SC1090
+  source "$env_file"
+fi
+
+host="${HERDR_WEB_TTYD_HOST:-127.0.0.1}"
+port="${HERDR_WEB_TTYD_PORT:-7681}"
+target="http://${host}:${port}"
+
+if ! command -v ngrok >/dev/null 2>&1; then
+  echo "ngrok not found in PATH" >&2
+  exit 127
+fi
+
+args=(http "$target" --log stdout)
+
+if [[ -n "${HERDR_WEB_NGROK_URL:-}" ]]; then
+  args+=(--url "$HERDR_WEB_NGROK_URL")
+elif [[ -n "${HERDR_WEB_NGROK_DOMAIN:-}" ]]; then
+  args+=(--url "https://${HERDR_WEB_NGROK_DOMAIN}")
+fi
+
+if [[ "${HERDR_WEB_NGROK_POOLING:-false}" == "true" ]]; then
+  args+=(--pooling-enabled)
+fi
+
+exec ngrok "${args[@]}"

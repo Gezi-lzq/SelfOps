@@ -20,6 +20,14 @@
 - CLIProxyAPI 管理密钥文件：`/home/debian/cliproxyapi/.management-secret`，权限 `600`，不提交仓库
 - CLIProxyAPI 监听：`0.0.0.0:8317`
 - CLIProxyAPI systemd user service：`cliproxyapi.service`，当前运行中，尚未 enable
+- Herdr 浏览器入口定义：`dev/dev-machine/herdr-web`
+- Herdr 浏览器入口服务：
+  - `herdr-web-ttyd.service`：本地 `ttyd`，默认监听 `127.0.0.1:7681`
+  - `herdr-web-ngrok.service`：通过 ngrok 暴露 ttyd
+  - 本机环境文件：`/home/debian/.config/selfops/herdr-web.env`，不提交仓库
+  - 当前 ngrok URL：`https://dichroiscopic-joella-declinate.ngrok-free.dev`
+- `ttyd` 版本：`1.7.7-40e79c7`，由 `mise` 管理
+- `ngrok` 版本：`3.39.8`，安装到 `/home/debian/.local/bin/ngrok`
 
 ## 已完成
 
@@ -156,6 +164,20 @@
   - 结论：访问体验偏卡，当前不采用
   - state 保留在开发机本地，不提交仓库
 - 恢复 Homepage Ingress 和 `HOMEPAGE_ALLOWED_HOSTS`，仅保留内网访问 Host
+- 添加 Herdr 浏览器入口声明：
+  - 目录：`dev/dev-machine/herdr-web`
+  - 方式：`ttyd` 只监听 localhost，`ngrok` 对外暴露
+  - 默认浏览器终端命令：`herdr --session browser`
+  - 管理入口：`mise run herdr-web:*`
+- 安装并验证 Herdr 浏览器入口本地端：
+  - `ttyd` 已通过 `mise install ttyd` 安装
+  - `ngrok` 已通过 `mise run herdr-web:install-ngrok` 安装
+  - `mise run herdr-web:install` 已生成 systemd user units 和本机 env 文件
+  - `herdr-web-ttyd.service` 已启动，`http://127.0.0.1:7681` 返回 HTTP 401 basic auth
+  - `ngrok config add-authtoken` 已配置本机 token
+  - `herdr-web-ngrok.service` 已启动；因账号 endpoint 已在线，当前本机 env 设置
+    `HERDR_WEB_NGROK_POOLING=true`
+  - 公网 URL `https://dichroiscopic-joella-declinate.ngrok-free.dev` 返回 HTTP 401 basic auth
 
 ## 待完成
 

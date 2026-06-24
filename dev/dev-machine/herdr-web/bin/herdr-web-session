@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+env_file="${HERDR_WEB_ENV_FILE:-$HOME/.config/selfops/herdr-web.env}"
+if [[ -f "$env_file" ]]; then
+  # shellcheck disable=SC1090
+  source "$env_file"
+fi
+
+if [[ -n "${HERDR_WEB_COMMAND:-}" ]]; then
+  exec bash -lc "$HERDR_WEB_COMMAND"
+fi
+
+session="${HERDR_WEB_SESSION:-browser}"
+cwd="${HERDR_WEB_CWD:-$HOME}"
+
+cd "$cwd"
+exec herdr --session "$session"

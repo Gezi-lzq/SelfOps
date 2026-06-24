@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+env_file="${HERDR_WEB_ENV_FILE:-$HOME/.config/selfops/herdr-web.env}"
+if [[ -f "$env_file" ]]; then
+  # shellcheck disable=SC1090
+  source "$env_file"
+fi
+
+host="${HERDR_WEB_TTYD_HOST:-127.0.0.1}"
+port="${HERDR_WEB_TTYD_PORT:-7681}"
+credential="${HERDR_WEB_TTYD_CREDENTIAL:-}"
+selfops_root="${SELFOPS_ROOT:-$HOME/SelfOps}"
+session_cmd="$selfops_root/dev/dev-machine/herdr-web/bin/herdr-web-session"
+
+if ! command -v ttyd >/dev/null 2>&1; then
+  echo "ttyd not found in PATH" >&2
+  exit 127
+fi
+
+if ! command -v herdr >/dev/null 2>&1; then
+  echo "herdr not found in PATH" >&2
+  exit 127
+fi
+
+args=(
+  -i "$host" \
+  -p "$port" \
+  -W \
+  -O
+)
+
+if [[ -n "$credential" ]]; then
+  args+=(-c "$credential")
+fi
+
+exec ttyd "${args[@]}" "$session_cmd"

@@ -81,6 +81,8 @@
 - 私有访问：NetBird 访问 `gezi-dev` 和 Traefik 暴露的服务
 - kubectl：后续通过 NetBird IP / DNS 访问 k3s API
 - 临时公网：可使用 NetBird Reverse Proxy 或临时 tunnel
+- 浏览器 Herdr 入口：使用 `ttyd` 绑定 `127.0.0.1:7681`，再通过 `ngrok`
+  临时公网转发；ttyd 必须启用 basic auth，ngrok token 和 ttyd 密码不写入仓库
 - 长期公网：可选 `cloudflare-tunnel-ingress-controller`
 - 不默认把 k3s Pod CIDR / Service CIDR 发布到 NetBird
 
