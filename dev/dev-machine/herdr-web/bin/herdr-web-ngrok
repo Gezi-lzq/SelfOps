@@ -8,7 +8,7 @@ if [[ -f "$env_file" ]]; then
 fi
 
 host="${HERDR_WEB_TTYD_HOST:-127.0.0.1}"
-port="${HERDR_WEB_TTYD_PORT:-7681}"
+port="${HERDR_WEB_NGROK_TARGET_PORT:-8780}"
 target="http://${host}:${port}"
 
 if ! command -v ngrok >/dev/null 2>&1; then

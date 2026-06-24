@@ -7,6 +7,7 @@
 | [PLAN.md](./PLAN.md) | 目标状态 |
 | [STATE.md](./STATE.md) | 当前状态与变更记录 |
 | [herdr-web](./herdr-web/) | 通过 ttyd + ngrok 从浏览器进入 Herdr |
+| [herdr-status](./herdr-status/) | 手机友好的 Herdr session/agent 只读状态页 |
 
 原则：
 

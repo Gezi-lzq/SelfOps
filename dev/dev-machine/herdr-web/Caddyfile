@@ -1,0 +1,15 @@
+{
+	auto_https off
+}
+
+:8780 {
+	bind 127.0.0.1
+
+	handle /terminal* {
+		reverse_proxy 127.0.0.1:7681
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:8765
+	}
+}

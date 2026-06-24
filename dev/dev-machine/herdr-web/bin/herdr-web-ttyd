@@ -27,7 +27,8 @@ args=(
   -i "$host" \
   -p "$port" \
   -W \
-  -O
+  -O \
+  -b "${HERDR_WEB_TTYD_BASE_PATH:-/terminal}"
 )
 
 if [[ -n "$credential" ]]; then

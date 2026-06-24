@@ -92,19 +92,19 @@ run = "bash dev/dev-machine/herdr-web/install-ngrok-user.sh"
 
 [tasks."herdr-web:start"]
 description = "Start Herdr browser access through ttyd and ngrok"
-run = "systemctl --user start herdr-web-ttyd.service herdr-web-ngrok.service"
+run = "systemctl --user start herdr-web-ttyd.service herdr-status.service herdr-web-proxy.service herdr-web-ngrok.service"
 
 [tasks."herdr-web:stop"]
 description = "Stop Herdr browser access"
-run = "systemctl --user stop herdr-web-ngrok.service herdr-web-ttyd.service"
+run = "systemctl --user stop herdr-web-ngrok.service herdr-web-proxy.service herdr-status.service herdr-web-ttyd.service"
 
 [tasks."herdr-web:status"]
 description = "Show Herdr browser-access service status"
-run = "systemctl --user status herdr-web-ttyd.service herdr-web-ngrok.service --no-pager"
+run = "systemctl --user status herdr-web-ttyd.service herdr-status.service herdr-web-proxy.service herdr-web-ngrok.service --no-pager"
 
 [tasks."herdr-web:logs"]
 description = "Follow Herdr browser-access service logs"
-run = "journalctl --user -fu herdr-web-ttyd.service -fu herdr-web-ngrok.service"
+run = "journalctl --user -fu herdr-web-ttyd.service -fu herdr-status.service -fu herdr-web-proxy.service -fu herdr-web-ngrok.service"
 
 [tasks."herdr-web:url"]
 description = "Print the current ngrok HTTPS URL for Herdr browser access"
@@ -112,11 +112,43 @@ run = "bash dev/dev-machine/herdr-web/bin/herdr-web-url"
 
 [tasks."herdr-web:enable"]
 description = "Enable Herdr browser-access services on user login"
-run = "systemctl --user enable herdr-web-ttyd.service herdr-web-ngrok.service"
+run = "systemctl --user enable herdr-web-ttyd.service herdr-status.service herdr-web-proxy.service herdr-web-ngrok.service"
 
 [tasks."herdr-web:disable"]
 description = "Disable Herdr browser-access services on user login"
-run = "systemctl --user disable herdr-web-ngrok.service herdr-web-ttyd.service"
+run = "systemctl --user disable herdr-web-ngrok.service herdr-web-proxy.service herdr-status.service herdr-web-ttyd.service"
+
+[tasks."herdr-status:serve"]
+description = "Serve a read-only mobile dashboard for Herdr agent status"
+run = "python dev/dev-machine/herdr-status/server.py"
+
+[tasks."herdr-status:install"]
+description = "Install Herdr status dashboard systemd user unit"
+run = "bash dev/dev-machine/herdr-status/install.sh"
+
+[tasks."herdr-status:start"]
+description = "Start Herdr status dashboard"
+run = "systemctl --user start herdr-status.service"
+
+[tasks."herdr-status:stop"]
+description = "Stop Herdr status dashboard"
+run = "systemctl --user stop herdr-status.service"
+
+[tasks."herdr-status:status"]
+description = "Show Herdr status dashboard service status"
+run = "systemctl --user status herdr-status.service --no-pager"
+
+[tasks."herdr-status:logs"]
+description = "Follow Herdr status dashboard logs"
+run = "journalctl --user -fu herdr-status.service"
+
+[tasks."herdr-status:enable"]
+description = "Enable Herdr status dashboard on user login"
+run = "systemctl --user enable herdr-status.service"
+
+[tasks."herdr-status:disable"]
+description = "Disable Herdr status dashboard on user login"
+run = "systemctl --user disable herdr-status.service"
 
 [tasks."agent:scan"]
 description = "Scan configured roots for existing agent skills"

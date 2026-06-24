@@ -3,6 +3,8 @@
 Expose a Herdr session through a browser using:
 
 - `ttyd`: local web terminal bound to `127.0.0.1`
+- `herdr-status`: read-only mobile dashboard for sessions and agents
+- `caddy`: local path router
 - `ngrok`: public tunnel to the local ttyd port
 - `systemd --user`: keeps both processes running for the `debian` user
 
@@ -11,14 +13,16 @@ machine. It must not store ngrok tokens or web terminal passwords in Git.
 
 ## Security Model
 
-The ttyd process binds to localhost only:
+The local services bind to localhost only:
 
 ```text
-127.0.0.1:7681
+127.0.0.1:7681  ttyd
+127.0.0.1:8765  status dashboard
+127.0.0.1:8780  caddy router
 ```
 
-Only ngrok exposes it publicly. By default ttyd requires HTTP basic auth through
-`HERDR_WEB_TTYD_CREDENTIAL`.
+Only ngrok exposes the Caddy router publicly. By default ttyd requires HTTP
+basic auth through `HERDR_WEB_TTYD_CREDENTIAL`.
 
 The credential lives in:
 
@@ -38,6 +42,7 @@ ngrok OAuth or another edge access-control layer, clear
 
 - `herdr`
 - `ttyd`
+- `caddy`
 - `ngrok`
 - `systemd --user`
 
@@ -68,7 +73,10 @@ The installer creates:
 
 ```text
 ~/.config/selfops/herdr-web.env
+~/.config/selfops/herdr-status.env
 ~/.config/systemd/user/herdr-web-ttyd.service
+~/.config/systemd/user/herdr-status.service
+~/.config/systemd/user/herdr-web-proxy.service
 ~/.config/systemd/user/herdr-web-ngrok.service
 ```
 
@@ -86,6 +94,11 @@ online elsewhere. Either stop that existing tunnel, configure a different
 HERDR_WEB_NGROK_POOLING=true
 ```
 
+Pooling is only a fallback. If another backend behind the same ngrok endpoint is
+misconfigured, requests may intermittently hit that backend instead of this
+machine. In that case, stop the stale endpoint in ngrok or configure a different
+static endpoint before disabling pooling again.
+
 ## Start
 
 ```bash
@@ -96,6 +109,14 @@ Show the ngrok browser URL:
 
 ```bash
 mise run herdr-web:url
+```
+
+Routes on that URL:
+
+```text
+/           read-only Herdr status dashboard
+/api.json   raw dashboard JSON
+/terminal/  ttyd browser terminal
 ```
 
 Follow logs:

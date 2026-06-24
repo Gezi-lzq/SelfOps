@@ -1,0 +1,16 @@
+[Unit]
+Description=Local path router for Herdr browser access
+After=network-online.target herdr-web-ttyd.service herdr-status.service
+Requires=herdr-web-ttyd.service herdr-status.service
+
+[Service]
+Type=simple
+Environment=SELFOPS_ROOT=__SELFOPS_ROOT__
+Environment=PATH=%h/.local/share/mise/shims:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+WorkingDirectory=__SELFOPS_ROOT__/dev/dev-machine/herdr-web
+ExecStart=%h/.local/share/mise/shims/caddy run --config __SELFOPS_ROOT__/dev/dev-machine/herdr-web/Caddyfile --adapter caddyfile
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

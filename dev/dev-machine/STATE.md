@@ -23,10 +23,13 @@
 - Herdr 浏览器入口定义：`dev/dev-machine/herdr-web`
 - Herdr 浏览器入口服务：
   - `herdr-web-ttyd.service`：本地 `ttyd`，默认监听 `127.0.0.1:7681`
-  - `herdr-web-ngrok.service`：通过 ngrok 暴露 ttyd
+  - `herdr-status.service`：只读手机状态页，默认监听 `127.0.0.1:8765`
+  - `herdr-web-proxy.service`：本地 Caddy path router，监听 `127.0.0.1:8780`
+  - `herdr-web-ngrok.service`：通过 ngrok 暴露 Caddy router
   - 本机环境文件：`/home/debian/.config/selfops/herdr-web.env`，不提交仓库
   - 当前 ngrok URL：`https://dichroiscopic-joella-declinate.ngrok-free.dev`
 - `ttyd` 版本：`1.7.7-40e79c7`，由 `mise` 管理
+- `caddy` 版本：`v2.11.4`，由 `mise` 管理
 - `ngrok` 版本：`3.39.8`，安装到 `/home/debian/.local/bin/ngrok`
 
 ## 已完成
@@ -171,13 +174,21 @@
   - 管理入口：`mise run herdr-web:*`
 - 安装并验证 Herdr 浏览器入口本地端：
   - `ttyd` 已通过 `mise install ttyd` 安装
+  - `caddy` 已通过 `mise install caddy` 安装
   - `ngrok` 已通过 `mise run herdr-web:install-ngrok` 安装
   - `mise run herdr-web:install` 已生成 systemd user units 和本机 env 文件
   - `herdr-web-ttyd.service` 已启动，`http://127.0.0.1:7681` 返回 HTTP 401 basic auth
+  - `herdr-status.service` 已启动，`http://127.0.0.1:8765` 返回 Herdr 状态页
+  - `herdr-web-proxy.service` 已启动，`http://127.0.0.1:8780/` 返回状态页，`/terminal/` 返回 ttyd
   - `ngrok config add-authtoken` 已配置本机 token
   - `herdr-web-ngrok.service` 已启动；因账号 endpoint 已在线，当前本机 env 设置
     `HERDR_WEB_NGROK_POOLING=true`
-  - 公网 URL `https://dichroiscopic-joella-declinate.ngrok-free.dev` 返回 HTTP 401 basic auth
+  - 公网 URL 当前 path 设计：
+    - `/`：只读 Herdr 状态页
+    - `/api.json`：状态 JSON
+    - `/terminal/`：ttyd 终端
+  - 注意：当前 ngrok endpoint 仍存在旧 backend；pooling 下公网请求可能间歇命中旧 backend 并返回
+    `ERR_NGROK_3801`。稳定使用前应在 ngrok 侧关闭旧 endpoint，或配置新的静态 endpoint 后关闭 pooling。
 
 ## 待完成
 
