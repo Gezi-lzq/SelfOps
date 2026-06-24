@@ -26,11 +26,13 @@
   - `herdr-status.service`：只读手机状态页，默认监听 `127.0.0.1:8765`
   - `herdr-web-proxy.service`：本地 Caddy path router，监听 `127.0.0.1:8780`
   - `herdr-web-ngrok.service`：通过 ngrok 暴露 Caddy router
+  - `herdr-web-cloudflared.service`：可选 Cloudflare quick tunnel，绕开 ngrok pooling
   - 本机环境文件：`/home/debian/.config/selfops/herdr-web.env`，不提交仓库
   - 当前 ngrok URL：`https://dichroiscopic-joella-declinate.ngrok-free.dev`
 - `ttyd` 版本：`1.7.7-40e79c7`，由 `mise` 管理
 - `caddy` 版本：`v2.11.4`，由 `mise` 管理
 - `ngrok` 版本：`3.39.8`，安装到 `/home/debian/.local/bin/ngrok`
+- `cloudflared` 版本：`2026.5.2`，由 `mise` 管理
 
 ## 已完成
 
@@ -189,6 +191,10 @@
     - `/terminal/`：ttyd 终端
   - 注意：当前 ngrok endpoint 仍存在旧 backend；pooling 下公网请求可能间歇命中旧 backend 并返回
     `ERR_NGROK_3801`。稳定使用前应在 ngrok 侧关闭旧 endpoint，或配置新的静态 endpoint 后关闭 pooling。
+- 添加 Cloudflare quick tunnel 备选公网入口：
+  - `herdr-web-cloudflared.service` 暴露同一个本地 Caddy router：`http://127.0.0.1:8780`
+  - 管理命令：`mise run herdr-web:start-cloudflared`、`mise run herdr-web:cloudflared-url`
+  - 用途：当 ngrok 静态 endpoint 因 pooling/旧 backend 不稳定时，提供单 backend 临时公网 URL
 
 ## 待完成
 

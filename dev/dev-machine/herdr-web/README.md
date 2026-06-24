@@ -5,7 +5,8 @@ Expose a Herdr session through a browser using:
 - `ttyd`: local web terminal bound to `127.0.0.1`
 - `herdr-status`: read-only mobile dashboard for sessions and agents
 - `caddy`: local path router
-- `ngrok`: public tunnel to the local ttyd port
+- `ngrok`: public tunnel to the local router
+- `cloudflared`: optional quick tunnel fallback when ngrok endpoint pooling is not stable
 - `systemd --user`: keeps both processes running for the `debian` user
 
 This module is for temporary or personal browser access to the current dev
@@ -43,7 +44,7 @@ ngrok OAuth or another edge access-control layer, clear
 - `herdr`
 - `ttyd`
 - `caddy`
-- `ngrok`
+- `ngrok` or `cloudflared`
 - `systemd --user`
 
 ngrok must already be authenticated:
@@ -78,6 +79,7 @@ The installer creates:
 ~/.config/systemd/user/herdr-status.service
 ~/.config/systemd/user/herdr-web-proxy.service
 ~/.config/systemd/user/herdr-web-ngrok.service
+~/.config/systemd/user/herdr-web-cloudflared.service
 ```
 
 Edit the env file if needed:
@@ -99,6 +101,17 @@ misconfigured, requests may intermittently hit that backend instead of this
 machine. In that case, stop the stale endpoint in ngrok or configure a different
 static endpoint before disabling pooling again.
 
+If you need an immediate stable public URL and do not require a fixed domain, use
+the Cloudflare quick tunnel service instead of ngrok:
+
+```bash
+mise run herdr-web:start-cloudflared
+mise run herdr-web:cloudflared-url
+```
+
+Quick tunnel URLs are temporary, but they point only to this machine and avoid
+ngrok endpoint pooling.
+
 ## Start
 
 ```bash
@@ -109,6 +122,12 @@ Show the ngrok browser URL:
 
 ```bash
 mise run herdr-web:url
+```
+
+Show the Cloudflare quick tunnel URL:
+
+```bash
+mise run herdr-web:cloudflared-url
 ```
 
 Routes on that URL:

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+env_file="${HERDR_WEB_ENV_FILE:-$HOME/.config/selfops/herdr-web.env}"
+if [[ -f "$env_file" ]]; then
+  # shellcheck disable=SC1090
+  source "$env_file"
+fi
+
+host="${HERDR_WEB_TTYD_HOST:-127.0.0.1}"
+port="${HERDR_WEB_NGROK_TARGET_PORT:-8780}"
+target="http://${host}:${port}"
+
+if ! command -v cloudflared >/dev/null 2>&1; then
+  echo "cloudflared not found in PATH" >&2
+  exit 127
+fi
+
+exec cloudflared tunnel --url "$target" --no-autoupdate

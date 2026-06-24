@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+journalctl --user -u herdr-web-cloudflared.service --no-pager -o cat |
+  sed -nE 's#.*https://([a-z0-9-]+\.trycloudflare\.com).*#https://\1#p' |
+  tail -1
