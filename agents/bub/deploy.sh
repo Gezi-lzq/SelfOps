@@ -6,8 +6,8 @@ COMPOSE_FILE="${SCRIPT_DIR}/docker-compose.yml"
 export SELFOPS_ROOT="${SELFOPS_ROOT:-$(cd "${SCRIPT_DIR}/../.." && pwd)}"
 SELFOPS_REPO_BRANCH="${SELFOPS_REPO_BRANCH:-main}"
 BUB_REPO="${BUB_REPO:-/opt/bub/src}"
-BUB_GIT_URL="${BUB_GIT_URL:-https://github.com/Gezi-lzq/bub.git}"
-BUB_GIT_BRANCH="${BUB_GIT_BRANCH:-main}"
+BUB_GIT_URL="${BUB_GIT_URL:-https://github.com/bubbuild/bub.git}"
+BUB_GIT_REF="${BUB_GIT_REF:-${BUB_GIT_BRANCH:-0.3.9}}"
 
 usage() {
   echo "Usage: $0 <profile|all>"
@@ -30,13 +30,28 @@ else
 fi
 
 echo "==> Syncing bub source"
+checkout_bub_ref() {
+  local ref="$1"
+
+  if git -C "${BUB_REPO}" ls-remote --exit-code --heads origin "${ref}" >/dev/null 2>&1; then
+    git -C "${BUB_REPO}" fetch origin "${ref}"
+    git -C "${BUB_REPO}" reset --hard FETCH_HEAD
+  elif git -C "${BUB_REPO}" ls-remote --exit-code --tags origin "${ref}" >/dev/null 2>&1; then
+    git -C "${BUB_REPO}" fetch origin "refs/tags/${ref}:refs/tags/${ref}"
+    git -C "${BUB_REPO}" reset --hard "${ref}"
+  else
+    git -C "${BUB_REPO}" fetch origin "${ref}"
+    git -C "${BUB_REPO}" reset --hard FETCH_HEAD
+  fi
+}
+
 if [ -d "${BUB_REPO}/.git" ]; then
-  git -C "${BUB_REPO}" fetch origin "${BUB_GIT_BRANCH}"
-  git -C "${BUB_REPO}" reset --hard "origin/${BUB_GIT_BRANCH}"
+  git -C "${BUB_REPO}" remote set-url origin "${BUB_GIT_URL}"
 else
   rm -rf "${BUB_REPO}"
-  git clone --branch "${BUB_GIT_BRANCH}" --single-branch "${BUB_GIT_URL}" "${BUB_REPO}"
+  git clone --no-checkout "${BUB_GIT_URL}" "${BUB_REPO}"
 fi
+checkout_bub_ref "${BUB_GIT_REF}"
 
 echo "==> Building bub image"
 docker build --pull -t bub:latest "${BUB_REPO}"

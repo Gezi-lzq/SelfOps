@@ -420,7 +420,12 @@ def copy_tree(src: Path, dest: Path) -> None:
     if dest.exists() or dest.is_symlink():
         remove_path(dest)
     dest.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copytree(src, dest, symlinks=True)
+    shutil.copytree(
+        src,
+        dest,
+        symlinks=True,
+        ignore=shutil.ignore_patterns(".git", "__pycache__", ".DS_Store"),
+    )
 
 
 def sync_public_batch(spec: str, skill_names: list[str]) -> None:
