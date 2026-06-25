@@ -93,3 +93,11 @@ run = "mise -C dev/agent-runtime run agent:plan"
 [tasks."agent:apply"]
 description = "Apply skill source sync and runtime directory changes"
 run = "mise -C dev/agent-runtime run agent:apply"
+
+[tasks."github-activity:collect"]
+description = "Collect GitHub activity for a user under an org into JSONL"
+run = "python tools/github-activity/github_activity.py collect"
+
+[tasks."github-activity:summarize"]
+description = "Summarize collected GitHub activity JSONL into Markdown"
+run = "python tools/github-activity/github_activity.py summarize"
