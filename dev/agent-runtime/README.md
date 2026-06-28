@@ -82,18 +82,29 @@ mise run agent:update              # 更新 public skills 到最新版本
 
 ### Machine-specific project files
 
-`skills.toml` is shared skill catalog state. Project paths are machine-local, so machines can use a
-separate projects file with `--projects`.
+`skills.toml` is shared skill catalog and bundle state. Project paths are machine-local, so each
+machine can keep a separate projects file built from `registry/projects.machine.template.toml`.
 
-Current machine-specific file:
+Recommended shape:
 
-```bash
-mise run agent:scan -- --projects /home/debian/SelfOps/dev/agent-runtime/registry/projects.gezi-dev.toml
-mise run agent:plan -- --projects /home/debian/SelfOps/dev/agent-runtime/registry/projects.gezi-dev.toml
-mise run agent:apply -- --projects /home/debian/SelfOps/dev/agent-runtime/registry/projects.gezi-dev.toml
+```text
+registry/projects.toml                  # default/shared project mapping
+registry/projects.machine.template.toml # shared template for machine-specific mappings
+registry/projects.<machine>.toml        # concrete paths for one machine, often on a machine branch
 ```
 
-Use the default `registry/projects.toml` only when its paths match the target machine.
+Use machine-specific files with `--projects`:
+
+```bash
+PROJECTS=/absolute/path/to/dev/agent-runtime/registry/projects.<machine>.toml
+mise run agent:scan -- --projects "$PROJECTS"
+mise run agent:plan -- --projects "$PROJECTS"
+mise run agent:apply -- --projects "$PROJECTS"
+```
+
+Do not apply a projects file to a machine until its paths and `local_path` sources match that
+machine. Keep shared skill definitions in `skills.toml`; keep machine-specific paths and local-only
+sources in the machine projects file or machine branch.
 
 **scan** — 观察实际状态，不修改文件。标注类型：`☁ public` · `📁 local` · `✎ owned` · `⊘ unmanaged` · `⚠ broken`。`--discover` 额外扫描未注册项目。
 

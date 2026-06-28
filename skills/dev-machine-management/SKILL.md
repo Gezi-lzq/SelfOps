@@ -1,14 +1,14 @@
 ---
 name: dev-machine-management
 description: |
-  Use when working on SelfOps development-machine operations: managing global dependencies as dotfile-like state, editing dev/environment/config.toml or bootstrap shell activation, documenting local services under dev/dev-machine, updating machine/gezi-dev from origin/main, committing SelfOps changes, checking branch/ahead status, or explaining how this repository relates to the gezi-dev machine.
+  Use when working on SelfOps development-machine operations: managing global dependencies as dotfile-like state, editing dev/environment/config.toml or bootstrap shell activation, documenting local services under dev/dev-machine, updating machine-name branches from origin/main, committing SelfOps changes, checking branch/ahead status, managing agent-runtime project files, using NetBird or SSH access to a development machine, or explaining how this repository relates to a development machine such as gezi-dev.
 ---
 
 # Dev Machine Management
 
 ## Operating Model
 
-Treat SelfOps as the source of truth for the reproducible state of `gezi-dev`: toolchains, dotfile entry points, local user services, public access routes, agent runtimes, and current-state docs. Prefer declarative repo changes over one-off shell edits.
+Treat SelfOps as the source of truth for reproducible development-machine state: toolchains, dotfile entry points, local user services, private access through NetBird, public access routes, agent runtimes, and current-state docs. Prefer declarative repo changes over one-off shell edits.
 
 Use these docs before editing:
 
@@ -17,6 +17,42 @@ Use these docs before editing:
 - `dev/environment/README.md`: global toolchain and dotfile bootstrap
 - `dev/dev-machine/README.md`, `PLAN.md`, `STATE.md`: target machine state and completed changes
 - subsystem README files under `dev/dev-machine/**`
+
+## Machine Facts And Access
+
+Read `dev/dev-machine/PLAN.md` for intended machine shape and `dev/dev-machine/STATE.md` for current facts before answering questions about a specific machine.
+
+Default model for SelfOps-managed development machines:
+
+- Use NetBird as the private network for machine-to-machine access.
+- Use SSH over the NetBird hostname or SSH alias when available, for example `ssh gezi-dev`.
+- Keep SSH private keys, NetBird setup keys, auth tokens, and generated client state out of Git.
+- Treat public tunnels as separate from private access. Public browser routes belong under the relevant subsystem, such as `dev/dev-machine/herdr-web`.
+
+For the current `gezi-dev` machine, the expected facts are documented in `dev/dev-machine/STATE.md` and may include:
+
+- default user: `debian`
+- SelfOps checkout: `/home/debian/SelfOps`
+- NetBird DNS name: `gezi-dev.netbird.cloud`
+- private services that bind to `0.0.0.0` only when intended for NetBird access
+- public browser entrypoint managed by Caddy plus tunnel services, not by NetBird SSH
+
+When connecting or helping another agent connect:
+
+```bash
+ssh gezi-dev
+ssh debian@gezi-dev.netbird.cloud
+```
+
+If connection fails, check in this order:
+
+```bash
+netbird status
+ssh -G gezi-dev | sed -n '1,80p'
+getent hosts gezi-dev.netbird.cloud
+```
+
+Do not publish raw NetBird IPs, private DNS records, process command lines, or service logs if they may reveal credentials. Prefer pointing to `STATE.md` and redacting sensitive values.
 
 ## Dependency And Dotfile Workflow
 
@@ -68,22 +104,30 @@ For systemd user units, prefer reproducible install scripts over manual unit cre
 
 ## Branch Model
 
-`main` carries shared SelfOps changes. `machine/gezi-dev` carries this machine's applied state and local machine-specific commits.
+`main` carries shared SelfOps changes: reusable skills, templates, scripts, docs, and conventions that should apply across machines.
+
+`machine/<name>` branches carry one machine's applied state and local machine-specific commits. For this machine, use `machine/gezi-dev` when it exists.
 
 ## Agent Runtime Project Files
 
-Use shared `dev/agent-runtime/registry/skills.toml` for the skill catalog. Use a machine-specific projects file for concrete project paths when one exists.
+Use shared `dev/agent-runtime/registry/skills.toml` for skill catalog and bundles. Use a machine-specific projects file for concrete paths when one exists.
 
-On `gezi-dev`, prefer:
+Start new machine files from:
 
-```bash
-GEZI_DEV_PROJECTS=/home/debian/SelfOps/dev/agent-runtime/registry/projects.gezi-dev.toml
-mise run agent:scan -- --projects "$GEZI_DEV_PROJECTS"
-mise run agent:plan -- --projects "$GEZI_DEV_PROJECTS"
-mise run agent:apply -- --projects "$GEZI_DEV_PROJECTS"
+```text
+dev/agent-runtime/registry/projects.machine.template.toml
 ```
 
-Do not apply the default `registry/projects.toml` to `gezi-dev` without checking paths; it may contain paths for another machine such as `/Users/gezi/Dev/...`.
+Then use the machine file explicitly:
+
+```bash
+PROJECTS=/absolute/path/to/dev/agent-runtime/registry/projects.<machine>.toml
+mise run agent:scan -- --projects "$PROJECTS"
+mise run agent:plan -- --projects "$PROJECTS"
+mise run agent:apply -- --projects "$PROJECTS"
+```
+
+Do not apply `registry/projects.toml` or another machine's projects file without checking paths and `local_path` sources. Machine branches can carry concrete files such as `projects.gezi-dev.toml`; `main` should carry the shared template and skill catalog.
 
 Before updating or committing:
 
@@ -93,7 +137,7 @@ git fetch origin
 git log --oneline --decorate -n 8 --graph HEAD origin/main origin/machine/gezi-dev
 ```
 
-To update `machine/gezi-dev` from `main`:
+To update a machine branch from `main`:
 
 1. Preserve unrelated local changes. Use a path-limited stash if needed:
    ```bash
@@ -103,7 +147,7 @@ To update `machine/gezi-dev` from `main`:
    ```bash
    git merge origin/main
    ```
-3. Resolve conflicts by keeping machine-specific state on `machine/gezi-dev` unless `main` intentionally supersedes it.
+3. Resolve conflicts by keeping machine-specific state on the machine branch unless `main` intentionally supersedes it.
 4. Restore the stash and re-check:
    ```bash
    git stash pop
