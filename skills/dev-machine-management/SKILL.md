@@ -1,7 +1,7 @@
 ---
 name: dev-machine-management
 description: |
-  Use when working on SelfOps development-machine operations: managing global dependencies as dotfile-like state, editing dev/environment/config.toml or bootstrap shell activation, documenting local services under dev/dev-machine, updating machine-name branches from origin/main, committing SelfOps changes, checking branch/ahead status, managing agent-runtime project files, using NetBird or SSH access to a development machine, or explaining how this repository relates to a development machine such as gezi-dev.
+  用于 SelfOps 开发机 / development machine 管理。Use when the user mentions 开发机, SelfOps 开发机, dev machine, gezi-dev, NetBird, SSH 登录开发机, 开发机依赖, dotfile, mise 全局工具, dev/environment/config.toml, dev/dev-machine, machine-name branches, agent-runtime project files, or asks how this repository manages a development machine.
 ---
 
 # Dev Machine Management
