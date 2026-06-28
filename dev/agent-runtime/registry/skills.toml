@@ -458,7 +458,6 @@ skills = [
 [bundles.lark]
 description = "Feishu / Lark full suite"
 skills = [
-  "feishu",
   "lark-approval",
   "lark-apps",
   "lark-attendance",
