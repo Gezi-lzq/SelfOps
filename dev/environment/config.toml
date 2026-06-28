@@ -34,6 +34,7 @@ restic = "latest"
 rclone = "latest"
 terraform = "1.13.3"
 just = "latest"
+"npm:@anthropic-ai/claude-code" = "2.1.167"
 
 [env]
 GOPATH = "{{ env.HOME }}/go"
