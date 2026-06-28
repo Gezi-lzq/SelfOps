@@ -1,0 +1,43 @@
+# Machine-specific project desired state template.
+#
+# Copy this file to a machine-specific name, for example:
+#   dev/agent-runtime/registry/projects.gezi-dev.toml
+#   dev/agent-runtime/registry/projects.macbook.toml
+#
+# Then replace paths, agents, and local_path-only includes for that machine.
+# Use with:
+#   mise run agent:scan -- --projects /absolute/path/to/projects.<machine>.toml
+#   mise run agent:plan -- --projects /absolute/path/to/projects.<machine>.toml
+#   mise run agent:apply -- --projects /absolute/path/to/projects.<machine>.toml
+#
+# Keep shared skill catalog and bundles in skills.toml. Keep concrete local
+# project paths and machine-only local_path skills in this file or in the
+# corresponding machine branch.
+
+scan_dirs = ["<absolute-workspace-root>"]
+
+# ─────────────────────────────────────────────
+# Global skills for this machine
+# ─────────────────────────────────────────────
+
+[projects."@global"]
+agents = ["claude", "codex"]
+bundles = ["core", "tools", "memory"]
+include = [
+  "skill-management",
+  "dev-machine-management",
+]
+exclude = []
+
+# ─────────────────────────────────────────────
+# SelfOps checkout on this machine
+# ─────────────────────────────────────────────
+
+[projects."<absolute-path-to-SelfOps>"]
+agents = ["claude", "codex"]
+bundles = ["core", "superpowers"]
+include = [
+  "skill-management",
+  "dev-machine-management",
+]
+exclude = []
