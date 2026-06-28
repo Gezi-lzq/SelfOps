@@ -35,6 +35,12 @@ mise run agent:update
 
 Use `scan` for observation, `plan` before making changes, `apply` for non-destructive reconciliation, and `apply --force` only when the plan's destructive actions are intended.
 
+`agent:update` is defined in `dev/agent-runtime/mise.toml`. If it is not available from the repository root, run it with:
+
+```bash
+mise -C /Users/gezi/Dev/SelfOps/dev/agent-runtime run agent:update
+```
+
 ## Skill Sources
 
 Choose one source type per skill in `registry/skills.toml`:
@@ -75,6 +81,31 @@ Use `owned` for local operating procedures and durable personal workflows. Use `
 ### Update Upstream Skills
 
 Prefer tracking upstream latest for general public skills. For release-sensitive work, explicitly verify GitHub releases or tags before changing specs.
+
+Treat public skill updates as three separate questions:
+
+1. Desired state: is the skill still declared in `registry/skills.toml` and included by `registry/projects.toml`?
+2. Runtime state: do agent runtime directories still link to it?
+3. Cache state: does `dev/agent-runtime/.agents/skills/<name>` still contain an old downloaded copy?
+
+Update the cache first:
+
+```bash
+mise -C /Users/gezi/Dev/SelfOps/dev/agent-runtime run agent:update
+```
+
+Then run:
+
+```bash
+mise run agent:plan
+```
+
+Interpret failures carefully:
+
+- If `agent:update` fails for a skill that is no longer in desired state and no runtime directory links to it, treat it as stale cache. It does not affect active agent startup, but can be cleaned later by cache garbage collection.
+- If `agent:update` fails for a skill still present in desired state, verify the upstream with `npx skills add <repo> --list --full-depth`. If the upstream no longer provides it, remove it from bundles/includes and usually remove its `[skills.<name>]` catalog entry.
+- If a public skill was installed before `skillPath` tracking and cannot be updated automatically, refresh the whole source repo with `npx skills add <repo> -y` when that source is still desired.
+- Do not use `apply --force` to clean project-level runtime skills unless project-level management is explicitly in scope. Use a scoped projects file for `@global` when only global convergence is intended.
 
 For `mattpocock/skills`, use:
 
