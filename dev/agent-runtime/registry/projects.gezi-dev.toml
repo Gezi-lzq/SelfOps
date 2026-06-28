@@ -1,0 +1,38 @@
+# gezi-dev machine-specific project desired state.
+#
+# Use with:
+#   mise run agent:scan -- --projects /home/debian/SelfOps/dev/agent-runtime/registry/projects.gezi-dev.toml
+#   mise run agent:plan -- --projects /home/debian/SelfOps/dev/agent-runtime/registry/projects.gezi-dev.toml
+#   mise run agent:apply -- --projects /home/debian/SelfOps/dev/agent-runtime/registry/projects.gezi-dev.toml
+#
+# This file keeps /home/debian paths and avoids local_path skills that only
+# exist on other machines, such as /Users/gezi/Dev/obelisk.
+
+scan_dirs = ["/home/debian/work", "/home/debian"]
+
+# ─────────────────────────────────────────────
+# Global — gezi-dev
+# ─────────────────────────────────────────────
+
+[projects."@global"]
+agents = ["claude", "codex", "agents"]
+bundles = ["core", "tools", "memory", "lark-core", "ponytail", "mattpocock"]
+include = [
+  "skill-management",
+  "dev-machine-management",
+]
+exclude = []
+
+# ─────────────────────────────────────────────
+# SelfOps on gezi-dev
+# ─────────────────────────────────────────────
+
+[projects."/home/debian/SelfOps"]
+agents = ["gemini", "codex", "claude"]
+bundles = ["core", "superpowers"]
+include = [
+  "skill-management",
+  "dev-machine-management",
+]
+exclude = []
+

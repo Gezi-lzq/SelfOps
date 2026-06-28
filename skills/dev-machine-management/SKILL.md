@@ -70,6 +70,21 @@ For systemd user units, prefer reproducible install scripts over manual unit cre
 
 `main` carries shared SelfOps changes. `machine/gezi-dev` carries this machine's applied state and local machine-specific commits.
 
+## Agent Runtime Project Files
+
+Use shared `dev/agent-runtime/registry/skills.toml` for the skill catalog. Use a machine-specific projects file for concrete project paths when one exists.
+
+On `gezi-dev`, prefer:
+
+```bash
+GEZI_DEV_PROJECTS=/home/debian/SelfOps/dev/agent-runtime/registry/projects.gezi-dev.toml
+mise run agent:scan -- --projects "$GEZI_DEV_PROJECTS"
+mise run agent:plan -- --projects "$GEZI_DEV_PROJECTS"
+mise run agent:apply -- --projects "$GEZI_DEV_PROJECTS"
+```
+
+Do not apply the default `registry/projects.toml` to `gezi-dev` without checking paths; it may contain paths for another machine such as `/Users/gezi/Dev/...`.
+
 Before updating or committing:
 
 ```bash
