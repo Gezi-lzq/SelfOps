@@ -1,228 +1,93 @@
 # SelfOps Agent Guide
 
-SelfOps is the source of truth for reproducible development-machine operations: toolchains, dotfile entry points, agent runtimes, local services, access routes, and the documentation that explains them.
+## 仓库定位
 
-This file is the repository-level contract for agents. Keep it identical on `main` and machine branches. Machine-specific facts belong in `dev/dev-machine/PLAN.md`, `dev/dev-machine/STATE.md`, and machine-specific registry files such as `dev/agent-runtime/registry/projects.<machine>.toml`.
+SelfOps 是 AI 运维与开发机操作的控制仓库，用来沉淀可复现的机器状态、agent runtime、skills 体系、工具链入口、长期操作规则和跨机器协作约定。它不是单纯 dotfiles，也不是某一台机器的运行记录；机器分支是 SelfOps 在某台开发机上的具体投影。
 
-## Start Here
+根 `AGENTS.md` 是全仓库公共宪法，代表这个仓库对 agent 的目标、边界和预期。它必须在 `main` 与 `machine/<name>` 分支保持一致。机器事实、当前状态、路径和服务细节不要写进根文件。
 
-Before making changes, inspect the local context:
+## 最高原则
 
-```bash
-git status --short --branch
-```
+- 文档默认使用中文；命令、路径、配置 key、工具名和外部协议名保留原文。
+- 当前工作树和仓库文件优先于聊天历史、记忆和模型印象。
+- 清晰、局部、可验证的任务默认直接执行；涉及仓库政策、分支模型、安全边界、开发机网络、长期目录结构的变更，先讨论再修改。
+- 长期决策必须回写仓库：公共政策写入根或子目录 `AGENTS.md`，子系统规则写入对应 README/`AGENTS.md`，机器目标写入 `PLAN.md`，机器事实写入 `STATE.md`。
+- 涉及 secret、数据删除、强制覆盖、远端发布、机器级安装/卸载或网络暴露的操作，都必须先确认当前目标、影响范围和用户意图；不要把本地凭证或 opaque app state 写入仓库。
 
-Then read the nearest relevant docs:
+## 事实来源优先级
 
-- `README.md` for the repository map and top-level tasks.
-- `dev/environment/README.md` for global toolchain and dotfile bootstrap behavior.
-- `dev/agent-runtime/README.md` for skill catalog and runtime skill distribution.
-- `dev/dev-machine/README.md`, `PLAN.md`, and `STATE.md` for the target development machine and current facts.
-- The README in the specific subsystem you touch, such as `dev/dev-machine/herdr-web/`, `dev/dev-machine/herdr-status/`, `agents/bub/`, or `infra/runners/`, when it exists on the current branch.
+1. 当前工作树、当前分支和 `git status --short --branch`。
+2. 距离目标文件最近的 `AGENTS.md`。
+3. `dev/dev-machine/STATE.md` 中记录的当前机器事实。
+4. `dev/dev-machine/PLAN.md` 中记录的目标状态。
+5. 对应目录 README 和脚本。
+6. skill、记忆和历史对话；它们只能作为线索，不能覆盖当前仓库文件。
 
-More specific `AGENTS.md` files override this one inside their directory tree.
+## 分支模型
 
-## Branch Model
+- `main` 承载公共规则、公共 skills、模板、通用脚本、通用文档和跨机器约定。
+- `machine/<name>` 承载某台开发机的具体事实、路径、安装记录、服务状态和机器专属项目清单。
+- 能被多台机器复用的改动优先进入 `main`，再 merge 到机器分支。
+- 只对当前机器成立的改动留在机器分支。
+- 如果机器分支发现公共规则缺口，先改 `main`，再 merge 回机器分支。
+- 根 `AGENTS.md` 不允许在机器分支单独 fork；子目录 `AGENTS.md` 也默认遵循同样策略，除非该目录只存在于机器分支。
 
-- `main` carries shared SelfOps policy: agent rules, reusable skills, templates, scripts, registry conventions, and docs that should apply across machines.
-- `machine/<name>` carries one machine's applied state: concrete paths, installed-service records, current access routes, and machine-local project registry files.
-- Do not fork `AGENTS.md` between `main` and a machine branch. If this guide needs to change, update `main` and merge it into the machine branch.
-- Resolve branch conflicts by keeping shared policy in this file and moving concrete machine facts into `dev/dev-machine/*` or `projects.<machine>.toml`.
+## 默认工作流
 
-## Default Workflow
+轻量默认：
 
-1. Inspect the worktree and do not overwrite unrelated user or agent changes.
-2. Read the docs and files that own the area being changed.
-3. Prefer small, declarative repo changes over manual machine edits.
-4. If a manual local change is unavoidable, add or update scripts/docs so the next agent can reproduce or verify it.
-5. Run focused validation for the touched subsystem plus `git diff --check`.
-6. Report changed files, validation results, skipped validation, and remaining risk.
+1. 看当前上下文和 `git status --short --branch`。
+2. 找到最近的 owner 文档或 owner 文件。
+3. 做最小必要改动，并按风险匹配验证。
 
-Only push when the user explicitly asks.
+不要求每次完整阅读所有 README，不要求每次更新 `PLAN.md`/`STATE.md`，也不要求每次提交。只有当任务语义包含持久变更、用户要求提交，或需要把决策固化进仓库时，才主动 commit。
 
-Only open, restart, or change public tunnels when the user asked for public-access work, or when the tunnel is already part of the requested operating state.
+遇到以下情况升级为严格流程：分支模型、安全边界、开发机网络、全局依赖、dotfile 入口、agent-runtime 分发、systemd/服务/持久存储、远端同步、跨目录大改。
 
-## Safety Rules
+## 开发机网络
 
-- Never commit or print secrets: tokens, API keys, OAuth credentials, SSH private keys, NetBird setup keys, ngrok authtokens, ttyd basic auth credentials, CLIProxyAPI management secrets, or Nowledge Mem API keys.
-- You may verify that secret-bearing files exist and have sane permissions, but do not display their contents.
-- Treat process listings, service status, and logs as potentially secret-bearing. Redact command lines before quoting `systemctl --user status`, `ps`, or journal output.
-- Avoid destructive commands. Do not run `git reset --hard`, broad `rm -rf`, namespace/PVC/volume deletion, or service data deletion unless the user explicitly asked for that exact destructive action.
-- Do not treat local `kubectl`, Docker, or systemd output as customer or production evidence unless the user has identified this machine as the target environment.
-- Keep large runtime data out of the system disk. Long-lived service data belongs under the storage paths documented in `dev/dev-machine/PLAN.md`.
+SelfOps 管理的开发机默认处于同一个 NetBird network。跨机器访问、SSH、内部服务联通优先通过 NetBird DNS 或 SSH alias。除非用户明确要求，不要引入额外网络暴露模型；某台机器的额外访问方式只记录在机器分支文档中。
 
-## Dependency Ownership
+不要把 NetBird setup key、token、私有 DNS 细节、敏感日志或不稳定私有 IP 写入公共文档。具体机器网络事实以 `dev/dev-machine/STATE.md` 为准。
 
-Most development-machine CLI and runtime dependencies are managed through `mise`.
+## 配置与本地状态
 
-- Global tools belong in `dev/environment/config.toml`.
-- Repository tasks belong in root `mise.toml` or the nearest subsystem `mise.toml`.
-- Prefer adding a `mise` tool or task over relying on shell aliases, ad hoc global installs, or commands only present in one terminal session.
-- After changing `dev/environment/config.toml`, validate the global config in the same shape as bootstrap: ensure `~/.config/mise/config.toml` points to `dev/environment/config.toml`, then run `mise install` and `mise ls -g` from `$HOME`, followed by the relevant tool's `--version` or `doctor` command.
-- New machine setup should go through `bash dev/environment/bootstrap.sh ...`, not a parallel hand-written dotfile flow.
-- If a dependency cannot reasonably be managed by `mise` and must use apt, an official installer, Docker, Kubernetes, or systemd, document the install method, version, config path, and validation command in the owning README and, when it changes machine state, `dev/dev-machine/STATE.md`.
-- Authentication state is not dependency state. Tools such as `gh`, `lark-cli`, `lody`, Codex, Claude Code, ngrok, cloudflared, NetBird, and Nowledge Mem may have their configured status recorded, but secrets stay local.
+SelfOps 管理可复现策略、入口脚本、模板和文档；真实 app 拥有的配置文件可以直接修改，但长期策略要回写 SelfOps。
 
-## Dotfiles And Local State
+- `dev/environment/config.toml` 管理全局 `mise` 工具。
+- `~/.config/mise/config.toml` 应由 SelfOps bootstrap 建立到仓库配置的链接。
+- `~/.claude/settings.json` 这类 app-owned config 可以直接改，但不要提交其中的凭证或个人 app state。
+- 登录态、OAuth、token、SSH key、provider key、opaque cache 不纳入 Git。
 
-SelfOps owns reproducible dotfile entry points for development machines. It does not own private credentials or opaque application state.
+更具体规则见 `dev/environment/AGENTS.md`。
 
-SelfOps-managed or SelfOps-generated:
+## 子目录规则
 
-- `dev/environment/config.toml`: source of truth for global `mise` tools.
-- `~/.config/mise/config.toml`: should symlink to `dev/environment/config.toml` via `dev/environment/bootstrap.sh`.
-- `~/.profile`: may contain the SelfOps-managed `mise activate bash --shims` block for SSH, login, and non-interactive shells.
-- `~/.zshrc`: may receive `mise activate zsh` from `bootstrap.sh --activate-zsh`.
-- `~/.bashrc`: may receive `mise activate bash` from `bootstrap.sh --activate-bash`.
-- Root and subsystem `mise.toml` files: task entry points for repeatable operations.
-- User systemd unit templates under `dev/dev-machine/**/systemd/`, installed into user systemd config by subsystem install scripts.
+子目录 `AGENTS.md` 用于承接具体操作规则。写法应保持短而可执行，至少说明：
 
-Local-only state that must not be copied into the repo:
+- 该目录负责什么。
+- 哪些文件是事实来源。
+- 常见操作入口。
+- 变更后要更新哪些文档。
+- 最小验证方式。
+- 本目录特有安全注意事项。
 
-- `~/.config/selfops/*.env`
-- `~/.nowledge-mem/config.json`
-- `~/.codex/config.toml` and `~/.codex/hooks.json` contents
-- `~/.claude/settings.json` contents when they contain local provider credentials or personal app state
-- `~/.ssh/*`
-- Personal identity, signing key, and credential helper details from `~/.gitconfig`
-- Login state for `gh`, `lark-cli`, `lody`, Codex, Claude Code, ngrok, cloudflared, NetBird, and similar tools
-- CLIProxyAPI, ttyd, ngrok, Nowledge Mem, and OAuth secrets
+当前主要路由：
 
-When changing dotfile behavior, update `dev/environment/bootstrap.sh`, `dev/environment/config.toml`, or `dev/environment/README.md` first. Direct edits under `$HOME` should be reflected back into the repo as scripts or docs.
+- `dev/environment/AGENTS.md`：全局依赖、bootstrap、dotfile 入口、本地 app config 边界。
+- `dev/agent-runtime/AGENTS.md`：skills catalog、bundles、project registry、scan/plan/apply。
+- `dev/dev-machine/AGENTS.md`：开发机目标/事实、NetBird 访问、服务与持久状态。
+- `agents/bub/AGENTS.md`：Bub profiles、env 渲染、备份与隔离。
 
-Useful checks:
+## 提交与远端同步
 
-```bash
-readlink -f ~/.config/mise/config.toml
-rg -n "SelfOps managed mise shims|mise activate" ~/.profile ~/.zshrc ~/.bashrc
-mise ls -g
-```
+- commit 可以在明确任务语境下主动做，例如用户要求“完成变更”“更新 git”“提交一下”，或讨论已达成需要固化的仓库决策。
+- commit 要小而聚焦，不要混入无关机器状态。
+- 同时涉及公共层和机器层时，先提交 `main` 的公共内容，再 merge 到机器分支。
+- 不要自动 push。只有用户明确要求 push、同步远端、更新 origin 或完成 git 远端更新时，才推送。
 
-## Development-Machine Access
+## 验证与汇报
 
-Treat NetBird as the default private access plane for SelfOps-managed development machines. Use SSH aliases or NetBird DNS names documented in `dev/dev-machine/STATE.md`; do not hardcode unstable private IPs into reusable docs or skills.
+验证强度应匹配变更风险。文档和配置改动至少执行 `git diff --check`；代码、脚本、服务、agent-runtime 和机器配置改动按最近 README 或子目录 `AGENTS.md` 执行对应验证。
 
-Public browser access is separate from private SSH access. Public routes belong under their owning subsystem, for example `dev/dev-machine/herdr-web/` when present. Keep backends localhost-only unless a doc explains otherwise.
-
-Before exposing a new local service:
-
-1. Decide whether it is private NetBird-only or public tunnel-backed.
-2. Document ports, bind addresses, auth, and validation commands.
-3. Keep credentials in local env files or secret stores, not Git.
-4. Update `dev/dev-machine/PLAN.md` for intended state and `STATE.md` after applying.
-
-## Subsystem Ownership
-
-`dev/environment/`
-
-- Owns global toolchain versions, shell activation guidance, and new-machine bootstrap.
-- Prefer `mise` for tools unless there is a documented reason not to.
-
-`dev/agent-runtime/`
-
-- Owns declared agent skill sources and project skill distribution.
-- Use `mise run agent:scan`, `mise run agent:plan`, and `mise run agent:apply` from the repo root.
-- Keep shared skill catalog and bundles in `registry/skills.toml`.
-- Keep machine-specific paths in `registry/projects.<machine>.toml`, usually on a machine branch, starting from `registry/projects.machine.template.toml`.
-- If nested mise configs are untrusted, trust the exact file before running delegated tasks: `mise trust dev/agent-runtime/mise.toml`.
-
-`dev/dev-machine/`
-
-- Owns development-machine target and current state.
-- `PLAN.md` records intended state.
-- `STATE.md` records completed changes and current facts.
-- Any change to intended services, ports, paths, access model, storage layout, or dependency policy should update `PLAN.md`.
-- Any completed change to services, ports, paths, systemd units, Caddy routes, tunnels, storage locations, or installed non-mise dependencies should update the relevant README and `STATE.md`.
-
-`dev/dev-machine/herdr-web/`
-
-- Owns the public browser entrypoint when present.
-- Caddy routes, tunnel commands, ttyd settings, and public route security belong here.
-- ttyd must keep authentication, and credentials must stay out of the repo.
-- Public routes are internet-exposed. Avoid exposing sensitive pane output, env vars, tokens, customer data, or private prompts.
-- Start commands may open public tunnels. Run them only for requested public-entrypoint work or to restore documented current state.
-- When showing status or logs, summarize and redact.
-
-`dev/dev-machine/herdr-status/`
-
-- Owns the read-only Herdr mobile status and history UI when present.
-- It may show session, pane, agent status, and history links.
-- It must not implement arbitrary shell input or arbitrary command execution.
-- Terminal links should pass only controlled allowlisted arguments such as `--session` and `--agent`.
-
-`agents/bub/`
-
-- Owns Bub deployment, profile isolation, plugin source, and tape backup workflow.
-- Profile-specific behavior belongs in `agents/bub/profiles/<profile>/AGENTS.md`.
-- New profiles should include `AGENTS.md`, `bub-reqs.txt`, `env.template`, `projects.toml`, and `startup.sh`.
-- Secrets are rendered into profile env files, not committed.
-- If nested mise configs are untrusted, trust the exact file first: `mise trust agents/bub/mise.toml`.
-- `bub:backup` uploads Bub tapes to GitHub Releases without redaction. Run it only when the user asked for a backup or the workflow requires it, and treat tapes as potentially containing sensitive agent conversation history.
-
-`infra/runners/`
-
-- Owns self-hosted GitHub Actions runner declarations.
-- Do not run runner ensure/remove commands on the wrong machine. Confirm the target host before applying.
-- Keep GitHub tokens and runner registration/remove tokens outside Git.
-
-`infra/observability/`
-
-- Owns local observability stack declarations.
-- Keep credentials and provider tokens outside Git.
-
-## Common Commands
-
-Toolchain:
-
-```bash
-mise trust
-mise install
-mise run doctor
-```
-
-Nested task files may need explicit trust before first use:
-
-```bash
-mise trust dev/agent-runtime/mise.toml
-mise trust agents/bub/mise.toml
-```
-
-Agent runtime:
-
-```bash
-mise run agent:scan
-mise run agent:plan
-mise run agent:apply
-```
-
-Herdr public entry, when present:
-
-```bash
-mise run herdr-web:status
-mise run herdr-web:start
-mise run herdr-web:url
-mise run herdr-web:logs
-```
-
-Use public-entry commands with the security rules above: start commands may open public tunnels, and status/log output must be summarized or redacted.
-
-Bub profiles:
-
-```bash
-mise -C agents/bub run bub:deploy <profile>
-mise -C agents/bub run bub:write-env <profile>
-mise -C agents/bub run bub:backup <profile>
-```
-
-## Validation Matrix
-
-- Markdown/config-only change: `git diff --check`.
-- Python change: `python3 -m py_compile <changed .py files>` plus any relevant tests.
-- Shell script change: `bash -n <changed .sh files>` and run the narrow task when safe.
-- `mise` task change: trust the relevant `mise.toml` if needed, then run `mise tasks` or the relevant `mise run ...`.
-- Global `mise` tool change: verify `~/.config/mise/config.toml` points to `dev/environment/config.toml`, then run `mise install` and `mise ls -g` from `$HOME`, plus version checks when safe.
-- Caddy route change: `caddy validate --config <Caddyfile> --adapter caddyfile`, then restart the owning proxy service only when applying locally is intended.
-- Herdr web/status change: validate Python/Caddy as applicable and check local HTTP endpoints on `127.0.0.1`.
-- systemd user unit change: run the install script or inspect generated units, then `systemctl --user daemon-reload` and targeted `systemctl --user status ...` when applying locally. Summarize status output and redact command lines.
-
-Before finishing, show the meaningful outcome: what changed, what was validated, what was not validated, and whether the worktree still has uncommitted changes.
+如果跳过验证，必须说明原因。收尾时说明改了什么、验证了什么、没有验证什么、当前工作树是否干净。
