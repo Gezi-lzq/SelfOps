@@ -1,0 +1,4 @@
+interface:
+  display_name: "开发机管理"
+  short_description: "管理 SelfOps 开发机状态"
+  default_prompt: "使用 $dev-machine-management 处理 SelfOps 开发机依赖、dotfile、NetBird/SSH、服务、分支或提交。"
