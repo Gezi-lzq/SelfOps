@@ -15,6 +15,7 @@ bundles = ["core", "tools", "memory", "lark-core", "ponytail", "mattpocock"]
 include = [
   "obelisk",
   "skill-management",
+  "dev-machine-management",
 ]
 exclude = []
 
@@ -24,6 +25,7 @@ include = [
   "obelisk",
   "assess-cluster-watermark-and-health",
   "skill-management",
+  "dev-machine-management",
 ]
 exclude = []
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dev Machine Management"
+  short_description: "Manage SelfOps dev-machine state"
+  default_prompt: "Use $dev-machine-management to update SelfOps-managed development machine dependencies, dotfiles, services, branches, or commits."

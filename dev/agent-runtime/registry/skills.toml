@@ -345,6 +345,10 @@ source = { type = "owned" }
 source = { type = "owned" }
 materialized_path = "../../skills/skill-management"
 
+[skills.dev-machine-management]
+source = { type = "owned" }
+materialized_path = "../../skills/dev-machine-management"
+
 [skills.telegram-extra]
 source = { type = "owned" }
 
