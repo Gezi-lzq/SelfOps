@@ -56,35 +56,21 @@ Do not publish raw NetBird IPs, private DNS records, process command lines, or s
 
 ## Remote Command Environment
 
-Do not assume `ssh <host> "<command>"` loads `~/.profile`, `~/.zshrc`, or any shell activation. Non-interactive SSH commands should explicitly prepare the remote command environment before invoking tools.
+For this `gezi-dev` development machine, do not assume `ssh gezi-dev "<command>"` loads `~/.profile`, `~/.zshrc`, or any shell activation.
 
-Prefer setting a deterministic `PATH` at the start of remote commands. Include user-local binaries, version-manager shims, package-manager binaries, and system defaults that are expected for the target development machine:
+For non-interactive SSH commands, set the expected PATH first:
 
 ```bash
 ssh gezi-dev 'export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin:$PATH"; mise -C /home/debian/SelfOps run agent:plan'
 ```
 
-For macOS development machines using Homebrew, include the Homebrew prefix before relying on `mise`, `git`, `node`, or other Homebrew-managed tools:
-
-```bash
-ssh macbook-pro-2.netbird.cloud 'export PATH="/opt/homebrew/bin:$HOME/.local/bin:$HOME/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin:$PATH"; mise -C /Users/gezi/Dev/SelfOps run agent:plan'
-```
-
-Use recorded absolute tool paths only when bootstrapping the environment itself, diagnosing a broken `PATH`, or when a command must avoid shell startup ambiguity:
+Use an absolute tool path only for bootstrap or PATH diagnosis:
 
 ```bash
 ssh gezi-dev '$HOME/.local/bin/mise -C /home/debian/SelfOps run agent:plan'
-ssh macbook-pro-2.netbird.cloud '/opt/homebrew/bin/mise -C /Users/gezi/Dev/SelfOps run agent:plan'
 ```
 
-In reusable scripts and handoffs, define the machine command environment once, then run normal commands:
-
-```bash
-export PATH="${SELFOPS_REMOTE_PATH:-$HOME/.local/bin:$HOME/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin:$PATH}"
-mise -C /home/debian/SelfOps run agent:plan
-```
-
-Record each development machine's expected command `PATH`, optional `MISE_BIN`, and SelfOps checkout path in `dev/dev-machine/STATE.md` or the machine-specific state file. Use shell profile activation as convenience for interactive sessions, not as the reliability boundary for remote automation.
+Record this machine's expected command `PATH` and SelfOps checkout path in `dev/dev-machine/STATE.md`. Treat shell profile activation as interactive convenience, not remote automation reliability.
 
 ## Dependency And Dotfile Workflow
 
