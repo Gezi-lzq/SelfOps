@@ -481,7 +481,6 @@ skills = [
   "lark-vc",
   "lark-vc-agent",
   "lark-whiteboard",
-  "lark-whiteboard-cli",
   "lark-wiki",
   "lark-workflow-meeting-summary",
   "lark-workflow-standup-report",
