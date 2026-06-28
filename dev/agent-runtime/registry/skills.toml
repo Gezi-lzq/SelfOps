@@ -83,9 +83,6 @@ source = { type = "public", spec = "larksuite/cli" }
 [skills.lark-whiteboard]
 source = { type = "public", spec = "larksuite/cli" }
 
-[skills.lark-whiteboard-cli]
-source = { type = "public", spec = "larksuite/cli" }
-
 [skills.lark-wiki]
 source = { type = "public", spec = "larksuite/cli" }
 
@@ -346,10 +343,6 @@ materialized_path = "../../skills/dev-machine-management"
 
 [skills.telegram-extra]
 source = { type = "owned" }
-
-[skills.feishu]
-source = { type = "local_path", path = "~/.agents/skills/feishu" }
-materialized_path = "materialized/skills/feishu"
 
 [skills.obelisk]
 source = { type = "local_path", path = "/Users/gezi/Dev/obelisk" }
