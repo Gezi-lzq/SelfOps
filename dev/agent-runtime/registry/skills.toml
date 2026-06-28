@@ -12,11 +12,6 @@
 [skills.skill-creator]
 source = { type = "public", spec = "anthropics/skills" }
 
-# ── github/awesome-copilot ──
-
-[skills.gh-cli]
-source = { type = "public", spec = "github/awesome-copilot" }
-
 # ── larksuite/cli ──
 
 [skills.lark-approval]
@@ -428,9 +423,7 @@ skills = [
 
 [bundles.tools]
 description = "Tool integrations"
-skills = [
-  "gh-cli",
-]
+skills = []
 
 [bundles.memory]
 description = "Knowledge management (nowledge-co)"
