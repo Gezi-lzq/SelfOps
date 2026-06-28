@@ -11,15 +11,19 @@ scan_dirs = ["~/Dev"]
 
 [projects."@global"]
 agents = ["kiro", "claude", "codex", "agents"]
-bundles = ["core", "tools", "memory", "diagram", "opencli", "mattpocock"]
+bundles = ["core", "tools", "memory", "lark-core", "ponytail", "mattpocock"]
 include = [
-  "lark-base",
-  "lark-doc",
-  "lark-markdown",
-  "lark-shared",
-  "lark-whiteboard",
-  "lark-wiki",
   "obelisk",
+  "skill-management",
+]
+exclude = []
+
+[projects."@global".agent_overrides.agents]
+bundles = ["core", "tools", "memory", "lark-core", "ponytail", "mattpocock"]
+include = [
+  "obelisk",
+  "assess-cluster-watermark-and-health",
+  "skill-management",
 ]
 exclude = []
 
