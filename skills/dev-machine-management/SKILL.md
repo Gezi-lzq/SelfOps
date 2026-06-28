@@ -54,6 +54,37 @@ getent hosts gezi-dev.netbird.cloud
 
 Do not publish raw NetBird IPs, private DNS records, process command lines, or service logs if they may reveal credentials. Prefer pointing to `STATE.md` and redacting sensitive values.
 
+## Non-Interactive SSH And Mise
+
+Do not assume `ssh <host> "<command>"` loads `~/.profile`, `~/.zshrc`, or any shell activation. Non-interactive SSH commands should use a deterministic `mise` entrypoint.
+
+For Linux development machines, prefer the machine's recorded absolute path:
+
+```bash
+ssh gezi-dev '$HOME/.local/bin/mise -C /home/debian/SelfOps run agent:plan'
+```
+
+For macOS development machines using Homebrew, prefer:
+
+```bash
+ssh macbook-pro-2.netbird.cloud '/opt/homebrew/bin/mise -C /Users/gezi/Dev/SelfOps run agent:plan'
+```
+
+If the remote command needs tools resolved through mise shims, set `PATH` explicitly:
+
+```bash
+ssh gezi-dev 'export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"; mise -C /home/debian/SelfOps run agent:plan'
+```
+
+Record each development machine's actual `MISE_BIN` and SelfOps checkout path in `dev/dev-machine/STATE.md` or the machine-specific state file. In scripts and handoffs, use:
+
+```bash
+MISE_BIN="${MISE_BIN:-$HOME/.local/bin/mise}"
+"$MISE_BIN" -C /home/debian/SelfOps run agent:plan
+```
+
+Use shell profile activation as convenience for interactive sessions, not as the reliability boundary for remote automation.
+
 ## Dependency And Dotfile Workflow
 
 Use `dev/environment/config.toml` for globally managed CLI/tool dependencies. This file is symlinked to `~/.config/mise/config.toml` on the machine.
