@@ -7,8 +7,10 @@
 #
 # This file keeps /home/debian paths and avoids local_path skills that only
 # exist on other machines, such as /Users/gezi/Dev/obelisk.
+# Global skills intentionally stay close to registry/projects.toml defaults,
+# while project-local SelfOps skills stay minimal on gezi-dev.
 
-scan_dirs = ["/home/debian/work", "/home/debian"]
+scan_dirs = ["/home/debian/work", "/home/debian/SelfOps"]
 
 # ─────────────────────────────────────────────
 # Global — gezi-dev
@@ -28,11 +30,20 @@ exclude = []
 # ─────────────────────────────────────────────
 
 [projects."/home/debian/SelfOps"]
-agents = ["gemini", "codex", "claude"]
-bundles = ["core", "superpowers"]
+agents = ["claude", "codex", "agents"]
+bundles = ["core"]
 include = [
   "skill-management",
   "dev-machine-management",
 ]
 exclude = []
 
+# ─────────────────────────────────────────────
+# Lark full-suite environment on gezi-dev
+# ─────────────────────────────────────────────
+
+[projects."/home/debian/lark-env"]
+agents = ["claude", "codex", "agents"]
+bundles = ["lark"]
+include = []
+exclude = []
