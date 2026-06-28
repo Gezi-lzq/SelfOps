@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill Management"
+  short_description: "Manage SelfOps skills"
+  default_prompt: "Use $skill-management to update or audit local SelfOps skills."

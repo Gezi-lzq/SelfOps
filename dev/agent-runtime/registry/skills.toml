@@ -105,11 +105,6 @@ source = { type = "public", spec = "larksuite/cli" }
 [skills.frontend-design]
 source = { type = "public", spec = "mager/frontend-design" }
 
-# ── manaflow-ai/cmux ──
-
-[skills.cmux]
-source = { type = "public", spec = "manaflow-ai/cmux" }
-
 # ── masayuki-kono/agent-skills ──
 
 [skills.implementation-plan]
@@ -117,25 +112,19 @@ source = { type = "public", spec = "masayuki-kono/agent-skills" }
 
 # ── mattpocock/skills ──
 
-[skills.design-an-interface]
+[skills.ask-matt]
 source = { type = "public", spec = "mattpocock/skills" }
 
-[skills.qa]
+[skills.codebase-design]
 source = { type = "public", spec = "mattpocock/skills" }
 
-[skills.request-refactor-plan]
+[skills.diagnosing-bugs]
 source = { type = "public", spec = "mattpocock/skills" }
 
-[skills.ubiquitous-language]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.diagnose]
+[skills.domain-modeling]
 source = { type = "public", spec = "mattpocock/skills" }
 
 [skills.grill-with-docs]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.improve-codebase-architecture]
 source = { type = "public", spec = "mattpocock/skills" }
 
 [skills.prototype]
@@ -156,13 +145,46 @@ source = { type = "public", spec = "mattpocock/skills" }
 [skills.triage]
 source = { type = "public", spec = "mattpocock/skills" }
 
-[skills.zoom-out]
+[skills.grill-me]
 source = { type = "public", spec = "mattpocock/skills" }
 
-[skills.review]
+[skills.grilling]
+source = { type = "public", spec = "mattpocock/skills" }
+
+[skills.handoff]
 source = { type = "public", spec = "mattpocock/skills" }
 
 [skills.teach]
+source = { type = "public", spec = "mattpocock/skills" }
+
+[skills.writing-great-skills]
+source = { type = "public", spec = "mattpocock/skills" }
+
+[skills.design-an-interface]
+source = { type = "public", spec = "mattpocock/skills" }
+
+[skills.qa]
+source = { type = "public", spec = "mattpocock/skills" }
+
+[skills.request-refactor-plan]
+source = { type = "public", spec = "mattpocock/skills" }
+
+[skills.ubiquitous-language]
+source = { type = "public", spec = "mattpocock/skills" }
+
+[skills.implement]
+source = { type = "public", spec = "mattpocock/skills" }
+
+[skills.resolving-merge-conflicts]
+source = { type = "public", spec = "mattpocock/skills" }
+
+[skills.decision-mapping]
+source = { type = "public", spec = "mattpocock/skills" }
+
+[skills.loop-me]
+source = { type = "public", spec = "mattpocock/skills" }
+
+[skills.review]
 source = { type = "public", spec = "mattpocock/skills" }
 
 [skills.writing-beats]
@@ -174,34 +196,7 @@ source = { type = "public", spec = "mattpocock/skills" }
 [skills.writing-shape]
 source = { type = "public", spec = "mattpocock/skills" }
 
-[skills.git-guardrails-claude-code]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.migrate-to-shoehorn]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.scaffold-exercises]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.setup-pre-commit]
-source = { type = "public", spec = "mattpocock/skills" }
-
 [skills.edit-article]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.obsidian-vault]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.caveman]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.grill-me]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.handoff]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.write-a-skill]
 source = { type = "public", spec = "mattpocock/skills" }
 
 # ── nowledge-co/community ──
@@ -268,9 +263,6 @@ source = { type = "public", spec = "obra/superpowers" }
 [skills.writing-plans]
 source = { type = "public", spec = "obra/superpowers" }
 
-[skills.writing-skills]
-source = { type = "public", spec = "obra/superpowers" }
-
 # ── vercel-labs/skills ──
 
 [skills.find-skills]
@@ -324,13 +316,34 @@ source = { type = "public", spec = "jackwener/opencli" }
 [skills.smart-search]
 source = { type = "public", spec = "jackwener/opencli" }
 
-# ── Custom skills (not in public registry) ──
+# ── External local skills ──
 
-[skills.cmux-multi-agent]
-source = { type = "owned" }
+[skills.assess-cluster-watermark-and-health]
+source = { type = "local_path", path = "/Users/gezi/ai-now/skills-active/assess-cluster-watermark-and-health-9fe9a2ca" }
+materialized_path = "materialized/skills/assess-cluster-watermark-and-health"
+
+# ── DietrichGebert/ponytail ──
+
+[skills.ponytail]
+source = { type = "public", spec = "DietrichGebert/ponytail" }
+
+[skills.ponytail-audit]
+source = { type = "public", spec = "DietrichGebert/ponytail" }
+
+[skills.ponytail-help]
+source = { type = "public", spec = "DietrichGebert/ponytail" }
+
+[skills.ponytail-review]
+source = { type = "public", spec = "DietrichGebert/ponytail" }
+
+# ── Custom skills (not in public registry) ──
 
 [skills.self-enhancement]
 source = { type = "owned" }
+
+[skills.skill-management]
+source = { type = "owned" }
+materialized_path = "../../skills/skill-management"
 
 [skills.telegram-extra]
 source = { type = "owned" }
@@ -388,7 +401,6 @@ description = "Skill management"
 skills = [
   "find-skills",
   "skill-creator",
-  "writing-skills",
 ]
 
 [bundles.superpowers]
@@ -414,8 +426,6 @@ skills = [
 description = "Tool integrations"
 skills = [
   "gh-cli",
-  "cmux",
-  "cmux-multi-agent",
 ]
 
 [bundles.memory]
@@ -428,6 +438,17 @@ skills = [
   "save-thread",
   "search-memory",
   "status",
+]
+
+[bundles.lark-core]
+description = "Feishu / Lark core tools"
+skills = [
+  "lark-base",
+  "lark-doc",
+  "lark-markdown",
+  "lark-shared",
+  "lark-whiteboard",
+  "lark-wiki",
 ]
 
 [bundles.lark]
@@ -482,6 +503,15 @@ skills = [
   "diagram-design",
 ]
 
+[bundles.ponytail]
+description = "Ponytail minimalism workflow"
+skills = [
+  "ponytail",
+  "ponytail-audit",
+  "ponytail-help",
+  "ponytail-review",
+]
+
 [bundles.frontend]
 description = "Frontend product workflow"
 skills = [
@@ -501,35 +531,34 @@ skills = [
 [bundles.mattpocock]
 description = "Matt Pocock skills"
 skills = [
-  "design-an-interface",
-  "qa",
-  "request-refactor-plan",
-  "ubiquitous-language",
-  "diagnose",
+  "ask-matt",
+  "codebase-design",
+  "diagnosing-bugs",
+  "domain-modeling",
   "grill-with-docs",
-  "improve-codebase-architecture",
   "prototype",
   "setup-matt-pocock-skills",
   "tdd",
   "to-issues",
   "to-prd",
   "triage",
-  "zoom-out",
-  "review",
+  "grilling",
+  "handoff",
   "teach",
+  "writing-great-skills",
+  "design-an-interface",
+  "qa",
+  "request-refactor-plan",
+  "ubiquitous-language",
+  "implement",
+  "resolving-merge-conflicts",
+  "decision-mapping",
+  "loop-me",
+  "review",
   "writing-beats",
   "writing-fragments",
   "writing-shape",
-  "git-guardrails-claude-code",
-  "migrate-to-shoehorn",
-  "scaffold-exercises",
-  "setup-pre-commit",
   "edit-article",
-  "obsidian-vault",
-  "caveman",
-  "grill-me",
-  "handoff",
-  "write-a-skill",
 ]
 
 [bundles.enterprise]

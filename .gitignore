@@ -6,7 +6,6 @@ __pycache__/
 /dev/agent-runtime/.agents/
 /dev/agent-runtime/skills-lock.json
 /dev/agent-runtime/materialized/skills/*
-!/dev/agent-runtime/materialized/skills/cmux-multi-agent/
 !/dev/agent-runtime/materialized/skills/self-enhancement/
 !/dev/agent-runtime/materialized/skills/telegram-extra/
 
