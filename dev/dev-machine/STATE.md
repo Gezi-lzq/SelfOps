@@ -27,12 +27,18 @@
   - `herdr-web-proxy.service`：本地 Caddy path router，监听 `127.0.0.1:8780`，作为主要公网反向代理出口
   - `herdr-web-ngrok.service`：通过 ngrok 暴露 Caddy router
   - `herdr-web-cloudflared.service`：可选 Cloudflare quick tunnel，绕开 ngrok pooling
+  - `kiro-gateway`：当前进程监听 `0.0.0.0:8000`，通过 Caddy 公网 path `/kiro-gateway` 接入
   - 本机环境文件：`/home/debian/.config/selfops/herdr-web.env`，不提交仓库
   - 当前 ngrok URL：`https://dichroiscopic-joella-declinate.ngrok-free.dev`
 - `ttyd` 版本：`1.7.7-40e79c7`，由 `mise` 管理
 - `caddy` 版本：`v2.11.4`，由 `mise` 管理
 - `ngrok` 版本：`3.39.8`，安装到 `/home/debian/.local/bin/ngrok`
 - `cloudflared` 版本：`2026.5.2`，由 `mise` 管理
+- Nowledge Mem Docker deploy：`/home/debian/nowledge-mem/community/docker`
+  - 容器：`nowledge-mem`，镜像 `docker.io/nowledgelabs/mem:0.10.4`
+  - controller：`nmemctl 2.3.0`
+  - 监听：`0.0.0.0:14242`，通过 NetBird/内网访问；不挂到公网 Caddy path
+  - auto-update sidecar：`nowledge-mem-updater`，当前 enabled/running/healthy
 
 ## 已完成
 
@@ -71,9 +77,16 @@
   - provider：`https://muyuan.do/v1`
   - 使用 HTTP Responses，关闭 WebSocket
   - smoke test 返回 `ok`
+- 部署并升级 Nowledge Mem Docker server
+  - deploy 目录：`/home/debian/nowledge-mem/community/docker`
+  - 已通过 `git -C /home/debian/nowledge-mem/community pull --ff-only` 更新 operator stack
+  - 已通过 `./nmemctl upgrade 0.10.4` 从 `0.10.3` 升级到 `0.10.4`
+  - 验证：`./nmemctl status` 显示 `/livez` OK、Pro license active、image/binary `0.10.4`
+  - 验证：`/health` 返回 `status=ok`、`version=0.10.4`、build `a5c93b2d43c0`
+  - API key、license、device identity 保留在 deploy 目录 `config/`，不写入仓库
 - 安装并配置 Nowledge Mem for Codex CLI
   - 参考文档：`https://mem.nowledge.co/docs/integrations/codex-cli.mdx`
-  - `nmem` CLI：`0.8.8`
+  - `nmem` CLI：`0.10.3`
   - 安装方式：`uv tool install nmem-cli --upgrade`
   - nmem client：连接本机 Nowledge server 的 NetBird 地址 `http://100.117.221.179:14242`
   - nmem config：`/home/debian/.nowledge-mem/config.json`
@@ -82,7 +95,7 @@
   - Codex MCP：`nowledge-mem` -> `http://100.117.221.179:14242/mcp/`，已 enabled
   - Stop hook：`/home/debian/.codex/hooks/nowledge-mem-stop-save.py`
   - hooks config：`/home/debian/.codex/hooks.json`
-  - 验证：`nmem status` ok，`codex mcp list` enabled，Working Memory 可读取，Codex transcript import 可搜索
+  - 验证：`nmem status` ok，CLI `0.10.3` / server `0.10.4`，`codex mcp list` enabled，Working Memory 可读取，Codex transcript import 可搜索
 - 安装并认证 `lark-cli`，版本 `1.0.48`
   - 管理方式：`mise` npm backend（`npm:@larksuite/cli`）
   - bot 身份：ready
@@ -185,6 +198,7 @@
   - 公网 URL 当前 path 设计：
     - `/`：gezi-dev 服务 homepage
     - 顶层入口只放 `/herdr`：Herdr status dashboard
+    - `/kiro-gateway`：Kiro Gateway，本地后端 `127.0.0.1:8000`
     - Herdr 内部/兼容路径：
       - `/herdr/api.json`：状态 JSON
       - `/herdr/history`：只读可滚动 pane history，适合手机查看当前执行输出

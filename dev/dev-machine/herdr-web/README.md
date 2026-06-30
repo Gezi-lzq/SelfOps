@@ -133,12 +133,15 @@ Current routes:
 /           gezi-dev service homepage
 /herdr      Herdr status dashboard entry
 /herdr/*    Herdr status dashboard subpaths
+/kiro-gateway  Kiro Gateway entrypoint
+/kiro-gateway/*  Kiro Gateway subpaths
 ```
 
-The root homepage currently exposes one user-facing entry:
+The root homepage currently exposes these user-facing entries:
 
 ```text
 Herdr Status Dashboard -> /herdr
+Kiro Gateway -> /kiro-gateway
 ```
 
 Path ownership is intentionally layered:
@@ -172,8 +175,10 @@ handle /tool-name* {
 }
 ```
 
-Keep `/` as the lightweight service homepage. Add a card to
-`public/index.html` whenever a new public path is added.
+Keep `/` as the lightweight service homepage. Its Caddy route intentionally
+rewrites `/` to `/index.html` before `file_server`, then the final fallback
+returns 404 for unknown paths. Add a card to `public/index.html` whenever a new
+public path is added.
 
 ## Start
 
