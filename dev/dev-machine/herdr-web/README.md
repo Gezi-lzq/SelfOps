@@ -160,7 +160,19 @@ Herdr route tree:
 /herdr/history      read-only scrollable pane history
 /herdr/terminal/    ttyd browser terminal
 /herdr/terminal-mobile/  ttyd browser terminal with larger mobile font
+/herdr/touch-terminal/  mobile ttyd wrapper with touch controls
 ```
+
+`/herdr/touch-terminal/` is the mobile-friendly Herdr terminal entrypoint. It
+embeds the normal ttyd route, defaults to view mode to avoid opening the mobile
+keyboard, and exposes a collapsible control strip with `输入`, `Esc`, `上翻`, and
+`下翻`. Scroll controls dispatch browser `WheelEvent`s into the inner xterm DOM
+so Herdr handles pane scrolling itself. Do not add raw SGR mouse escape bytes or
+other PTY input as a scroll fallback, because that can leak control sequences
+into an active agent prompt when mouse tracking is not enabled. The wrapper
+defaults to `fontSize=10` and `lineHeight=1.12`; pass ttyd frontend options in
+the query string, for example `/herdr/touch-terminal/?fontSize=15`, to test a
+different mobile density. Pass `input=1` to open in direct input mode.
 
 The old root-level `/api.json`, `/history`, `/terminal/`, and
 `/terminal-mobile/` routes remain as compatibility aliases for existing links.
@@ -208,8 +220,9 @@ agent. These links use ttyd URL arguments:
 
 If `HERDR_STATUS_TTYD_MOBILE_URL` is configured, the status dashboard resolves
 terminal links in the browser: narrow viewports use the mobile base URL and
-wider viewports use the desktop base URL. The default mobile route points to a
-second ttyd instance with larger frontend font settings.
+wider viewports use the desktop base URL. The preferred mobile route is
+`/herdr/touch-terminal/`; `/herdr/terminal-mobile/` remains available as a plain
+ttyd fallback with larger frontend font settings.
 
 The `herdr-web-session` wrapper intentionally accepts only `--session` and
 `--agent`, then runs either `herdr --session <name>` or

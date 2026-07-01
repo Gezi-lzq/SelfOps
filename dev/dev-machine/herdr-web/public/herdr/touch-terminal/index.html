@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Herdr Touch Terminal</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d0f12;
+      --term-bg: #2f2f30;
+      --bar: #171b20;
+      --button: #252b33;
+      --button-active: #344150;
+      --button-border: #415063;
+      --text: #eef2f4;
+      --muted: #aab3bc;
+      --line: #303842;
+      --ok: #73d18b;
+      --warn: #f0b86b;
+    }
+    * { box-sizing: border-box; }
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--term-bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .shell {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: var(--term-bg);
+    }
+    .toolbar {
+      position: fixed;
+      right: env(safe-area-inset-right);
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .toolbar.ready {
+      transition: transform 140ms ease;
+    }
+    .toolbar.collapsed {
+      transform: translateY(-50%);
+    }
+    .toolbar.collapsed .buttons {
+      display: none;
+    }
+    .toggle {
+      width: 22px;
+      height: 64px;
+      padding: 0;
+      border-color: var(--button-border);
+      border-radius: 9px 0 0 9px;
+      background: rgba(23, 27, 32, 0.78);
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 7px;
+      width: 54px;
+      padding: 7px;
+      background: rgba(23, 27, 32, 0.58);
+      border: 1px solid rgba(65, 80, 99, 0.82);
+      border-radius: 11px;
+      backdrop-filter: blur(10px);
+    }
+    button {
+      min-width: 0;
+      height: 48px;
+      border: 1px solid var(--button-border);
+      border-radius: 8px;
+      background: rgba(37, 43, 51, 0.88);
+      color: var(--text);
+      font: 700 12px/1 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    button:active,
+    button.pressed {
+      background: var(--button-active);
+      border-color: #6f879f;
+      transform: scale(0.97);
+    }
+    button.enabled {
+      color: var(--ok);
+      border-color: rgba(115, 209, 139, 0.75);
+    }
+    .status {
+      position: fixed;
+      left: max(10px, env(safe-area-inset-left));
+      bottom: max(10px, env(safe-area-inset-bottom));
+      z-index: 20;
+      max-width: calc(100vw - 20px);
+      padding: 5px 8px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: rgba(13, 15, 18, 0.76);
+      color: var(--muted);
+      font: 500 11px/1.2 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      pointer-events: none;
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      transform: translateY(5px);
+      transition: opacity 120ms ease, transform 120ms ease;
+    }
+    .status.visible {
+      opacity: 0.94;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <iframe id="terminal" title="Herdr mobile terminal" allow="clipboard-read; clipboard-write"></iframe>
+    <div class="toolbar collapsed" aria-label="Terminal touch controls">
+      <button class="toggle" type="button" tabindex="-1" data-toggle aria-label="Expand terminal controls">›</button>
+      <div class="buttons">
+        <button type="button" tabindex="-1" data-input-toggle aria-label="Toggle direct terminal input">输入</button>
+        <button type="button" tabindex="-1" data-key="esc" aria-label="Send Escape">Esc</button>
+        <button type="button" tabindex="-1" data-scroll="up" aria-label="Scroll terminal up">上翻</button>
+        <button type="button" tabindex="-1" data-scroll="down" aria-label="Scroll terminal down">下翻</button>
+      </div>
+    </div>
+    <div id="status" class="status" aria-live="polite">等待 terminal...</div>
+  </div>
+
+  <script>
+    const frame = document.getElementById("terminal");
+    const status = document.getElementById("status");
+    const terminalPath = "/herdr/terminal/";
+    const terminalParams = new URLSearchParams(window.location.search);
+    if (!terminalParams.has("fontSize")) terminalParams.set("fontSize", "10");
+    if (!terminalParams.has("lineHeight")) terminalParams.set("lineHeight", "1.12");
+    if (!terminalParams.has("disableResizeOverlay")) terminalParams.set("disableResizeOverlay", "true");
+    frame.src = terminalPath + "?" + terminalParams.toString() + window.location.hash;
+
+    let statusTimer = 0;
+    let lastControlAt = 0;
+    let repeatTimer = 0;
+    let repeatDelayTimer = 0;
+    let lastHandledAt = 0;
+    let inputEnabled = terminalParams.get("input") === "1";
+    window.requestAnimationFrame(() => document.querySelector(".toolbar").classList.add("ready"));
+
+    function setStatus(message, tone) {
+      status.textContent = message;
+      status.style.color = tone === "ok" ? "var(--ok)" : tone === "warn" ? "var(--warn)" : "var(--muted)";
+      status.classList.add("visible");
+      window.clearTimeout(statusTimer);
+      statusTimer = window.setTimeout(() => {
+        status.classList.remove("visible");
+      }, tone === "warn" ? 2200 : 1200);
+    }
+
+    function getFrameDocument() {
+      try {
+        return frame.contentDocument || (frame.contentWindow && frame.contentWindow.document);
+      } catch (_error) {
+        return null;
+      }
+    }
+
+    function getTerm() {
+      try {
+        return frame.contentWindow && frame.contentWindow.term;
+      } catch (_error) {
+        return null;
+      }
+    }
+
+    function applyInputMode(showStatus) {
+      document.body.classList.toggle("input-enabled", inputEnabled);
+      const inputButton = document.querySelector("[data-input-toggle]");
+      if (inputButton) inputButton.classList.toggle("enabled", inputEnabled);
+
+      const doc = getFrameDocument();
+      if (doc) {
+        const textareas = doc.querySelectorAll(".xterm-helper-textarea, textarea");
+        textareas.forEach((textarea) => {
+          textarea.readOnly = !inputEnabled;
+          textarea.inputMode = inputEnabled ? "text" : "none";
+          if (!inputEnabled && doc.activeElement === textarea) textarea.blur();
+        });
+        if (!inputEnabled && doc.activeElement && typeof doc.activeElement.blur === "function") {
+          doc.activeElement.blur();
+        }
+        if (!doc.__herdrTouchInputGuardInstalled) {
+          doc.addEventListener("focusin", () => {
+            if (!inputEnabled && doc.activeElement && typeof doc.activeElement.blur === "function") {
+              doc.activeElement.blur();
+            }
+          }, true);
+          doc.__herdrTouchInputGuardInstalled = true;
+        }
+      }
+
+      if (!inputEnabled && document.activeElement && typeof document.activeElement.blur === "function") {
+        document.activeElement.blur();
+      }
+      if (showStatus) setStatus(inputEnabled ? "输入已开启" : "查看模式", "ok");
+    }
+
+    function sendTerminalData(data, label) {
+      const term = getTerm();
+      if (!term) {
+        setStatus("terminal 尚未就绪", "warn");
+        return false;
+      }
+      if (term._core && term._core.coreService) {
+        term._core.coreService.triggerDataEvent(data);
+        setStatus(label, "ok");
+        return true;
+      }
+      if (typeof term.input === "function") {
+        term.input(data);
+        setStatus(label, "ok");
+        return true;
+      }
+      setStatus("无法发送按键", "warn");
+      return false;
+    }
+
+    function getWheelTargets(doc, term) {
+      const candidates = [
+        doc.querySelector(".xterm-screen"),
+        doc.querySelector(".xterm-viewport"),
+        doc.querySelector(".xterm"),
+        term && term.element,
+        doc.body
+      ];
+      return candidates.filter((target, index) => target && candidates.indexOf(target) === index);
+    }
+
+    function dispatchWheelEvent(target, direction, amount) {
+      const rect = target.getBoundingClientRect();
+      const clientX = Math.max(1, Math.floor(rect.left + rect.width / 2));
+      const clientY = Math.max(1, Math.floor(rect.top + rect.height / 2));
+
+      return target.dispatchEvent(new WheelEvent("wheel", {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        deltaX: 0,
+        deltaY: direction === "up" ? -amount : amount,
+        deltaMode: WheelEvent.DOM_DELTA_PIXEL,
+        clientX,
+        clientY,
+        screenX: clientX,
+        screenY: clientY
+      }));
+    }
+
+    function dispatchWheelBurst(direction, showStatus) {
+      const doc = getFrameDocument();
+      const term = getTerm();
+      if (!doc) {
+        setStatus("terminal 尚未就绪", "warn");
+        return;
+      }
+
+      const active = doc.activeElement;
+      if (active && typeof active.blur === "function") active.blur();
+
+      const targets = getWheelTargets(doc, term);
+      if (!targets.length) {
+        setStatus("没有找到 xterm DOM", "warn");
+        return;
+      }
+
+      let dispatched = 0;
+      for (let i = 0; i < 3; i += 1) {
+        for (const target of targets) {
+          dispatchWheelEvent(target, direction, 140);
+          dispatched += 1;
+        }
+      }
+      if (showStatus) {
+        setStatus((direction === "up" ? "上翻" : "下翻") + " · wheel " + dispatched, "ok");
+      }
+    }
+
+    function stopRepeat() {
+      window.clearInterval(repeatTimer);
+      window.clearTimeout(repeatDelayTimer);
+      repeatTimer = 0;
+      repeatDelayTimer = 0;
+      document.querySelectorAll(".pressed").forEach((el) => el.classList.remove("pressed"));
+    }
+
+    function handleControl(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      stopRepeat();
+      lastHandledAt = Date.now();
+      const active = document.activeElement;
+      if (active && typeof active.blur === "function") active.blur();
+
+      const button = event.target.closest("button");
+      if (!button) return;
+      if (button.dataset.toggle !== undefined) {
+        const toolbar = document.querySelector(".toolbar");
+        toolbar.classList.toggle("collapsed");
+        button.textContent = toolbar.classList.contains("collapsed") ? "›" : "‹";
+        button.setAttribute("aria-label", toolbar.classList.contains("collapsed") ? "Expand scroll controls" : "Collapse scroll controls");
+        return;
+      }
+      if (button.dataset.inputToggle !== undefined) {
+        button.classList.add("pressed");
+        window.setTimeout(() => button.classList.remove("pressed"), 120);
+        inputEnabled = !inputEnabled;
+        applyInputMode(true);
+        return;
+      }
+      if (button.dataset.key === "esc") {
+        button.classList.add("pressed");
+        window.setTimeout(() => button.classList.remove("pressed"), 120);
+        sendTerminalData("\x1b", "Esc");
+        return;
+      }
+
+      const now = Date.now();
+      if (now - lastControlAt < 120) return;
+      lastControlAt = now;
+
+      button.classList.add("pressed");
+      dispatchWheelBurst(button.dataset.scroll, true);
+      repeatDelayTimer = window.setTimeout(() => {
+        repeatTimer = window.setInterval(() => dispatchWheelBurst(button.dataset.scroll, false), 180);
+      }, 420);
+    }
+
+    document.querySelector(".toolbar").addEventListener("pointerdown", handleControl, { capture: true });
+    document.querySelector(".toolbar").addEventListener("pointerup", stopRepeat, { capture: true });
+    document.querySelector(".toolbar").addEventListener("pointercancel", stopRepeat, { capture: true });
+    document.querySelector(".toolbar").addEventListener("pointerleave", stopRepeat, { capture: true });
+    window.addEventListener("pointerup", stopRepeat, { capture: true });
+    window.addEventListener("blur", stopRepeat);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState !== "visible") stopRepeat();
+    });
+    if (!window.PointerEvent) {
+      document.querySelector(".toolbar").addEventListener("touchstart", handleControl, { capture: true, passive: false });
+      document.querySelector(".toolbar").addEventListener("touchend", stopRepeat, { capture: true, passive: true });
+      document.querySelector(".toolbar").addEventListener("touchcancel", stopRepeat, { capture: true, passive: true });
+      window.addEventListener("touchend", stopRepeat, { capture: true, passive: true });
+      window.addEventListener("touchcancel", stopRepeat, { capture: true, passive: true });
+    }
+
+    document.querySelector(".toolbar").addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (Date.now() - lastHandledAt > 350) handleControl(event);
+    });
+
+    const readyTimer = window.setInterval(() => {
+      if (getTerm() && getFrameDocument()) {
+        applyInputMode(false);
+        window.clearInterval(readyTimer);
+      }
+    }, 500);
+
+    frame.addEventListener("load", () => {
+      window.setTimeout(() => {
+        applyInputMode(false);
+        if (!getTerm()) setStatus("等待 ttyd xterm...", "warn");
+      }, 500);
+    });
+  </script>
+</body>
+</html>

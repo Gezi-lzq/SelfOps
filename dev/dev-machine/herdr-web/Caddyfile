@@ -26,6 +26,11 @@
 		reverse_proxy 127.0.0.1:8765
 	}
 
+	handle /herdr/touch-terminal* {
+		root * public
+		file_server
+	}
+
 	handle /terminal-mobile* {
 		reverse_proxy 127.0.0.1:7682
 	}
