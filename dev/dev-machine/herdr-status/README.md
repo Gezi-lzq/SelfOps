@@ -32,7 +32,7 @@ HERDR_STATUS_TTYD_URL=/herdr/terminal/
 HERDR_STATUS_HISTORY_URL=/herdr/history
 # Optional:
 HERDR_STATUS_TTYD_DESKTOP_URL=/herdr/terminal/
-HERDR_STATUS_TTYD_MOBILE_URL=/herdr/terminal-mobile/
+HERDR_STATUS_TTYD_MOBILE_URL=/herdr/touch-terminal/
 HERDR_STATUS_TTYD_MOBILE_WIDTH=700
 ```
 
@@ -44,6 +44,8 @@ When `HERDR_STATUS_TTYD_MOBILE_URL` is set, terminal links are resolved in the
 browser. Viewports at or below `HERDR_STATUS_TTYD_MOBILE_WIDTH` use the mobile
 base URL, while wider screens use `HERDR_STATUS_TTYD_DESKTOP_URL`. The status
 service appends the same ttyd `arg=...` parameters after choosing the base URL.
+Use `/herdr/touch-terminal/` as the mobile URL so phone links get the touch
+controls and view-mode input guard.
 
 The dashboard also generates per-session and per-agent terminal links:
 
@@ -87,6 +89,7 @@ When installed with `herdr-web`, Caddy exposes these local routes on
 /herdr/history    read-only scrollable pane history
 /herdr/terminal/  ttyd terminal
 /herdr/terminal-mobile/  ttyd terminal with larger mobile font
+/herdr/touch-terminal/  mobile ttyd wrapper with touch controls
 ```
 
 Only `/herdr` is intended as a homepage entry. The other paths are service
