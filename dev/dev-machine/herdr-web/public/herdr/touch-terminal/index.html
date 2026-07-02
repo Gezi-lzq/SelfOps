@@ -7,12 +7,13 @@
   <style>
     :root {
       color-scheme: dark;
-      --bg: #0d0f12;
+      --chrome: #0a0a0c;
+      --chrome-2: #141417;
       --term-bg: #2f2f30;
-      --bar: #171b20;
       --button: #252b33;
       --button-active: #344150;
       --button-border: #415063;
+      --input: #2b2d31;
       --text: #eef2f4;
       --muted: #aab3bc;
       --line: #303842;
@@ -26,68 +27,105 @@
       height: 100%;
       margin: 0;
       overflow: hidden;
-      background: var(--term-bg);
+      background: var(--chrome);
       color: var(--text);
       font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
     .shell {
-      position: relative;
       width: 100%;
-      height: 100%;
+      height: 100vh;
+      height: 100dvh;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      background: var(--chrome);
+    }
+    .topbar {
+      min-height: 58px;
+      padding: calc(8px + env(safe-area-inset-top)) 10px 8px;
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr) 40px;
+      align-items: center;
+      gap: 8px;
+      background: var(--chrome);
+      border-bottom: 1px solid #1d2026;
+    }
+    .icon-button {
+      width: 38px;
+      height: 38px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--text);
+      font: 700 25px/1 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      touch-action: manipulation;
+    }
+    .icon-button:active {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .title {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+    .title strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 16px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+    .title span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin-right: 5px;
+      border-radius: 50%;
+      background: var(--ok);
+      vertical-align: 0;
+    }
+    .terminal-wrap {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      background: var(--term-bg);
+      overflow: hidden;
     }
     iframe {
+      position: absolute;
+      inset: 0;
       display: block;
       width: 100%;
       height: 100%;
       border: 0;
       background: var(--term-bg);
     }
-    .toolbar {
-      position: fixed;
-      right: env(safe-area-inset-right);
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 20;
-      display: flex;
-      align-items: center;
-      gap: 5px;
+    .touch-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      background: transparent;
       touch-action: none;
-      -webkit-user-select: none;
-      user-select: none;
     }
-    .toolbar.ready {
-      transition: transform 140ms ease;
-    }
-    .toolbar.collapsed {
-      transform: translateY(-50%);
-    }
-    .toolbar.collapsed .buttons {
+    body.input-enabled .touch-layer {
       display: none;
-    }
-    .toggle {
-      width: 22px;
-      height: 64px;
-      padding: 0;
-      border-color: var(--button-border);
-      border-radius: 9px 0 0 9px;
-      background: rgba(23, 27, 32, 0.78);
-      color: var(--muted);
-      font-size: 15px;
-    }
-    .buttons {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 7px;
-      width: 54px;
-      padding: 7px;
-      background: rgba(23, 27, 32, 0.58);
-      border: 1px solid rgba(65, 80, 99, 0.82);
-      border-radius: 11px;
-      backdrop-filter: blur(10px);
     }
     button {
       min-width: 0;
-      height: 48px;
+      height: 42px;
       border: 1px solid var(--button-border);
       border-radius: 8px;
       background: rgba(37, 43, 51, 0.88);
@@ -108,16 +146,83 @@
       color: var(--ok);
       border-color: rgba(115, 209, 139, 0.75);
     }
+    .bottom-panel {
+      padding: 8px max(8px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+      background: var(--chrome);
+      border-top: 1px solid #242830;
+      display: grid;
+      gap: 8px;
+    }
+    .quickbar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x;
+      padding-right: 48px;
+      mask-image: linear-gradient(90deg, #000 calc(100% - 42px), transparent);
+    }
+    .quickbar::-webkit-scrollbar {
+      display: none;
+    }
+    .quickbar button {
+      flex: 0 0 auto;
+      height: 36px;
+      min-width: 44px;
+      padding: 0 11px;
+      border-radius: 9px;
+      color: var(--muted);
+      font-size: 13px;
+      background: rgba(37, 43, 51, 0.92);
+      touch-action: pan-x;
+    }
+    .quickbar button.enabled {
+      color: var(--ok);
+    }
+    .input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 44px;
+      gap: 8px;
+      align-items: center;
+    }
+    .command-input {
+      width: 100%;
+      min-width: 0;
+      height: 46px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 0 14px;
+      background: var(--input);
+      color: var(--text);
+      font: 500 16px/1.2 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+      outline: none;
+    }
+    .command-input:focus {
+      border-color: rgba(115, 209, 139, 0.42);
+    }
+    .command-input::placeholder {
+      color: #818892;
+    }
+    .send-button {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 20px;
+      background: #30343b;
+    }
     .status {
       position: fixed;
       left: max(10px, env(safe-area-inset-left));
-      bottom: max(10px, env(safe-area-inset-bottom));
-      z-index: 20;
+      bottom: calc(104px + env(safe-area-inset-bottom));
+      z-index: 30;
       max-width: calc(100vw - 20px);
       padding: 5px 8px;
       border: 1px solid var(--line);
       border-radius: 7px;
-      background: rgba(13, 15, 18, 0.76);
+      background: rgba(13, 15, 18, 0.78);
       color: var(--muted);
       font: 500 11px/1.2 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       pointer-events: none;
@@ -134,22 +239,47 @@
 </head>
 <body>
   <div class="shell">
-    <iframe id="terminal" title="Herdr mobile terminal" allow="clipboard-read; clipboard-write"></iframe>
-    <div class="toolbar collapsed" aria-label="Terminal touch controls">
-      <button class="toggle" type="button" tabindex="-1" data-toggle aria-label="Expand terminal controls">›</button>
-      <div class="buttons">
-        <button type="button" tabindex="-1" data-input-toggle aria-label="Toggle direct terminal input">输入</button>
-        <button type="button" tabindex="-1" data-key="esc" aria-label="Send Escape">Esc</button>
-        <button type="button" tabindex="-1" data-scroll="up" aria-label="Scroll terminal up">上翻</button>
-        <button type="button" tabindex="-1" data-scroll="down" aria-label="Scroll terminal down">下翻</button>
+    <header class="topbar">
+      <a class="icon-button" href="/herdr" aria-label="Back to Herdr Status">‹</a>
+      <div class="title">
+        <strong id="title">Herdr</strong>
+        <span id="subtitle"><span class="dot"></span>mobile terminal</span>
       </div>
-    </div>
+      <button class="icon-button" type="button" data-refresh aria-label="Reload terminal">↻</button>
+    </header>
+
+    <main class="terminal-wrap">
+      <iframe id="terminal" title="Herdr mobile terminal" allow="clipboard-read; clipboard-write"></iframe>
+      <div class="touch-layer" aria-hidden="true"></div>
+    </main>
+
+    <section class="bottom-panel" aria-label="Mobile terminal controls">
+      <div class="quickbar">
+        <button type="button" data-input-toggle aria-label="Toggle direct terminal input">输入</button>
+        <button type="button" data-paste>Paste</button>
+        <button type="button" data-key="esc">Esc</button>
+        <button type="button" data-key="tab">Tab</button>
+        <button type="button" data-key="backspace">⌫</button>
+        <button type="button" data-key="up">↑</button>
+        <button type="button" data-key="down">↓</button>
+        <button type="button" data-key="left">←</button>
+        <button type="button" data-key="right">→</button>
+        <button type="button" data-key="ctrl-c">Ctrl-C</button>
+      </div>
+      <form class="input-row" id="command-form">
+        <input id="command-input" class="command-input" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Type a command...">
+        <button class="send-button" type="submit" aria-label="Send command">↑</button>
+      </form>
+    </section>
     <div id="status" class="status" aria-live="polite">等待 terminal...</div>
   </div>
 
   <script>
     const frame = document.getElementById("terminal");
     const status = document.getElementById("status");
+    const title = document.getElementById("title");
+    const subtitle = document.getElementById("subtitle");
+    const commandInput = document.getElementById("command-input");
     const terminalPath = "/herdr/terminal/";
     const terminalParams = new URLSearchParams(window.location.search);
     if (!terminalParams.has("fontSize")) terminalParams.set("fontSize", "10");
@@ -157,13 +287,25 @@
     if (!terminalParams.has("disableResizeOverlay")) terminalParams.set("disableResizeOverlay", "true");
     frame.src = terminalPath + "?" + terminalParams.toString() + window.location.hash;
 
+    const argValues = terminalParams.getAll("arg");
+    function terminalArg(name) {
+      const index = argValues.indexOf(name);
+      return index >= 0 ? argValues[index + 1] || "" : "";
+    }
+    const sessionName = terminalArg("--session") || "default";
+    const agentName = terminalArg("--agent");
+    title.textContent = agentName ? sessionName + " / agent" : sessionName;
+    subtitle.innerHTML = "<span class='dot'></span>" + (agentName ? agentName : "session") + " · touch";
+
     let statusTimer = 0;
-    let lastControlAt = 0;
-    let repeatTimer = 0;
-    let repeatDelayTimer = 0;
-    let lastHandledAt = 0;
     let inputEnabled = terminalParams.get("input") === "1";
-    window.requestAnimationFrame(() => document.querySelector(".toolbar").classList.add("ready"));
+    let touchActive = false;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchLastY = 0;
+    let touchRemainder = 0;
+    let touchMoved = false;
+    const TOUCH_LINE_HEIGHT = 18;
 
     function setStatus(message, tone) {
       status.textContent = message;
@@ -193,8 +335,8 @@
 
     function applyInputMode(showStatus) {
       document.body.classList.toggle("input-enabled", inputEnabled);
-      const inputButton = document.querySelector("[data-input-toggle]");
-      if (inputButton) inputButton.classList.toggle("enabled", inputEnabled);
+      const inputButtons = document.querySelectorAll("[data-input-toggle]");
+      inputButtons.forEach((button) => button.classList.toggle("enabled", inputEnabled));
 
       const doc = getFrameDocument();
       if (doc) {
@@ -217,9 +359,6 @@
         }
       }
 
-      if (!inputEnabled && document.activeElement && typeof document.activeElement.blur === "function") {
-        document.activeElement.blur();
-      }
       if (showStatus) setStatus(inputEnabled ? "输入已开启" : "查看模式", "ok");
     }
 
@@ -231,148 +370,175 @@
       }
       if (term._core && term._core.coreService) {
         term._core.coreService.triggerDataEvent(data);
-        setStatus(label, "ok");
+        if (label) setStatus(label, "ok");
         return true;
       }
       if (typeof term.input === "function") {
         term.input(data);
-        setStatus(label, "ok");
+        if (label) setStatus(label, "ok");
         return true;
       }
       setStatus("无法发送按键", "warn");
       return false;
     }
 
-    function getWheelTargets(doc, term) {
-      const candidates = [
-        doc.querySelector(".xterm-screen"),
-        doc.querySelector(".xterm-viewport"),
-        doc.querySelector(".xterm"),
-        term && term.element,
-        doc.body
-      ];
-      return candidates.filter((target, index) => target && candidates.indexOf(target) === index);
+    function keySequence(key) {
+      switch (key) {
+        case "esc": return "\x1b";
+        case "tab": return "\t";
+        case "backspace": return "\x7f";
+        case "up": return "\x1b[A";
+        case "down": return "\x1b[B";
+        case "right": return "\x1b[C";
+        case "left": return "\x1b[D";
+        case "ctrl-c": return "\x03";
+        default: return "";
+      }
     }
 
-    function dispatchWheelEvent(target, direction, amount) {
-      const rect = target.getBoundingClientRect();
-      const clientX = Math.max(1, Math.floor(rect.left + rect.width / 2));
-      const clientY = Math.max(1, Math.floor(rect.top + rect.height / 2));
+    function sendCommandLine(value) {
+      if (!sendTerminalData("\x1b[200~" + value + "\x1b[201~", "")) return false;
+      window.setTimeout(() => sendTerminalData("\r", "Sent"), 60);
+      return true;
+    }
 
-      return target.dispatchEvent(new WheelEvent("wheel", {
+    async function pasteClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (!text) {
+          setStatus("剪贴板为空", "warn");
+          return;
+        }
+        sendTerminalData("\x1b[200~" + text + "\x1b[201~", "Paste");
+      } catch (_error) {
+        setStatus("无法读取剪贴板", "warn");
+      }
+    }
+
+    function dispatchWheelAt(clientX, clientY, deltaY) {
+      const doc = getFrameDocument();
+      const term = getTerm();
+      if (!doc) return false;
+
+      const localX = Math.max(1, clientX);
+      const localY = Math.max(1, clientY - document.querySelector(".topbar").getBoundingClientRect().height);
+      const target = doc.elementFromPoint(localX, localY)
+        || doc.querySelector(".xterm-screen")
+        || doc.querySelector(".xterm-viewport")
+        || doc.querySelector(".xterm")
+        || (term && term.element)
+        || doc.body;
+      if (!target) return false;
+      target.dispatchEvent(new WheelEvent("wheel", {
         bubbles: true,
         cancelable: true,
         composed: true,
         deltaX: 0,
-        deltaY: direction === "up" ? -amount : amount,
+        deltaY,
         deltaMode: WheelEvent.DOM_DELTA_PIXEL,
-        clientX,
-        clientY,
-        screenX: clientX,
-        screenY: clientY
+        clientX: localX,
+        clientY: localY,
+        screenX: localX,
+        screenY: localY
       }));
+      return true;
     }
 
-    function dispatchWheelBurst(direction, showStatus) {
+    function forwardTapToTerminal(clientX, clientY) {
       const doc = getFrameDocument();
-      const term = getTerm();
-      if (!doc) {
-        setStatus("terminal 尚未就绪", "warn");
-        return;
+      if (!doc) return false;
+      const localX = Math.max(1, clientX);
+      const localY = Math.max(1, clientY - document.querySelector(".topbar").getBoundingClientRect().height);
+      const target = doc.elementFromPoint(localX, localY);
+      if (!target) return false;
+      for (const type of ["pointerdown", "mousedown", "pointerup", "mouseup", "click"]) {
+        const event = type.startsWith("pointer")
+          ? new PointerEvent(type, { bubbles: true, cancelable: true, pointerId: 1, pointerType: "touch", isPrimary: true, clientX: localX, clientY: localY })
+          : new MouseEvent(type, { bubbles: true, cancelable: true, clientX: localX, clientY: localY });
+        target.dispatchEvent(event);
       }
-
-      const active = doc.activeElement;
-      if (active && typeof active.blur === "function") active.blur();
-
-      const targets = getWheelTargets(doc, term);
-      if (!targets.length) {
-        setStatus("没有找到 xterm DOM", "warn");
-        return;
-      }
-
-      let dispatched = 0;
-      for (let i = 0; i < 3; i += 1) {
-        for (const target of targets) {
-          dispatchWheelEvent(target, direction, 140);
-          dispatched += 1;
-        }
-      }
-      if (showStatus) {
-        setStatus((direction === "up" ? "上翻" : "下翻") + " · wheel " + dispatched, "ok");
-      }
+      return true;
     }
 
-    function stopRepeat() {
-      window.clearInterval(repeatTimer);
-      window.clearTimeout(repeatDelayTimer);
-      repeatTimer = 0;
-      repeatDelayTimer = 0;
-      document.querySelectorAll(".pressed").forEach((el) => el.classList.remove("pressed"));
-    }
+    const touchLayer = document.querySelector(".touch-layer");
+    touchLayer.addEventListener("touchstart", (event) => {
+      if (inputEnabled || event.touches.length !== 1) return;
+      touchActive = true;
+      touchMoved = false;
+      touchRemainder = 0;
+      touchStartX = event.touches[0].clientX;
+      touchStartY = event.touches[0].clientY;
+      touchLastY = touchStartY;
+    }, { passive: true });
 
-    function handleControl(event) {
+    touchLayer.addEventListener("touchmove", (event) => {
+      if (!touchActive || inputEnabled || event.touches.length !== 1) return;
+      const touch = event.touches[0];
+      const dx = touch.clientX - touchStartX;
+      const dyTotal = touch.clientY - touchStartY;
+      if (!touchMoved && Math.abs(dx) > Math.abs(dyTotal) && Math.abs(dx) > 12) return;
+      const dy = touch.clientY - touchLastY;
+      if (dy === 0) return;
+      touchLastY = touch.clientY;
+      touchRemainder += dy;
+      if (Math.abs(dyTotal) > 8) touchMoved = true;
+
+      const steps = Math.trunc(touchRemainder / TOUCH_LINE_HEIGHT);
+      if (steps === 0) return;
+      touchRemainder -= steps * TOUCH_LINE_HEIGHT;
       event.preventDefault();
       event.stopPropagation();
-      stopRepeat();
-      lastHandledAt = Date.now();
-      const active = document.activeElement;
-      if (active && typeof active.blur === "function") active.blur();
+      dispatchWheelAt(touch.clientX, touch.clientY, -steps * 140);
+    }, { passive: false });
 
+    touchLayer.addEventListener("touchend", (event) => {
+      if (!touchActive) return;
+      const shouldTap = !touchMoved && Math.abs(touchLastY - touchStartY) < 8;
+      const x = touchStartX;
+      const y = touchStartY;
+      touchActive = false;
+      touchRemainder = 0;
+      if (shouldTap) forwardTapToTerminal(x, y);
+    }, { passive: true });
+
+    touchLayer.addEventListener("touchcancel", () => {
+      touchActive = false;
+      touchRemainder = 0;
+    }, { passive: true });
+
+    document.querySelector(".quickbar").addEventListener("click", (event) => {
       const button = event.target.closest("button");
       if (!button) return;
-      if (button.dataset.toggle !== undefined) {
-        const toolbar = document.querySelector(".toolbar");
-        toolbar.classList.toggle("collapsed");
-        button.textContent = toolbar.classList.contains("collapsed") ? "›" : "‹";
-        button.setAttribute("aria-label", toolbar.classList.contains("collapsed") ? "Expand scroll controls" : "Collapse scroll controls");
-        return;
-      }
+      event.preventDefault();
+      event.stopPropagation();
+      button.classList.add("pressed");
+      window.setTimeout(() => button.classList.remove("pressed"), 120);
       if (button.dataset.inputToggle !== undefined) {
-        button.classList.add("pressed");
-        window.setTimeout(() => button.classList.remove("pressed"), 120);
         inputEnabled = !inputEnabled;
         applyInputMode(true);
         return;
       }
-      if (button.dataset.key === "esc") {
-        button.classList.add("pressed");
-        window.setTimeout(() => button.classList.remove("pressed"), 120);
-        sendTerminalData("\x1b", "Esc");
+      if (button.dataset.paste !== undefined) {
+        pasteClipboard();
         return;
       }
+      const seq = keySequence(button.dataset.key || "");
+      if (seq) sendTerminalData(seq, button.textContent.trim());
+    }, { capture: true });
 
-      const now = Date.now();
-      if (now - lastControlAt < 120) return;
-      lastControlAt = now;
-
-      button.classList.add("pressed");
-      dispatchWheelBurst(button.dataset.scroll, true);
-      repeatDelayTimer = window.setTimeout(() => {
-        repeatTimer = window.setInterval(() => dispatchWheelBurst(button.dataset.scroll, false), 180);
-      }, 420);
-    }
-
-    document.querySelector(".toolbar").addEventListener("pointerdown", handleControl, { capture: true });
-    document.querySelector(".toolbar").addEventListener("pointerup", stopRepeat, { capture: true });
-    document.querySelector(".toolbar").addEventListener("pointercancel", stopRepeat, { capture: true });
-    document.querySelector(".toolbar").addEventListener("pointerleave", stopRepeat, { capture: true });
-    window.addEventListener("pointerup", stopRepeat, { capture: true });
-    window.addEventListener("blur", stopRepeat);
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState !== "visible") stopRepeat();
+    document.querySelector("[data-refresh]").addEventListener("click", () => {
+      frame.src = frame.src;
     });
-    if (!window.PointerEvent) {
-      document.querySelector(".toolbar").addEventListener("touchstart", handleControl, { capture: true, passive: false });
-      document.querySelector(".toolbar").addEventListener("touchend", stopRepeat, { capture: true, passive: true });
-      document.querySelector(".toolbar").addEventListener("touchcancel", stopRepeat, { capture: true, passive: true });
-      window.addEventListener("touchend", stopRepeat, { capture: true, passive: true });
-      window.addEventListener("touchcancel", stopRepeat, { capture: true, passive: true });
-    }
 
-    document.querySelector(".toolbar").addEventListener("click", (event) => {
+    document.getElementById("command-form").addEventListener("submit", (event) => {
       event.preventDefault();
-      event.stopPropagation();
-      if (Date.now() - lastHandledAt > 350) handleControl(event);
+      const value = commandInput.value;
+      if (!value) return;
+      if (sendCommandLine(value)) {
+        commandInput.value = "";
+        commandInput.blur();
+        if (!inputEnabled) applyInputMode(false);
+      }
     });
 
     const readyTimer = window.setInterval(() => {
