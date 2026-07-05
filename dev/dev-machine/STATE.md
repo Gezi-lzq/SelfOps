@@ -35,7 +35,7 @@
 - `ngrok` 版本：`3.39.8`，安装到 `/home/debian/.local/bin/ngrok`
 - `cloudflared` 版本：`2026.5.2`，由 `mise` 管理
 - Nowledge Mem Docker deploy：`/home/debian/nowledge-mem/community/docker`
-  - 容器：`nowledge-mem`，镜像 `docker.io/nowledgelabs/mem:0.10.11`
+  - 容器：`nowledge-mem`，镜像 `docker.io/nowledgelabs/mem:0.10.14`
   - controller：`nmemctl 2.4.0`
   - 监听：`0.0.0.0:14242`，通过 NetBird/内网访问；不挂到公网 Caddy path
   - auto-update sidecar：`nowledge-mem-updater`，当前 enabled/running/healthy
@@ -83,9 +83,9 @@
 - 部署并升级 Nowledge Mem Docker server
   - deploy 目录：`/home/debian/nowledge-mem/community/docker`
   - 已通过 `git -C /home/debian/nowledge-mem/community pull --ff-only` 更新 operator stack
-  - 已通过 `./nmemctl upgrade 0.10.11` 从 `0.10.6` 升级到 `0.10.11`
-  - 验证：`./nmemctl status` 显示 `/livez` OK、Pro license active、image/binary `0.10.11`
-  - 验证：`/health` 返回 `status=ok`、`version=0.10.11`、build `e589d9a5bc3f`
+  - 已通过 `./nmemctl upgrade 0.10.14` 从 `0.10.11` 升级到 `0.10.14`
+  - 验证：`./nmemctl status` 显示 `/livez` OK、Pro license active、image/binary `0.10.14`
+  - 验证：`/health` 返回 `status=ok`、`version=0.10.14`、build `842fe4e75497`
   - API key、license、device identity 保留在 deploy 目录 `config/`，不写入仓库
   - 修复 4GiB 内存上限下 Kuzu buffer pool 打满导致 `/health` error、database disconnected 的问题：将 `mem_limit` 调整为 `8g`，并显式设置 `NOWLEDGE_KUZU_BUFFER_POOL_SIZE=2GB`
   - 本机 overlay：compose.local.yaml，通过 .nmemctl-state 与 compose.updater.yaml 一起持久加载
@@ -101,7 +101,7 @@
   - Codex MCP：`nowledge-mem` -> `http://100.117.221.179:14242/mcp/`，已 enabled
   - Stop hook：`/home/debian/.codex/hooks/nowledge-mem-stop-save.py`
   - hooks config：`/home/debian/.codex/hooks.json`
-  - 验证：`nmem status` ok，CLI `0.10.3` / server `0.10.11`，`codex mcp list` enabled，Working Memory 可读取，Codex transcript import 可搜索
+  - 验证：`nmem status` ok，CLI `0.10.3` / server `0.10.14`，`codex mcp list` enabled，Working Memory 可读取，Codex transcript import 可搜索
 - 安装并认证 `lark-cli`，版本 `1.0.48`
   - 管理方式：`mise` npm backend（`npm:@larksuite/cli`）
   - bot 身份：ready
