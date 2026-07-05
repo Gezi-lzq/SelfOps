@@ -97,10 +97,11 @@
   - nmem client：连接本机 Nowledge server 的 NetBird 地址 `http://100.117.221.179:14242`
   - nmem config：`/home/debian/.nowledge-mem/config.json`
   - Codex marketplace：`nowledge-community` -> `https://github.com/nowledge-co/community.git`
-  - Codex plugin：`nowledge-mem@nowledge-community`，版本 `0.1.13`，已 enabled
-  - Codex MCP：`nowledge-mem` -> `http://100.117.221.179:14242/mcp/`，已 enabled
+  - Codex plugin：`nowledge-mem@nowledge-community`，版本 `0.1.22`，已 enabled
+  - Codex MCP：`nowledge-mem` -> `http://127.0.0.1:14242/mcp/`，已 enabled
   - Stop hook：`/home/debian/.codex/hooks/nowledge-mem-stop-save.py`
   - hooks config：`/home/debian/.codex/hooks.json`
+  - plugin Stop hook：`nowledge-mem@nowledge-community:hooks/hooks.json:stop:0:0` 与 `nowledge-mem@local:hooks/hooks.json:stop:0:0` 已 disabled；保留 fallback Stop hook，避免 `PLUGIN_ROOT` 缺失导致重复保存或 hook 127
   - 验证：`nmem status` ok，CLI `0.10.3` / server `0.10.14`，`codex mcp list` enabled，Working Memory 可读取，Codex transcript import 可搜索
 - 安装并认证 `lark-cli`，版本 `1.0.48`
   - 管理方式：`mise` npm backend（`npm:@larksuite/cli`）
