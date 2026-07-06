@@ -557,3 +557,7 @@ skills = [
   "enterprise-devkit",
   "enterprise-e2e",
 ]
+
+[skills.resume-coach]
+source = { type = "owned" }
+materialized_path = "../../skills/resume-coach"

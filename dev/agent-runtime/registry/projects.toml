@@ -16,6 +16,7 @@ include = [
   "obelisk",
   "skill-management",
   "dev-machine-management",
+  "resume-coach",
 ]
 exclude = []
 
@@ -26,6 +27,7 @@ include = [
   "assess-cluster-watermark-and-health",
   "skill-management",
   "dev-machine-management",
+  "resume-coach",
 ]
 exclude = []
 
