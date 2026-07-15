@@ -22,6 +22,7 @@ bundles = ["core", "tools", "memory", "lark-core", "ponytail", "mattpocock"]
 include = [
   "skill-management",
   "dev-machine-management",
+  "gtd-daily-review",
 ]
 exclude = []
 

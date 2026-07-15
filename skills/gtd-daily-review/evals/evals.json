@@ -1,0 +1,38 @@
+{
+  "skill_name": "gtd-daily-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "请使用 nmem 为我生成北京时间 2026-07-14 的 GTD 每日回顾。只把当天真实发生的推进列为完成项，并为每项给出可追溯证据。",
+      "expected_output": "A Chinese GTD review grounded only in messages from the Beijing calendar day, with traceable thread evidence and concrete next actions.",
+      "files": [],
+      "assertions": [
+        "The review uses the exact Beijing-day UTC window 2026-07-13T16:00:00Z to 2026-07-14T16:00:00Z.",
+        "Every progress item cites an in-window Thread message or a directly verified artifact.",
+        "The output separates progress, unfinished work, Next Actions, Waiting For, and uncertain items without inventing empty sections."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "回顾我在北京时间 2026-07-14 做的工作并整理 GTD。很多 Codex 对话很长，旧讨论不要算进当天；请用 nmem 的 Memory 和知识图谱核对哪些遗留事项现在仍有效、仍归我负责。",
+      "expected_output": "A noise-resistant review that filters long threads by message timestamp and uses current durable knowledge only to resolve relevance and ownership.",
+      "files": [],
+      "assertions": [
+        "Old messages from long Threads are excluded from date claims.",
+        "Memory or graph evidence is used for current meaning or ownership, not as proof that work occurred on the review date.",
+        "Next Actions contain only concrete actions that remain relevant and user-owned."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "帮我做 2026-07-14 的每日回顾。如果当天主要是咨询、探索或没有落地的讨论，不要为了显得充实而写成进展；证据不足的内容单独标出来。",
+      "expected_output": "A conservative daily review that prefers an honest sparse result over converting discussion noise into progress.",
+      "files": [],
+      "assertions": [
+        "Consultation, agent narration, and inconclusive exploration are not represented as completed progress.",
+        "Ambiguous claims are placed under a clearly marked uncertainty section.",
+        "The report remains useful when qualifying progress is sparse or absent."
+      ]
+    }
+  ]
+}

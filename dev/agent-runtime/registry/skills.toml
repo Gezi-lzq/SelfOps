@@ -341,6 +341,10 @@ materialized_path = "../../skills/skill-management"
 source = { type = "owned" }
 materialized_path = "../../skills/dev-machine-management"
 
+[skills.gtd-daily-review]
+source = { type = "owned" }
+materialized_path = "../../skills/gtd-daily-review"
+
 [skills.telegram-extra]
 source = { type = "owned" }
 
