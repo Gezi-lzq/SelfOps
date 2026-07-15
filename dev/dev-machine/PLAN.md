@@ -68,6 +68,17 @@
 - 大块数据不要放 100 GiB 系统盘
 - 敏感信息不写入仓库
 
+## Cloud Storage
+
+- 通过 `dev/dev-machine/cloud-storage` 维护 Agent 文件上传和异地备份约定。
+- 当前目标 provider 为 Google Drive；上传和备份默认通过 `rclone` 直接传输，不依赖挂载路径，也不增加 mise wrapper。
+- rclone remote 计划命名为 `gdrive`，机器远端根目录为 `gdrive:gezi-dev/`。
+- `uploads/` 用于按需上传，`backups/` 用于固定目标的覆盖式备份。
+- 单文件默认使用 `rclone copyto`，目录默认使用 `rclone copy`；不会默认使用带远端删除语义的 `rclone sync`。
+- 定期备份按明确的源目录分别建立 systemd user service/timer，不自动备份整个 Home。
+- 可选将 `gdrive:gezi-dev` 挂载到 `/home/debian/Drive`；VFS 缓存放 `/data/scratch`，mount service 默认不启用。
+- OAuth token、remote 配置和其他凭证仅保存在本机，不写入 SelfOps。
+
 ## k3s
 
 - 用作单机开发集群

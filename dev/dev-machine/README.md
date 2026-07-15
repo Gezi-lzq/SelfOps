@@ -6,6 +6,7 @@
 |------|------|
 | [PLAN.md](./PLAN.md) | 目标状态 |
 | [STATE.md](./STATE.md) | 当前状态与变更记录 |
+| [cloud-storage](./cloud-storage/) | Agent 文件上传与异地备份约定 |
 | [herdr-web](./herdr-web/) | 通过 Caddy + ngrok 暴露开发机公网入口，当前承载 Herdr |
 | [herdr-status](./herdr-status/) | 手机友好的 Herdr session/agent 只读状态页 |
 

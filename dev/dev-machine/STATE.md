@@ -1,6 +1,6 @@
 # 开发机当前状态
 
-日期：2026-06-12
+日期：2026-07-15
 
 ## 当前状态
 
@@ -34,6 +34,16 @@
 - `caddy` 版本：`v2.11.4`，由 `mise` 管理
 - `ngrok` 版本：`3.39.8`，安装到 `/home/debian/.local/bin/ngrok`
 - `cloudflared` 版本：`2026.5.2`，由 `mise` 管理
+- Cloud storage：`dev/dev-machine/cloud-storage`
+  - 当前 provider：个人 Google Drive，rclone remote 为 `gdrive`
+  - OAuth scope：`drive.file`，未配置 Shared Drive
+  - 本机配置：`/home/debian/.config/rclone/rclone.conf`，权限 `600`，不提交仓库
+  - 远端目录：`gdrive:gezi-dev/uploads/`、`gdrive:gezi-dev/backups/`
+  - 单文件上传与 MD5 校验已通过，`_smoke` 测试对象已清理
+  - 已安装 `fuse3 3.17.2`，`/dev/fuse` 和 `/usr/bin/fusermount3` 可用
+  - 可选挂载点：`/home/debian/Drive`；VFS 缓存：`/data/scratch/rclone-cache/gdrive`
+  - `cloud-storage-gdrive-mount.service` 已完成启动、读取、写入、远端 MD5、删除和卸载验证；当前手动启动为 `active/running`，但尚未 enable，重启后不会自动挂载
+  - 当前使用 rclone 公共 OAuth client，验证时遇到共享 API 配额限流；尚未配置定期任务
 - Nowledge Mem Docker deploy：`/home/debian/nowledge-mem/community/docker`
   - 容器：`nowledge-mem`，镜像 `docker.io/nowledgelabs/mem:0.10.14`
   - controller：`nmemctl 2.4.0`
