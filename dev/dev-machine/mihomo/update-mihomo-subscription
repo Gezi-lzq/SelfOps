@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+env_file="${MIHOMO_SUBSCRIPTION_ENV:-/etc/mihomo/subscription.env}"
+config_file="${MIHOMO_CONFIG:-/etc/mihomo/config.yaml}"
+
+if [[ ! -r "$env_file" ]]; then
+  echo "Missing readable subscription environment: $env_file" >&2
+  exit 1
+fi
+
+set -a
+# shellcheck disable=SC1090
+source "$env_file"
+set +a
+
+: "${MIHOMO_SUBSCRIPTION_URL:?Set MIHOMO_SUBSCRIPTION_URL in $env_file}"
+
+tmp="$(mktemp)"
+backup=""
+trap 'rm -f "$tmp" "$backup"' EXIT
+
+curl -fsSL --connect-timeout 15 --max-time 90 "$MIHOMO_SUBSCRIPTION_URL" -o "$tmp"
+
+python3 - "$tmp" <<'PY'
+import sys
+import yaml
+
+path = sys.argv[1]
+with open(path, "r", encoding="utf-8", errors="replace") as f:
+    data = yaml.safe_load(f)
+if not isinstance(data, dict):
+    raise SystemExit("subscription is not a YAML mapping")
+
+data["allow-lan"] = False
+data["bind-address"] = "127.0.0.1"
+data["external-controller"] = "127.0.0.1:9090"
+data.setdefault("log-level", "info")
+data["find-process-mode"] = "strict"
+data["tun"] = {
+    "enable": True,
+    "stack": "gvisor",
+    "auto-route": True,
+    "auto-detect-interface": True,
+    "strict-route": False,
+    "dns-hijack": ["any:53"],
+    "route-exclude-address": [
+        "10.0.0.0/8",
+        "172.16.0.0/12",
+        "192.168.0.0/16",
+        "100.64.0.0/10",
+        "127.0.0.0/8",
+    ],
+}
+
+proxies = data.get("proxies")
+if isinstance(proxies, list):
+    data["proxies"] = sorted(
+        proxies,
+        key=lambda proxy: str(proxy.get("name", "")) if isinstance(proxy, dict) else str(proxy),
+    )
+
+preferred_proxy = "🇭🇰 香港A10 | IEPL"
+for group in data.get("proxy-groups", []):
+    proxies = group.get("proxies")
+    if group.get("name") == "🔰 选择节点" and isinstance(proxies, list) and preferred_proxy in proxies:
+        group["proxies"] = [preferred_proxy] + [p for p in proxies if p != preferred_proxy]
+
+with open(path, "w", encoding="utf-8") as f:
+    yaml.safe_dump(data, f, allow_unicode=True, sort_keys=False)
+PY
+
+/usr/local/bin/mihomo -t -d /etc/mihomo -f "$tmp"
+
+if [[ -f "$config_file" ]]; then
+  change_type="$(
+    python3 - "$config_file" "$tmp" <<'PY'
+import copy
+import sys
+import yaml
+
+with open(sys.argv[1], "r", encoding="utf-8") as f:
+    current = yaml.safe_load(f)
+with open(sys.argv[2], "r", encoding="utf-8") as f:
+    candidate = yaml.safe_load(f)
+
+if current == candidate:
+    print("unchanged")
+    raise SystemExit
+
+def without_proxy_servers(config):
+    normalized = copy.deepcopy(config)
+    for proxy in normalized.get("proxies", []):
+        if isinstance(proxy, dict):
+            proxy.pop("server", None)
+    return normalized
+
+if without_proxy_servers(current) == without_proxy_servers(candidate):
+    print("proxy-servers-only")
+else:
+    print("substantive")
+PY
+  )"
+
+  if [[ "$change_type" == "unchanged" ]]; then
+    echo "Mihomo configuration unchanged; skipping restart."
+    exit 0
+  fi
+
+  if [[ "$change_type" == "proxy-servers-only" ]]; then
+    refresh_interval="${MIHOMO_SERVER_REFRESH_INTERVAL:-86400}"
+    config_age="$(( $(date +%s) - $(stat -c %Y "$config_file") ))"
+    if (( config_age < refresh_interval )); then
+      echo "Only rotating proxy server aliases changed; deferring refresh until ${refresh_interval}s."
+      exit 0
+    fi
+  fi
+fi
+
+if [[ -f "$config_file" ]]; then
+  backup="$(mktemp /etc/mihomo/.config.yaml.backup.XXXXXX)"
+  cp -p "$config_file" "$backup"
+fi
+
+install -m 0644 "$tmp" "$config_file"
+if ! systemctl restart mihomo; then
+  if [[ -n "$backup" ]]; then
+    install -m 0644 "$backup" "$config_file"
+    systemctl restart mihomo
+  fi
+  echo "Mihomo restart failed; restored the previous configuration." >&2
+  exit 1
+fi
+
+echo "Installed updated Mihomo configuration and restarted the service."

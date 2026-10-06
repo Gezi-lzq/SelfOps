@@ -67,6 +67,41 @@
 		reverse_proxy 127.0.0.1:8765
 	}
 
+	# Nowledge Mem MCP endpoint: the stable public entry for the nmem MCP server.
+	# nmem's native MCP path is /remote-api/mcp/; this rewrites the clean /mcp/*
+	# prefix onto it and reverse-proxies to nmem (14242) directly on this ngrok
+	# domain. No 302, no cross-origin redirect, so the MCP client keeps its
+	# Authorization header. Auth is nmem's own API key (401 without it).
+	handle /mcp/* {
+		uri replace /mcp/ /remote-api/mcp/ 1
+		reverse_proxy 127.0.0.1:14242
+	}
+
+	# Nowledge Mem REST API: stable public entry on this ngrok domain, direct
+	# reverse proxy to nmem (14242) with the prefix stripped. Unlike the SPA web
+	# UI, API clients build their own URLs (base + /v0, /health), so a
+	# prefix-stripped subpath proxy works and no cross-origin 302 is involved.
+	# nmem ignores the Host header. Auth is nmem's own API key (401 without it).
+	handle /nmem-api/* {
+		uri strip_prefix /nmem-api
+		reverse_proxy 127.0.0.1:14242
+	}
+
+	# Nowledge Mem web UI: stable public entry that 302-redirects to the current
+	# nmem cloudflared quick tunnel. The nmem-redirect service (127.0.0.1:8781)
+	# reads the live tunnel URL from cloudflared metrics. The UI needs its own
+	# tunnel root because its SPA uses absolute asset paths that break under a
+	# prefix-stripped subpath proxy; the API above does not have that problem.
+	handle /nmem {
+		uri strip_prefix /nmem
+		reverse_proxy 127.0.0.1:8781
+	}
+
+	handle /nmem/* {
+		uri strip_prefix /nmem
+		reverse_proxy 127.0.0.1:8781
+	}
+
 	@root path /
 	handle @root {
 		rewrite * /index.html

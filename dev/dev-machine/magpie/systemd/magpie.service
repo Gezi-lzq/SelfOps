@@ -1,0 +1,14 @@
+[Unit]
+Description=Magpie local model gateway
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/debian/magpie
+ExecStart=/home/debian/.local/bin/magpie serve
+Restart=always
+RestartSec=3
+Environment=HOME=/home/debian
+
+[Install]
+WantedBy=default.target

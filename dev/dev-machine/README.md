@@ -9,6 +9,8 @@
 | [cloud-storage](./cloud-storage/) | Agent 文件上传与异地备份约定 |
 | [herdr-web](./herdr-web/) | 通过 Caddy + ngrok 暴露开发机公网入口，当前承载 Herdr |
 | [herdr-status](./herdr-status/) | 手机友好的 Herdr session/agent 只读状态页 |
+| [mihomo](./mihomo/) | Mihomo TUN、订阅更新和 NetBird 共存策略 |
+| [system-protection](./system-protection/) | 系统盘、日志、Swap 与管理通道 OOM 保护 |
 
 原则：
 

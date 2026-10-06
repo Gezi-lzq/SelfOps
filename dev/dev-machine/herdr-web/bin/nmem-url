@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+env_file="${HERDR_WEB_ENV_FILE:-$HOME/.config/selfops/herdr-web.env}"
+if [[ -f "$env_file" ]]; then
+  # shellcheck disable=SC1090
+  source "$env_file"
+fi
+
+metrics="${NMEM_CLOUDFLARED_METRICS:-127.0.0.1:20250}"
+
+curl -fsS "http://${metrics}/metrics" |
+  sed -nE 's#.*userHostname="(https://[a-z0-9-]+\.trycloudflare\.com)".*#\1#p' |
+  tail -1

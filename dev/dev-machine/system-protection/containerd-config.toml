@@ -1,0 +1,3 @@
+root = "/data/containerd"
+state = "/run/containerd"
+disabled_plugins = ["cri"]

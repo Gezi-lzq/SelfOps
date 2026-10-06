@@ -1,8 +1,8 @@
 [tools]
 python = "3.12"
 node = "latest"
-"npm:@openai/codex" = "latest"
-"npm:@anthropic-ai/claude-code" = "latest"
+"npm:@openai/codex" = "0.157.1"
+"npm:@anthropic-ai/claude-code" = "2.1.284"
 
 [env]
 SELFOPS_ROOT = "{{ config_root }}"
@@ -129,6 +129,18 @@ run = "systemctl --user enable herdr-web-ttyd.service herdr-web-ttyd-mobile.serv
 [tasks."herdr-web:disable"]
 description = "Disable Herdr browser-access services on user login"
 run = "systemctl --user disable herdr-web-ngrok.service herdr-web-cloudflared.service herdr-web-proxy.service herdr-status.service herdr-web-ttyd-mobile.service herdr-web-ttyd.service"
+
+[tasks."herdr-web:start-nmem"]
+description = "Start the Nowledge Mem dedicated cloudflared tunnel and redirect service"
+run = "systemctl --user start nmem-cloudflared.service nmem-redirect.service"
+
+[tasks."herdr-web:enable-nmem"]
+description = "Enable the Nowledge Mem tunnel and redirect services on user login"
+run = "systemctl --user enable nmem-cloudflared.service nmem-redirect.service"
+
+[tasks."herdr-web:nmem-url"]
+description = "Print the current Cloudflare quick tunnel URL for Nowledge Mem"
+run = "bash dev/dev-machine/herdr-web/bin/nmem-url"
 
 [tasks."herdr-status:serve"]
 description = "Serve a read-only mobile dashboard for Herdr agent status"

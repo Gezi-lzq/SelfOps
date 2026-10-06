@@ -1,6 +1,6 @@
 # 开发机目标状态
 
-日期：2026-06-09
+日期：2026-07-27
 
 目标：把 `gezi-dev` 作为长期个人开发机，用 SelfOps 记录配置、依赖和关键变更。
 
@@ -26,10 +26,13 @@
 ```text
 /home/debian/
 ├── SelfOps/        # 管理仓库
-└── work/           # 代码和开发工作区
+├── work/           # 代码和开发工作区
+└── automq-workspace -> /data/home/debian/automq-workspace
 
 /data/
+├── home/debian/automq-workspace/ # AutoMQ 开发工作区实际数据
 ├── docker/         # Docker data-root
+├── containerd/     # system containerd image/snapshot data
 ├── k3s/            # k3s data-dir
 ├── services/       # 服务定义
 ├── volumes/        # 服务数据
@@ -62,8 +65,14 @@
 ## 运行时约定
 
 - Docker 数据放 `/data/docker`
+- system containerd 数据放 `/data/containerd`，避免 image/snapshot 占用系统盘
+- Docker 默认 `json-file` 日志限制为 `50m × 3`；journald 上限为 1 GiB，并为系统盘保留 10 GiB 空闲
+- `/data/swapfile` 提供 8 GiB Swap，`vm.swappiness=10`
+- NetBird 与 QEMU Guest Agent 使用 `OOMScoreAdjust=-750`；OpenSSH 保留自身更强的 OOM 保护
 - k3s 数据放 `/data/k3s`
 - k3s PVC/local-path 数据放 `/data/volumes/k3s`
+- AutoMQ 开发工作区实际数据放 `/data/home/debian/automq-workspace`，并通过
+  `/home/debian/automq-workspace` symlink 保持兼容路径
 - 长期服务定义放 `/data/services` 或纳入 SelfOps
 - 大块数据不要放 100 GiB 系统盘
 - 敏感信息不写入仓库

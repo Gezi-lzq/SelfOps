@@ -52,6 +52,14 @@ render_unit \
   "$selfops_root/dev/dev-machine/herdr-web/systemd/herdr-web-cloudflared.service" \
   "$systemd_user_dir/herdr-web-cloudflared.service"
 
+render_unit \
+  "$selfops_root/dev/dev-machine/herdr-web/systemd/nmem-cloudflared.service" \
+  "$systemd_user_dir/nmem-cloudflared.service"
+
+render_unit \
+  "$selfops_root/dev/dev-machine/herdr-web/systemd/nmem-redirect.service" \
+  "$systemd_user_dir/nmem-redirect.service"
+
 "$selfops_root/dev/dev-machine/herdr-status/install.sh"
 
 systemctl --user daemon-reload
@@ -64,3 +72,5 @@ echo "  2. Authenticate ngrok: ngrok config add-authtoken <token>"
 echo "  3. Review $env_file"
 echo "  4. Start ngrok: systemctl --user start herdr-web-ttyd.service herdr-web-ttyd-mobile.service herdr-status.service herdr-web-proxy.service herdr-web-ngrok.service"
 echo "     Or start Cloudflare quick tunnel: systemctl --user start herdr-web-ttyd.service herdr-web-ttyd-mobile.service herdr-status.service herdr-web-proxy.service herdr-web-cloudflared.service"
+echo "  5. Expose Nowledge Mem (separate tunnel): systemctl --user start nmem-cloudflared.service nmem-redirect.service"
+echo "     Then the stable entry is <public-url>/nmem (302 -> current nmem tunnel)."

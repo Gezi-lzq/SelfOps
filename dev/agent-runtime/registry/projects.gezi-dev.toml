@@ -20,11 +20,23 @@ scan_dirs = ["/home/debian/work", "/home/debian/SelfOps"]
 agents = ["claude", "codex", "agents"]
 bundles = ["core", "tools", "memory", "lark-core", "ponytail", "mattpocock"]
 include = [
+  "obelisk",
   "skill-management",
   "dev-machine-management",
   "gtd-daily-review",
 ]
 exclude = []
+
+# Codex provides skill-creator as a system skill and Nowledge Mem as a plugin.
+[projects."@global".agent_overrides.codex]
+bundles = ["core", "tools", "lark-core", "ponytail", "mattpocock"]
+include = [
+  "obelisk",
+  "skill-management",
+  "dev-machine-management",
+  "gtd-daily-review",
+]
+exclude = ["skill-creator"]
 
 # ─────────────────────────────────────────────
 # SelfOps on gezi-dev
@@ -37,6 +49,12 @@ include = [
   "skill-management",
   "dev-machine-management",
 ]
+exclude = []
+
+# These skills are already available to Codex from global or system scope.
+[projects."/home/debian/SelfOps".agent_overrides.codex]
+bundles = []
+include = []
 exclude = []
 
 # ─────────────────────────────────────────────

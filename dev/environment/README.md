@@ -11,7 +11,8 @@
 - `pnpm`
 - `python`
 - `uv`
-- 全局 npm CLI：`@openai/codex`、`@playwright/cli`、`agent-browser`、`lody`、`@larksuite/cli`
+- `azure-cli`
+- 全局 npm CLI：`@openai/codex`、`@playwright/cli`、`agent-browser`、`lody`、`@larksuite/cli`、`@obelisk-apps/cli`
 
 说明：
 
@@ -19,6 +20,8 @@
 - `pnpm` 作为独立全局工具由 `mise` 管理，不依赖 `corepack`
 - Codex、Playwright CLI、agent-browser、lody 这类 npm 全局工具在 `config.toml` 中声明，由 mise npm backend 安装
 - `lark-cli` 和 `lody` 由 `mise` 的 npm backend 管理，认证状态仍保存在本机用户目录，不写入仓库
+- `obelisk` 由 mise 的 npm backend 管理；本地会话索引保存在 `~/.obelisk/`，不写入仓库
+- `azure-cli` 由 `mise` 的 pipx backend 管理；Azure 登录态保存在本机用户目录，不写入仓库
 - `go` 由 mise 管理版本，GOPATH 设为 `~/go`（Go 默认值），`go install` 的二进制放在 `~/go/bin`
 - `ttyd` 和 `caddy` 由 `mise` 管理，用于 Herdr 浏览器入口；`ngrok` 按官方 installer
   管理，认证 token 不写入仓库

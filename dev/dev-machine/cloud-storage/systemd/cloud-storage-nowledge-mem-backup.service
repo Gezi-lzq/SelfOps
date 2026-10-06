@@ -1,0 +1,19 @@
+[Unit]
+Description=Export Nowledge Mem and back it up to Google Drive
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=%h/.config/rclone/rclone.conf
+ConditionPathExists=%h/nowledge-mem/community/docker/nmemctl
+
+[Service]
+Type=oneshot
+UMask=077
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+TimeoutStartSec=2h
+WorkingDirectory=%h/nowledge-mem/community/docker
+ExecStartPre=/usr/bin/mkdir -p /data/backups/nowledge-mem
+ExecStartPre=/usr/bin/chmod 0700 /data/backups/nowledge-mem
+ExecStart=%h/nowledge-mem/community/docker/nmemctl backup-app --out /data/backups/nowledge-mem/nowledge-mem-latest.zip
+ExecStart=%h/.local/share/mise/shims/rclone copyto /data/backups/nowledge-mem/nowledge-mem-latest.zip gdrive:gezi-dev/backups/nowledge-mem/nowledge-mem-latest.zip --config=%h/.config/rclone/rclone.conf --tpslimit=8 --tpslimit-burst=8 --retries=5 --low-level-retries=10 --stats=30s

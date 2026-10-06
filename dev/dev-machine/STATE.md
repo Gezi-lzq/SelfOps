@@ -42,6 +42,17 @@
   - `herdr-web-ngrok.service`：通过 ngrok 暴露 Caddy router
   - `herdr-web-cloudflared.service`：可选 Cloudflare quick tunnel，绕开 ngrok pooling
   - `kiro-gateway`：当前进程监听 `0.0.0.0:8000`，通过 Caddy 公网 path `/kiro-gateway` 接入
+  - Nowledge Mem 公网暴露：nmem backend 本机 `0.0.0.0:14242`，既是 REST API（含 MCP 端点 `/remote-api/mcp/`）也是 SPA Web UI（资源用绝对路径，UI 不能走 Caddy 子路径反代）
+    - API / MCP：走 herdr 现有 ngrok 域名的稳定直代，无 302（API 客户端自拼 URL，不受 SPA 绝对路径问题影响）
+      - `/mcp/*`：Caddy rewrite `/mcp/` → `/remote-api/mcp/` → 直代 `127.0.0.1:14242`，作为 MCP server 稳定后端入口
+      - `/nmem-api/*`：Caddy strip `/nmem-api` → 直代 `127.0.0.1:14242`，通用 REST
+      - 仅靠 Caddy route，不依赖 cloudflared tunnel；nmem 不对 Host 头敏感
+    - Web UI：走独立 cloudflared quick tunnel（SPA 绝对路径需独占 tunnel 根域名）
+      - `nmem-cloudflared.service`：专用 Cloudflare quick tunnel，直指 `127.0.0.1:14242`，固定 metrics 端口 `127.0.0.1:20250`
+      - `nmem-redirect.service`：最小 python 服务，监听 `127.0.0.1:8781`，读 metrics 取当前 tunnel URL 对 `/nmem` 请求做 302
+      - 固定入口 `<公网 URL>/nmem`，经 Caddy strip 前缀 → nmem-redirect → 302 到当前 `*.trycloudflare.com`；quick tunnel URL 重启会变但入口不变
+    - 与 herdr 的 ngrok tunnel 解耦并存；访问控制仅靠 nmem 自带 API key（已接受公网风险）
+    - 管理：`mise run herdr-web:start-nmem` / `enable-nmem` / `nmem-url`（仅 UI tunnel + redirect；API/MCP 只要 Caddy 在跑即可）
   - 本机环境文件：`/home/debian/.config/selfops/herdr-web.env`，不提交仓库
   - 当前 ngrok URL：`https://dichroiscopic-joella-declinate.ngrok-free.dev`
 - `ttyd` 版本：`1.7.7-40e79c7`，由 `mise` 管理

@@ -10,9 +10,12 @@
 - 已创建 `gdrive:gezi-dev/uploads/` 和 `gdrive:gezi-dev/backups/`。
 - 已完成单文件上传与 MD5 校验，并清理 `_smoke` 测试对象。
 - 已安装 `fuse3`，预留 `/home/debian/Drive` 挂载点和 `/data/scratch/rclone-cache/gdrive` VFS 缓存目录。
-- `cloud-storage-gdrive-mount.service` 已完成启动、目录读取、经挂载路径写入、远端 MD5、删除和卸载验证；当前为手动启动的 `active/running` 状态，挂载可用，但尚未启用开机自启。
-- 尚未配置定期备份任务。
-- 当前使用 rclone 内置的公共 Google OAuth client，验证时遇到共享 API 配额限流；低频操作可以重试，启用定期备份前建议改用个人 client ID。
+- `cloud-storage-gdrive-mount.service` 已完成启动、目录读取、经挂载路径写入、远端 MD5、删除和卸载验证；当前未运行，也尚未启用开机自启。
+- 已配置 Codex session 定期备份，每 4 小时增量覆盖到
+  `gdrive:gezi-dev/backups/codex/`；远端多余文件不会自动删除。
+- 已配置 Nowledge Mem 每 6 小时执行一次可移植的应用层导出，并覆盖
+  `gdrive:gezi-dev/backups/nowledge-mem/nowledge-mem-latest.zip`。
+- 当前使用 rclone 内置的公共 Google OAuth client，验证时遇到共享 API 配额限流；任务已限制并发和 API 请求速率，如后续频繁限流，优先改用个人 client ID。
 
 ## 实现约定
 
@@ -67,6 +70,52 @@ rclone lsjson gdrive:gezi-dev/backups/name
 ```
 
 每个任务必须能够单独启停和查看日志。应用到机器并验证后，在 `../STATE.md` 记录 unit 名、源目录、远端目标和验证结果，但不记录凭证。
+
+### Codex sessions
+
+`cloud-storage-codex-sessions-backup.timer` 在每天 UTC 的 `00:00`、`04:00`、`08:00`、
+`12:00`、`16:00` 和 `20:00` 触发，备份以下内容：
+
+- `~/.codex/sessions/`
+- `~/.codex/archived_sessions/`
+- `~/.codex/session_index.jsonl`
+- `~/.codex/history.jsonl`
+
+目标固定为 `gdrive:gezi-dev/backups/codex/`。任务使用 `rclone copy`/`copyto`：新增文件会上传，
+同路径的变更会覆盖，远端多余文件不会删除。它不是带历史保留策略的快照仓库。
+
+管理和检查：
+
+```bash
+systemctl --user status cloud-storage-codex-sessions-backup.timer
+systemctl --user start cloud-storage-codex-sessions-backup.service
+journalctl --user -u cloud-storage-codex-sessions-backup.service
+```
+
+Codex transcript 可能包含对话、代码和工具输出；该任务不上传 `~/.codex/auth.json`、
+`config.toml` 或其他凭证，但 transcript 本身仍应视为敏感数据。
+
+### Nowledge Mem
+
+`cloud-storage-nowledge-mem-backup.timer` 在每天 UTC 的 `03:00`、`09:00`、`15:00` 和
+`21:00` 触发，以错开 Codex session 备份。任务通过 `nmemctl backup-app` 让运行中的 Nowledge Mem 生成跨版本可恢复的
+应用层 ZIP，不会停止服务；随后覆盖上传到：
+
+```text
+gdrive:gezi-dev/backups/nowledge-mem/nowledge-mem-latest.zip
+```
+
+本地暂存文件为 `/data/backups/nowledge-mem/nowledge-mem-latest.zip`。每次只保留最新导出，
+避免 6 小时一次的完整导出持续占用 Google Drive 空间；这不提供多版本历史。恢复时使用
+同一部署目录下的 `./nmemctl restore-app <file>`，该操作涉及数据合并或覆盖，必须人工确认后执行。
+
+管理和检查：
+
+```bash
+systemctl --user status cloud-storage-nowledge-mem-backup.timer
+systemctl --user start cloud-storage-nowledge-mem-backup.service
+journalctl --user -u cloud-storage-nowledge-mem-backup.service
+```
 
 ## 可选挂载
 

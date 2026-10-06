@@ -53,6 +53,9 @@ source = { type = "public", spec = "larksuite/cli" }
 [skills.lark-minutes]
 source = { type = "public", spec = "larksuite/cli" }
 
+[skills.lark-note]
+source = { type = "public", spec = "larksuite/cli" }
+
 [skills.lark-okr]
 source = { type = "public", spec = "larksuite/cli" }
 
@@ -105,91 +108,85 @@ source = { type = "public", spec = "masayuki-kono/agent-skills" }
 # ── mattpocock/skills ──
 
 [skills.ask-matt]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+
+[skills.code-review]
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.codebase-design]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.diagnosing-bugs]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.domain-modeling]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.grill-with-docs]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+
+[skills.improve-codebase-architecture]
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.prototype]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+
+[skills.research]
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.setup-matt-pocock-skills]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.tdd]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
-[skills.to-issues]
-source = { type = "public", spec = "mattpocock/skills" }
+[skills.to-spec]
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
-[skills.to-prd]
-source = { type = "public", spec = "mattpocock/skills" }
+[skills.to-tickets]
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.triage]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+
+[skills.wayfinder]
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.grill-me]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.grilling]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.handoff]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.teach]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.writing-great-skills]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.design-an-interface]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.qa]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.request-refactor-plan]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.ubiquitous-language]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.implement]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.resolving-merge-conflicts]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
-[skills.decision-mapping]
-source = { type = "public", spec = "mattpocock/skills" }
+[skills.claude-handoff]
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.loop-me]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
-[skills.review]
-source = { type = "public", spec = "mattpocock/skills" }
+[skills.wizard]
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.writing-beats]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.writing-fragments]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.writing-shape]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.edit-article]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 # ── nowledge-co/community ──
 
@@ -349,8 +346,7 @@ materialized_path = "../../skills/gtd-daily-review"
 source = { type = "owned" }
 
 [skills.obelisk]
-source = { type = "local_path", path = "/Users/gezi/Dev/obelisk" }
-materialized_path = "materialized/skills/obelisk"
+source = { type = "public", spec = "tommy0103/obelisk-skill" }
 
 # ── Project-local skills ──
 
@@ -461,6 +457,7 @@ skills = [
   "lark-mail",
   "lark-markdown",
   "lark-minutes",
+  "lark-note",
   "lark-okr",
   "lark-openapi-explorer",
   "lark-shared",
@@ -524,33 +521,31 @@ skills = [
 description = "Matt Pocock skills"
 skills = [
   "ask-matt",
+  "code-review",
   "codebase-design",
   "diagnosing-bugs",
   "domain-modeling",
   "grill-with-docs",
+  "improve-codebase-architecture",
   "prototype",
+  "research",
   "setup-matt-pocock-skills",
   "tdd",
-  "to-issues",
-  "to-prd",
+  "to-spec",
+  "to-tickets",
   "triage",
+  "wayfinder",
   "grilling",
   "handoff",
   "teach",
-  "writing-great-skills",
-  "design-an-interface",
-  "qa",
-  "request-refactor-plan",
-  "ubiquitous-language",
   "implement",
   "resolving-merge-conflicts",
-  "decision-mapping",
+  "claude-handoff",
   "loop-me",
-  "review",
+  "wizard",
   "writing-beats",
   "writing-fragments",
   "writing-shape",
-  "edit-article",
 ]
 
 [bundles.enterprise]
@@ -564,4 +559,4 @@ skills = [
 
 [skills.resume-coach]
 source = { type = "owned" }
-materialized_path = "../../skills/resume-coach"
+materialized_path = "materialized/skills/resume-coach"

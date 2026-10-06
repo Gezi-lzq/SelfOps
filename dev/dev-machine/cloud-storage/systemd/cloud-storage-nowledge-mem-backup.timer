@@ -1,0 +1,10 @@
+[Unit]
+Description=Export and back up Nowledge Mem every six hours
+
+[Timer]
+OnCalendar=*-*-* 03/6:00:00
+Persistent=true
+Unit=cloud-storage-nowledge-mem-backup.service
+
+[Install]
+WantedBy=timers.target

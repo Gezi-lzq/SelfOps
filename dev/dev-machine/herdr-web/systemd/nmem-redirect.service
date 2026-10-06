@@ -1,0 +1,16 @@
+[Unit]
+Description=Redirect /nmem to the current nmem cloudflared quick tunnel
+After=network-online.target nmem-cloudflared.service
+Wants=nmem-cloudflared.service
+
+[Service]
+Type=simple
+Environment=SELFOPS_ROOT=__SELFOPS_ROOT__
+Environment=PATH=%h/.local/share/mise/shims:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+EnvironmentFile=%h/.config/selfops/herdr-web.env
+ExecStart=__SELFOPS_ROOT__/dev/dev-machine/herdr-web/bin/nmem-redirect
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

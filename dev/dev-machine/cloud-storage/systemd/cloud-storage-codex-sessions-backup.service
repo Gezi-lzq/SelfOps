@@ -1,0 +1,19 @@
+[Unit]
+Description=Back up Codex sessions to Google Drive
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=%h/.config/rclone/rclone.conf
+ConditionPathIsDirectory=%h/.codex/sessions
+
+[Service]
+Type=oneshot
+UMask=077
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+TimeoutStartSec=infinity
+ExecStart=%h/.local/share/mise/shims/rclone copy %h/.codex/sessions gdrive:gezi-dev/backups/codex/sessions --config=%h/.config/rclone/rclone.conf --transfers=2 --checkers=4 --tpslimit=8 --tpslimit-burst=8 --retries=5 --low-level-retries=10 --stats=30s
+ExecStart=%h/.local/share/mise/shims/rclone copy %h/.codex/archived_sessions gdrive:gezi-dev/backups/codex/archived_sessions --config=%h/.config/rclone/rclone.conf --transfers=2 --checkers=4 --tpslimit=8 --tpslimit-burst=8 --retries=5 --low-level-retries=10 --stats=30s
+ExecStart=%h/.local/share/mise/shims/rclone copyto %h/.codex/session_index.jsonl gdrive:gezi-dev/backups/codex/session_index.jsonl --config=%h/.config/rclone/rclone.conf --tpslimit=8 --tpslimit-burst=8 --retries=5 --low-level-retries=10 --stats=30s
+ExecStart=%h/.local/share/mise/shims/rclone copyto %h/.codex/history.jsonl gdrive:gezi-dev/backups/codex/history.jsonl --config=%h/.config/rclone/rclone.conf --tpslimit=8 --tpslimit-burst=8 --retries=5 --low-level-retries=10 --stats=30s
+

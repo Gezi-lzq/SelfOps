@@ -61,6 +61,7 @@ while IFS=$'\t' read -r thread_path title updated_at; do
     jq -r '.body // ""' <<<"$page" |
       jq -c --argjson start "$start_epoch" --argjson end "$end_epoch" '
         select(.role == "user" or .role == "assistant")
+        | select(.timestamp | type == "string")
         | (.timestamp | sub("\\+00:00$"; "Z") | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601) as $ts
         | select($ts >= $start and $ts < $end)
         | {id, role, content, order_index, timestamp}

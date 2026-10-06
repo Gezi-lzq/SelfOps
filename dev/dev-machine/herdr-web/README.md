@@ -30,6 +30,9 @@ browser
 /               gezi-dev service homepage
 /herdr          Herdr Status Dashboard
 /kiro-gateway   Kiro Gateway
+/mcp/           Nowledge Mem MCP 端点（稳定直代，无 302，MCP server 后端）
+/nmem-api/*     Nowledge Mem REST API（稳定直代，无 302）
+/nmem           Nowledge Mem Web UI（302 跳转到专用 cloudflared tunnel）
 ```
 
 Herdr 子路由：
@@ -88,6 +91,10 @@ dev/dev-machine/herdr-status/
 
 - `ttyd` 使用 HTTP basic auth，凭证来自 `HERDR_WEB_TTYD_CREDENTIAL`。
 - `herdr-status` 和 `/herdr/history` 是只读页面，目前不额外加 basic auth。
+- `nmem` 读写全量个人记忆，公网仅靠 nmem 自带 API key 保护，已接受此风险：
+  - API/MCP（`/nmem-api/*`、`/mcp/`）走 herdr 现有 ngrok 域名的稳定直代，直连 nmem 14242。
+  - Web UI（`/nmem`）经独立 cloudflared tunnel。
+  - metrics 端口（20250）与 `nmem-redirect`（8781）都只监听 `127.0.0.1`。
 - ngrok token、ttyd 密码、Cloudflare tunnel 状态都只保存在本地配置或 provider 侧，不写入仓库。
 
 本地敏感文件：
@@ -141,6 +148,8 @@ mise run herdr-web:install
 ~/.config/systemd/user/herdr-web-proxy.service
 ~/.config/systemd/user/herdr-web-ngrok.service
 ~/.config/systemd/user/herdr-web-cloudflared.service
+~/.config/systemd/user/nmem-cloudflared.service
+~/.config/systemd/user/nmem-redirect.service
 ```
 
 需要调整时编辑本地 env：
@@ -342,6 +351,56 @@ handle /tool-name/* {
 ```
 
 把新 route 放在最终 fallback 之前。路径前缀要明确，避免把未知路径透传到错误服务。
+
+## Nowledge Mem (nmem)
+
+nmem backend 本机监听 `127.0.0.1:14242`，既是 REST API（`/health`、`/v0`、`/api`、MCP 端点 `/remote-api/mcp/`），也是单页 Web UI（`/app`，HTML 内资源用绝对路径 `/app/assets/...`）。
+
+两类用途走两套入口，因为它们对 URL 的约束不同：
+
+**API / MCP：稳定直代（走 herdr 现有 ngrok 域名，无 302）**
+
+API 客户端（含未来的 MCP server）自己拼 URL（base + `/health`、`/v0`、MCP path），不像浏览器那样从返回 HTML 里解析绝对路径再二次请求，所以经 Caddy strip 前缀的子路径反代天然成立。因此 API/MCP 直接挂在 herdr 现有 ngrok 固定域名上，**直连、无跨域 302**——这正是 MCP 需要的（跨域 302 可能丢 Authorization 头）。
+
+```text
+MCP:  https://<ngrok域名>/mcp/        -> Caddy :8780 rewrite /mcp/ -> /remote-api/mcp/ -> nmem 14242
+REST: https://<ngrok域名>/nmem-api/*  -> Caddy :8780 strip /nmem-api -> nmem 14242
+```
+
+`/mcp/` 是 MCP server 的稳定后端入口。鉴权由 nmem 自带 API key 负责（不带 key 返回 401），nmem 不对 Host 头敏感，经 ngrok/Caddy 改写 Host 无影响。
+
+**Web UI：独占一个 cloudflared tunnel 根域名（302 入口）**
+
+nmem Web UI 是 SPA，HTML 内资源用绝对路径 `/app/assets/...`。经 Caddy strip 前缀的子路径反代会让浏览器丢掉前缀、资源 404、Web UI 白屏。所以 UI 不走子路径反代，而是**独占一个 cloudflared quick tunnel 根域名**：
+
+```text
+固定入口 <ngrok域名>/nmem/*
+  -> Caddy :8780 strip /nmem -> nmem-redirect 127.0.0.1:8781
+  -> 读 cloudflared metrics (127.0.0.1:20250) 取当前 tunnel URL -> 302
+  -> 浏览器直连 https://<随机>.trycloudflare.com/<子路径> -> nmem 14242
+```
+
+quick tunnel 的 URL 重启会变，`nmem-redirect` 每次请求实时读 metrics，所以固定入口 `/nmem` 始终可用。UI 只在浏览器里查看，302 跳转可以接受。herdr 的 ngrok 完全不受影响，三者并存。
+
+相关文件：
+
+```text
+bin/nmem-cloudflared   cloudflared quick tunnel (--url 14242 --metrics 20250)
+bin/nmem-redirect      读 metrics -> 302 的最小 python 服务 (127.0.0.1:8781)
+bin/nmem-url           从 metrics 直接打印当前 tunnel URL
+systemd/nmem-cloudflared.service
+systemd/nmem-redirect.service
+```
+
+API/MCP 直代只需要 Caddy route（`/mcp/`、`/nmem-api/*`），不依赖上面的 cloudflared tunnel；UI 入口 `/nmem` 才依赖 tunnel + redirect。
+
+启停：
+
+```bash
+mise run herdr-web:start-nmem     # 启动 UI tunnel + redirect（API/MCP 只要 Caddy 在跑即可）
+mise run herdr-web:enable-nmem    # 登录后自启
+mise run herdr-web:nmem-url       # 打印当前 nmem UI tunnel URL
+```
 
 ## 验证清单
 
