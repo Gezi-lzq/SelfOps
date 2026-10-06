@@ -1,6 +1,6 @@
 # 开发机当前状态
 
-日期：2026-07-15
+日期：2026-09-28
 
 ## 当前状态
 
@@ -10,9 +10,19 @@
 - 独占 NVMe：`/dev/nvme0n1` 挂载 `/data`
 - SelfOps：`/home/debian/SelfOps`
 - Docker data-root：`/data/docker`
+- Docker Engine/CLI：`29.8.1`；containerd：`2.3.6`；Compose：`5.5.1`；Buildx：`0.37.1`
+- system containerd root：`/data/containerd`
+- Docker 默认日志：`json-file`，`max-size=50m`、`max-file=3`、压缩开启
+- 系统保护：`/data/swapfile` 8 GiB、`vm.swappiness=10`、journald 上限 1 GiB/保留系统盘 10 GiB 空闲
+- 管理通道 OOM 保护：NetBird 与 QEMU Guest Agent 为 `-750`；OpenSSH 进程保留自身 `-1000`
 - k3s data-dir：`/data/k3s`
 - k3s local-path：`/data/volumes/k3s`
+- AutoMQ workspace：`/home/debian/automq-workspace` symlink 到
+  `/data/home/debian/automq-workspace`
+- AutoMQ workspace 迁移前回滚副本：
+  `/home/debian/automq-workspace.pre-data-move-20260727`
 - k3s 版本：`v1.35.5+k3s1`
+- kubectl 版本：`1.36.5`，与 k3s API Server 保持一个 minor 以内
 - k3s 节点状态：`Ready`
 - CLIProxyAPI 版本：`7.1.56`
 - CLIProxyAPI 安装目录：`/home/debian/cliproxyapi`
@@ -20,6 +30,10 @@
 - CLIProxyAPI 管理密钥文件：`/home/debian/cliproxyapi/.management-secret`，权限 `600`，不提交仓库
 - CLIProxyAPI 监听：`0.0.0.0:8317`
 - CLIProxyAPI systemd user service：`cliproxyapi.service`，当前运行中，尚未 enable
+- magpie CLI：`/home/debian/.local/bin/magpie`；systemd user service `magpie.service` 已启用并运行，监听 `127.0.0.1:3425`
+- Obelisk CLI 版本：`0.2.5`
+- Obelisk 索引：`/home/debian/.obelisk/obelisk.sqlite`，数据源为本机 Claude Code 与 Codex transcript
+- Obelisk agent skill：全局安装，供各项目按需查询历史证据
 - 开发机公网入口定义：`dev/dev-machine/herdr-web`
 - 开发机公网入口服务：
   - `herdr-web-ttyd.service`：本地 `ttyd`，默认监听 `127.0.0.1:7681`
@@ -33,7 +47,12 @@
 - `ttyd` 版本：`1.7.7-40e79c7`，由 `mise` 管理
 - `caddy` 版本：`v2.11.4`，由 `mise` 管理
 - `ngrok` 版本：`3.39.8`，安装到 `/home/debian/.local/bin/ngrok`
-- `cloudflared` 版本：`2026.5.2`，由 `mise` 管理
+- `cloudflared` 版本：`2026.9.3`，由 `mise` 管理
+- Mihomo：`mihomo.service` 已启用并运行，订阅由 `mihomo-subscription.timer` 每 6 小时检查
+  - 订阅密钥：`/etc/mihomo/subscription.env`，权限 `600`，不提交仓库
+  - 不注入 NetBird 专用规则；NetBird 公网流量由订阅原有规则决定
+  - 订阅仅轮换代理入口域名时，最多每 24 小时应用并重启一次；实质配置变化立即应用
+  - 2026-07-25 验证：NetBird Management、Signal、STUN/TURN 和 Relay TCP/UDP 均命中订阅默认代理策略
 - Cloud storage：`dev/dev-machine/cloud-storage`
   - 当前 provider：个人 Google Drive，rclone remote 为 `gdrive`
   - OAuth scope：`drive.file`，未配置 Shared Drive
@@ -42,10 +61,16 @@
   - 单文件上传与 MD5 校验已通过，`_smoke` 测试对象已清理
   - 已安装 `fuse3 3.17.2`，`/dev/fuse` 和 `/usr/bin/fusermount3` 可用
   - 可选挂载点：`/home/debian/Drive`；VFS 缓存：`/data/scratch/rclone-cache/gdrive`
-  - `cloud-storage-gdrive-mount.service` 已完成启动、读取、写入、远端 MD5、删除和卸载验证；当前手动启动为 `active/running`，但尚未 enable，重启后不会自动挂载
-  - 当前使用 rclone 公共 OAuth client，验证时遇到共享 API 配额限流；尚未配置定期任务
+  - `cloud-storage-gdrive-mount.service` 已完成启动、读取、写入、远端 MD5、删除和卸载验证；当前未运行且尚未 enable
+  - 当前使用 rclone 公共 OAuth client，验证时遇到共享 API 配额限流
+  - `cloud-storage-codex-sessions-backup.timer` 已配置为每 4 小时备份 Codex sessions、
+    archived sessions 和会话索引到 `gdrive:gezi-dev/backups/codex/`；采用增量覆盖，不删除远端多余文件
+  - `cloud-storage-nowledge-mem-backup.timer` 已配置为每 6 小时生成 Nowledge Mem 可移植应用层导出，
+    并覆盖上传到 `gdrive:gezi-dev/backups/nowledge-mem/nowledge-mem-latest.zip`；首次导出、ZIP 完整性和远端 MD5 已验证
+- rclone 版本：`1.75.1`，由 `mise` 管理
+- Google Cloud CLI 版本：`586.0.0`，由 apt 管理
 - Nowledge Mem Docker deploy：`/home/debian/nowledge-mem/community/docker`
-  - 容器：`nowledge-mem`，镜像 `docker.io/nowledgelabs/mem:0.10.14`
+  - 容器：`nowledge-mem`，镜像 `docker.io/nowledgelabs/mem:0.10.89`
   - controller：`nmemctl 2.4.0`
   - 监听：`0.0.0.0:14242`，通过 NetBird/内网访问；不挂到公网 Caddy path
   - auto-update sidecar：`nowledge-mem-updater`，当前 enabled/running/healthy
@@ -54,17 +79,23 @@
   - 本机 overlay：compose.local.yaml，通过 .nmemctl-state 与 compose.updater.yaml 一起持久加载
 
 ## 已完成
+  - 2026-09-28：已从 0.10.76 升级到 0.10.85，CLI 从 0.10.82 升级到 0.10.88；验证服务 healthy、数据库连接、embedding 未降级、nmem doctor 全部通过。
+  - 2026-09-28：nmem 服务继续升级到 0.10.89；Docker/containerd、NetBird、Google Cloud CLI 和 20 项 mise 工具升级完成，服务与连接验证通过。
 
 - 安装并配置 `mise` 开发环境
-- 安装并接入 NetBird：`gezi-dev.netbird.cloud`
+- 安装并接入 NetBird：`gezi-dev.netbird.cloud`，版本 `0.79.0`
 - 安装 Docker / Compose / Buildx
 - 确认目标目录模型：`/home/debian + /data`
 - 将 NVMe 从 `/root` 改挂到 `/data`
 - 将 SelfOps 迁到 `/home/debian/SelfOps`
 - 将 Docker data-root 迁到 `/data/docker`
+- 将 system containerd root 从 `/var/lib/containerd` 迁到 `/data/containerd`，释放系统盘约 16 GiB
+- 配置 Docker/journald 日志上限、8 GiB Swap 和管理通道 OOM 保护；配置位于 `dev/dev-machine/system-protection`
+- 将 `automq-workspace` 实际数据迁到 `/data/home/debian/automq-workspace`，
+  保留 `/home/debian/automq-workspace` 兼容路径
 - 通过 `mise` 安装 base CLI 和 lab CLI
 - 通过 `mise` 安装 Terraform，版本 `1.13.3`
-- 通过 `mise` 安装 `just`，版本 `1.51.0`
+- 通过 `mise` 安装 `just`，版本 `1.58.0`
 - 通过 apt 安装 `htop`、`ncdu`、`rsync`
 - 配置 `gh` 登录 GitHub，并启用 git credential helper
   - 登录用户：`Gezi-lzq`
@@ -85,11 +116,19 @@
   - `gpg.ssh.allowedSignersFile`：`~/.config/git/allowed_signers`
   - `commit.gpgsign`：`true`
   - 非交互 signed commit 已验证为 `Good "git" signature`
-- 安装并配置 Codex CLI，版本 `0.137.0`
+- Claude Code 版本：`2.1.284`，由 `mise`/npm 管理，native Linux binary 已验证
+- 安装并配置 Codex CLI，版本 `0.157.1`
   - 配置位置：`/home/debian/.codex/config.toml`
-  - provider：`https://muyuan.do/v1`
+  - Codex app-server daemon：`0.157.1`，通过 `codex app-server daemon bootstrap` 管理
+  - Mailroom 的 systemd PATH 优先使用 mise 安装的 Codex `0.157.1`，Pager 握手已验证
+  - provider：本机私有 `custom` provider（endpoint 与 bearer token 仅保存在本机配置）
   - 使用 HTTP Responses，关闭 WebSocket
-  - smoke test 返回 `ok`
+  - 2026-07-27 恢复被意外覆盖的本地配置后，真实模型 smoke test 返回 `ok`
+- 安装 Google Antigravity CLI，版本 `1.1.2`
+  - 官方安装方式：`https://antigravity.google/cli/install.sh`
+  - 二进制：`/home/debian/.local/bin/agy`
+  - 更新方式：CLI 内置自更新，也可执行 `agy update`
+  - `agy --version` 与 login shell PATH 已验证；首次 Google 登录尚未执行
 - 部署并升级 Nowledge Mem Docker server
   - deploy 目录：`/home/debian/nowledge-mem/community/docker`
   - 已通过 `git -C /home/debian/nowledge-mem/community pull --ff-only` 更新 operator stack
@@ -100,24 +139,33 @@
   - 修复 4GiB 内存上限下 Kuzu buffer pool 打满导致 `/health` error、database disconnected 的问题：将 `mem_limit` 调整为 `8g`，并显式设置 `NOWLEDGE_KUZU_BUFFER_POOL_SIZE=2GB`
   - 本机 overlay：compose.local.yaml，通过 .nmemctl-state 与 compose.updater.yaml 一起持久加载
   - 验证：恢复后 `/health` 返回 `status=ok`、`database_connected=true`、`services_ready=true`、`buffer_pool_current_mb=2048`，容器内存约 `1.52GiB / 8GiB`
+  - 2026-08-13：已从 `0.10.53` 升级到 `0.10.54`，验证 `/livez`、Pro license、数据库和 ontology 查询正常；数据目录保持不变
+  - 2026-08-15：已从 `0.10.54` 升级到 `0.10.63`，验证 `/livez`、`/health`、Pro license、数据库连接、8 GiB 容器限制和 2 GB Kuzu buffer pool 正常；数据目录保持不变
+  - 2026-08-25：已从 `0.10.63` 升级到 `0.10.67`，验证 `/livez`、`/health`、Pro license、数据库连接、8 GiB 容器限制和 2 GB Kuzu buffer pool 正常；数据目录和本地 overlay 保持不变
+  - 2026-08-27：已从 `0.10.67` 升级到 `0.10.70`，验证 `/livez`、`/health`、Pro license、数据库连接、8 GiB 容器限制和 2 GB Kuzu buffer pool 正常；数据目录和本地 overlay 保持不变
+  - 2026-08-28：已从 `0.10.70` 升级到 `0.10.73`，验证 `/livez`、`/health`、Pro license、数据库连接、8 GiB 容器限制和 2 GB Kuzu buffer pool 正常；数据目录和本地 overlay 保持不变
+  - 2026-09-02：已从 `0.10.73` 升级到 `0.10.75`，验证 `/livez`、容器健康、Pro license、数据库查询、8 GiB 容器限制和 2 GB Kuzu buffer pool 正常；数据目录和本地 overlay 保持不变
+  - 2026-09-04：已从 `0.10.75` 升级到 `0.10.76`，验证 `/livez`、`/health`、容器健康、Pro license、数据库连接、8 GiB 容器限制和 2 GB Kuzu buffer pool 正常；数据目录和本地 overlay 保持不变
 - 安装并配置 Nowledge Mem for Codex CLI
   - 参考文档：`https://mem.nowledge.co/docs/integrations/codex-cli.mdx`
-  - `nmem` CLI：`0.10.3`
+  - `nmem` CLI：`0.10.88`
   - 安装方式：`uv tool install nmem-cli --upgrade`
-  - nmem client：连接本机 Nowledge server 的 NetBird 地址 `http://100.117.221.179:14242`
+  - nmem client：连接本机 Nowledge server 的 NetBird 地址 `http://10.1.0.240:14242`
   - nmem config：`/home/debian/.nowledge-mem/config.json`
   - Codex marketplace：`nowledge-community` -> `https://github.com/nowledge-co/community.git`
-  - Codex plugin：`nowledge-mem@nowledge-community`，版本 `0.1.22`，已 enabled
-  - Codex MCP：`nowledge-mem` -> `http://127.0.0.1:14242/mcp/`，已 enabled
+  - Codex plugin：`nowledge-mem@nowledge-community`，版本 `0.1.37`，已 enabled
+  - Codex MCP：`nowledge-mem` -> `http://10.1.0.240:14242/mcp`，已 enabled
   - Stop hook：`/home/debian/.codex/hooks/nowledge-mem-stop-save.py`
   - hooks config：`/home/debian/.codex/hooks.json`
   - plugin Stop hook：`nowledge-mem@nowledge-community:hooks/hooks.json:stop:0:0` 已 disabled；保留 fallback Stop hook，避免 `PLUGIN_ROOT` 缺失导致重复保存或 hook 127
-  - 验证：`nmem status` ok，CLI `0.10.3` / server `0.10.14`，`codex mcp list` enabled，Working Memory 可读取，Codex transcript import 可搜索
-- 安装并认证 `lark-cli`，版本 `1.0.48`
+  - 验证：`nmem status` ok，CLI `0.10.88` / server `0.10.89`，`codex mcp list` enabled，Working Memory 可读取，Codex transcript import 可搜索
+  - 2026-08-13：Codex `custom` provider 的 Responses 请求曾返回 `426 WebSocket upgrade required`，导致宿主泛化提示模型不支持 tool calling；已将 `~/.codex/config.toml` 中该 provider 的 `supports_websockets` 设为 `true`，新 Codex 进程已成功调用 Nowledge Mem MCP `memory_search`
+- 安装并认证 `lark-cli`，版本 `1.0.96`
   - 管理方式：`mise` npm backend（`npm:@larksuite/cli`）
   - bot 身份：ready
   - user 身份：ready
-- 安装并认证 `lody`，版本 `0.59.1`
+- 安装并认证 `lody`，版本 `0.100.0`
+  - Lody 管理的 Codex runtime：`0.156.0`；机器级 Codex CLI 为 `0.157.1`
   - 管理方式：`mise` npm backend（`npm:lody`）
   - 登录用户：`Gezi-lzq (lzqtxwd@gmail.com)`
   - 机器名：`gezi-dev`
@@ -148,18 +196,18 @@
   - 验证：服务日志显示监听 `0.0.0.0:8317`
   - 验证：`/management.html` GET 返回 HTTP 200
   - 验证：`/v0/management/debug` 使用管理密钥返回 `{"debug":false}`
-- 安装并配置 Multica CLI，版本 `0.3.17`
+- 安装并配置 Multica CLI，版本 `0.6.1`（2026-10-06 由 `0.3.17` 升级；`sudo multica update` 替换 `/usr/local/bin/multica`，二进制属主转为 `root:root`）
   - server_url：`https://api.multica.ai`
   - app_url：`https://multica.ai`
   - 登录用户：`zhenqi Li (lzqtxwd@gmail.com)`
-  - Workspace：`lzqtxwd's Workspace`
-  - Workspace ID：`bdc30359-b067-46aa-b892-7848f9b091e8`
+  - Workspace：`Gezi`（旧 `lzqtxwd's Workspace` 已手动清理删除）
+  - Workspace ID：`21dbdc57-82a4-47eb-b981-2e06b04a6e46`
   - daemon 由 systemd user service 管理：`~/.config/systemd/user/multica.service`
   - 已启用 `loginctl enable-linger debian`
   - systemd PATH 包含 mise Node 目录，确保 daemon 能找到 `codex`
-  - 当前 Agents：`codex`
+  - 当前 Agents：`antigravity, claude, codex, kiro`
   - 当前 Workspaces：`1`
-  - task wakeup websocket 已连接
+  - 0.6.x daemon 自带 auto-update（6h）与 auto-reload（监听二进制变更，10min），支持热更新
   - repo cache 已能通过 GitHub SSH 访问 `AutoMQ/automq`、`AutoMQ/automqbox`、`AutoMQ/automq-kafka-enterprise`
 - 安装 Matt Pocock skills 到 `.agents`
   - 来源：`https://github.com/mattpocock/skills`
