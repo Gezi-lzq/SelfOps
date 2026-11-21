@@ -23,18 +23,16 @@ include = [
   "obelisk",
   "skill-management",
   "dev-machine-management",
-  "gtd-daily-review",
 ]
 exclude = []
 
 # Codex provides skill-creator as a system skill and Nowledge Mem as a plugin.
 [projects."@global".agent_overrides.codex]
-bundles = ["core", "tools", "lark-core", "ponytail", "mattpocock"]
+bundles = ["core", "tools", "memory", "lark-core", "ponytail", "mattpocock"]
 include = [
   "obelisk",
   "skill-management",
   "dev-machine-management",
-  "gtd-daily-review",
 ]
 exclude = ["skill-creator"]
 

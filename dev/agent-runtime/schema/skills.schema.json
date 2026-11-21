@@ -11,6 +11,7 @@
         "required": ["source"],
         "properties": {
           "description": { "type": "string" },
+          "model_invocable": { "type": "boolean" },
           "materialized_path": { "type": "string" },
           "source": {
             "type": "object",

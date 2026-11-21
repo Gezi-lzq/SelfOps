@@ -448,11 +448,46 @@ def remove_path(path: Path) -> None:
         shutil.rmtree(path)
 
 
+def apply_invocation_policy(skill_name: str, skill: dict[str, Any]) -> None:
+    """Apply an optional registry invocation override to a materialized skill."""
+    if "model_invocable" not in skill:
+        return
+    root = skill_dest(skill_name, skill)
+    skill_md = root / "SKILL.md"
+    if not skill_md.exists():
+        return
+    model_invocable = bool(skill["model_invocable"])
+    text = skill_md.read_text(encoding="utf-8")
+    marker = "disable-model-invocation: true"
+    if not model_invocable and marker not in text:
+        parts = text.split("---", 2)
+        if len(parts) == 3 and parts[0].strip() == "":
+            text = parts[0] + "---\n" + parts[1].rstrip() + "\n" + marker + "\n---" + parts[2]
+            skill_md.write_text(text, encoding="utf-8")
+    elif model_invocable and marker in text:
+        skill_md.write_text(text.replace(marker + "\n", ""), encoding="utf-8")
+
+    openai_yaml = root / "agents" / "openai.yaml"
+    policy_marker = "allow_implicit_invocation: false"
+    yaml_text = openai_yaml.read_text(encoding="utf-8") if openai_yaml.exists() else ""
+    if not model_invocable and policy_marker not in yaml_text:
+        openai_yaml.parent.mkdir(parents=True, exist_ok=True)
+        separator = "\n" if yaml_text and not yaml_text.endswith("\n") else ""
+        openai_yaml.write_text(
+            yaml_text + separator + "policy:\n  allow_implicit_invocation: false\n",
+            encoding="utf-8",
+        )
+    elif model_invocable and policy_marker in yaml_text:
+        lines = [line for line in yaml_text.splitlines() if line.strip() != policy_marker]
+        openai_yaml.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
 DESTRUCTIVE_ACTIONS = {"remove_path", "replace_path", "update_link"}
 
 
 def apply_plan(force: bool = False, projects_path: str | Path | None = None) -> dict[str, Any]:
     planned = plan(projects_path=projects_path)
+    skills_cfg, _ = load_registry(projects_path)
     applied: list[dict[str, Any]] = []
     skipped: list[dict[str, Any]] = []
     warned: list[dict[str, Any]] = []
@@ -520,6 +555,21 @@ def apply_plan(force: bool = False, projects_path: str | Path | None = None) -> 
             skipped.append({**action, "reason": "unknown action"})
         except Exception as exc:  # pragma: no cover - reported to caller
             skipped.append({**action, "error": str(exc)})
+
+    desired_skills = {
+        skill_name
+        for project in planned["desired"].values()
+        for skills in project["per_agent"].values()
+        for skill_name in skills
+    }
+    for skill_name in sorted(desired_skills):
+        skill = skills_cfg.get("skills", {}).get(skill_name)
+        if skill is None or "model_invocable" not in skill:
+            continue
+        try:
+            apply_invocation_policy(skill_name, skill)
+        except Exception as exc:
+            skipped.append({"type": "invocation_policy", "skill": skill_name, "error": str(exc)})
 
     result = {
         "applied_at": now_iso(),

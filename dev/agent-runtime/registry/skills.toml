@@ -9,9 +9,6 @@
 
 # ── anthropics/skills ──
 
-[skills.skill-creator]
-source = { type = "public", spec = "anthropics/skills" }
-
 # ── larksuite/cli ──
 
 [skills.lark-approval]
@@ -25,6 +22,7 @@ source = { type = "public", spec = "larksuite/cli" }
 
 [skills.lark-base]
 source = { type = "public", spec = "larksuite/cli" }
+model_invocable = true
 
 [skills.lark-calendar]
 source = { type = "public", spec = "larksuite/cli" }
@@ -34,6 +32,7 @@ source = { type = "public", spec = "larksuite/cli" }
 
 [skills.lark-doc]
 source = { type = "public", spec = "larksuite/cli" }
+model_invocable = false
 
 [skills.lark-drive]
 source = { type = "public", spec = "larksuite/cli" }
@@ -49,6 +48,7 @@ source = { type = "public", spec = "larksuite/cli" }
 
 [skills.lark-markdown]
 source = { type = "public", spec = "larksuite/cli" }
+model_invocable = false
 
 [skills.lark-minutes]
 source = { type = "public", spec = "larksuite/cli" }
@@ -64,6 +64,7 @@ source = { type = "public", spec = "larksuite/cli" }
 
 [skills.lark-shared]
 source = { type = "public", spec = "larksuite/cli" }
+model_invocable = false
 
 [skills.lark-sheets]
 source = { type = "public", spec = "larksuite/cli" }
@@ -85,9 +86,11 @@ source = { type = "public", spec = "larksuite/cli" }
 
 [skills.lark-whiteboard]
 source = { type = "public", spec = "larksuite/cli" }
+model_invocable = false
 
 [skills.lark-wiki]
 source = { type = "public", spec = "larksuite/cli" }
+model_invocable = false
 
 [skills.lark-workflow-meeting-summary]
 source = { type = "public", spec = "larksuite/cli" }
@@ -108,85 +111,85 @@ source = { type = "public", spec = "masayuki-kono/agent-skills" }
 # ── mattpocock/skills ──
 
 [skills.ask-matt]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
 
 [skills.code-review]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
 
 [skills.codebase-design]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
 
 [skills.diagnosing-bugs]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
 
 [skills.domain-modeling]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
-
-[skills.grill-with-docs]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
-
-[skills.improve-codebase-architecture]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
-
-[skills.prototype]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
-
-[skills.research]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
-
-[skills.setup-matt-pocock-skills]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
-
-[skills.tdd]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
-
-[skills.to-spec]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
-
-[skills.to-tickets]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
-
-[skills.triage]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
-
-[skills.wayfinder]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
 
 [skills.grill-me]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
+
+[skills.grill-with-docs]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
 
 [skills.grilling]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
 
 [skills.handoff]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
-
-[skills.teach]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
 
 [skills.implement]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
 
-[skills.resolving-merge-conflicts]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+[skills.implement-spec]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
 
-[skills.claude-handoff]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+[skills.improve-codebase-architecture]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
 
-[skills.loop-me]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+[skills.pr]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
+
+[skills.prototype]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
+
+[skills.research]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
+
+[skills.retro]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
+
+[skills.setup-matt-pocock-skills]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
+
+[skills.tdd]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
+
+[skills.teach]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
+
+[skills.to-questionnaire]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
+
+[skills.to-spec]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
+
+[skills.to-tickets]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
+
+[skills.triage]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
+
+[skills.wait-what]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
+
+[skills.wayfinder]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
 
 [skills.wizard]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
 
-[skills.writing-beats]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
-
-[skills.writing-fragments]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
-
-[skills.writing-shape]
-source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+[skills.writing-for-agents]
+source = { type = "public", spec = "mattpocock/skills#v1.3.2" }
 
 # ── nowledge-co/community ──
 
@@ -254,9 +257,6 @@ source = { type = "public", spec = "obra/superpowers" }
 
 # ── vercel-labs/skills ──
 
-[skills.find-skills]
-source = { type = "public", spec = "vercel-labs/skills" }
-
 # ── tw93/Waza ──
 
 [skills.check]
@@ -307,22 +307,9 @@ source = { type = "public", spec = "jackwener/opencli" }
 
 # ── External local skills ──
 
-[skills.assess-cluster-watermark-and-health]
-source = { type = "local_path", path = "/Users/gezi/ai-now/skills-active/assess-cluster-watermark-and-health-9fe9a2ca" }
-materialized_path = "materialized/skills/assess-cluster-watermark-and-health"
-
 # ── DietrichGebert/ponytail ──
 
 [skills.ponytail]
-source = { type = "public", spec = "DietrichGebert/ponytail" }
-
-[skills.ponytail-audit]
-source = { type = "public", spec = "DietrichGebert/ponytail" }
-
-[skills.ponytail-help]
-source = { type = "public", spec = "DietrichGebert/ponytail" }
-
-[skills.ponytail-review]
 source = { type = "public", spec = "DietrichGebert/ponytail" }
 
 # ── Custom skills (not in public registry) ──
@@ -337,10 +324,6 @@ materialized_path = "../../skills/skill-management"
 [skills.dev-machine-management]
 source = { type = "owned" }
 materialized_path = "../../skills/dev-machine-management"
-
-[skills.gtd-daily-review]
-source = { type = "owned" }
-materialized_path = "../../skills/gtd-daily-review"
 
 [skills.telegram-extra]
 source = { type = "owned" }
@@ -391,8 +374,6 @@ source = { type = "public", spec = "vercel-labs/agent-skills" }
 [bundles.core]
 description = "Skill management"
 skills = [
-  "find-skills",
-  "skill-creator",
 ]
 
 [bundles.superpowers]
@@ -496,9 +477,6 @@ skills = [
 description = "Ponytail minimalism workflow"
 skills = [
   "ponytail",
-  "ponytail-audit",
-  "ponytail-help",
-  "ponytail-review",
 ]
 
 [bundles.frontend]
@@ -525,27 +503,28 @@ skills = [
   "codebase-design",
   "diagnosing-bugs",
   "domain-modeling",
+  "grill-me",
   "grill-with-docs",
+  "grilling",
+  "handoff",
+  "implement",
+  "implement-spec",
   "improve-codebase-architecture",
+  "pr",
   "prototype",
   "research",
+  "retro",
   "setup-matt-pocock-skills",
   "tdd",
+  "teach",
+  "to-questionnaire",
   "to-spec",
   "to-tickets",
   "triage",
+  "wait-what",
   "wayfinder",
-  "grilling",
-  "handoff",
-  "teach",
-  "implement",
-  "resolving-merge-conflicts",
-  "claude-handoff",
-  "loop-me",
   "wizard",
-  "writing-beats",
-  "writing-fragments",
-  "writing-shape",
+  "writing-for-agents",
 ]
 
 [bundles.enterprise]
@@ -556,7 +535,3 @@ skills = [
   "enterprise-devkit",
   "enterprise-e2e",
 ]
-
-[skills.resume-coach]
-source = { type = "owned" }
-materialized_path = "materialized/skills/resume-coach"

@@ -121,6 +121,11 @@ sources in the machine projects file or machine branch.
 [skills.systematic-debugging]
 source = { type = "public", spec = "obra/superpowers" }
 
+# Optional invocation policy. Omit for the source default.
+[skills.lark-doc]
+source = { type = "public", spec = "larksuite/cli" }
+model_invocable = false
+
 # Local skill
 [skills.enterprise-build]
 source = { type = "local_path", path = "/path/to/.agents/skills/enterprise-build" }

@@ -10,14 +10,12 @@ scan_dirs = ["~/Dev"]
 # ─────────────────────────────────────────────
 
 [projects."@global"]
-agents = ["kiro", "claude", "codex", "agents"]
+agents = ["claude", "codex", "agents"]
 bundles = ["core", "tools", "memory", "lark-core", "ponytail", "mattpocock"]
 include = [
   "obelisk",
   "skill-management",
   "dev-machine-management",
-  "gtd-daily-review",
-  "resume-coach",
 ]
 exclude = []
 
@@ -25,11 +23,8 @@ exclude = []
 bundles = ["core", "tools", "memory", "lark-core", "ponytail", "mattpocock"]
 include = [
   "obelisk",
-  "assess-cluster-watermark-and-health",
   "skill-management",
   "dev-machine-management",
-  "gtd-daily-review",
-  "resume-coach",
 ]
 exclude = []
 
@@ -38,7 +33,7 @@ exclude = []
 # ─────────────────────────────────────────────
 
 [projects."/Users/gezi/Dev/SelfOps"]
-agents = ["kiro", "claude", "codex", "gemini"]
+agents = ["claude", "codex", "gemini"]
 bundles = ["core", "superpowers"]
 include = []
 exclude = []
@@ -48,7 +43,7 @@ exclude = []
 # ─────────────────────────────────────────────
 
 [projects."/Users/gezi/Dev/automq-kafka-enterprise"]
-agents = ["kiro", "claude", "codex", "gemini"]
+agents = ["claude", "codex", "gemini"]
 bundles = ["core", "superpowers"]
 include = []
 exclude = []
@@ -58,7 +53,7 @@ exclude = []
 # ─────────────────────────────────────────────
 
 [projects."/Users/gezi/Dev/automq-enterprise-fix-1800"]
-agents = ["kiro", "claude", "codex", "gemini"]
+agents = ["claude", "codex", "gemini"]
 bundles = ["core", "superpowers"]
 include = []
 exclude = []
@@ -68,7 +63,7 @@ exclude = []
 # ─────────────────────────────────────────────
 
 [projects."/Users/gezi/Dev/automq"]
-agents = ["kiro"]
+agents = []
 bundles = ["core", "superpowers"]
 include = []
 exclude = []
@@ -78,7 +73,7 @@ exclude = []
 # ─────────────────────────────────────────────
 
 [projects."/Users/gezi/Dev/automq-marathon"]
-agents = ["kiro", "claude"]
+agents = ["claude"]
 bundles = []
 include = []
 exclude = []
@@ -98,7 +93,7 @@ exclude = []
 # ─────────────────────────────────────────────
 
 [projects."/Users/gezi/Dev/kafka-console"]
-agents = ["kiro", "claude"]
+agents = ["claude"]
 bundles = ["frontend"]
 include = ["chrome-cdp", "playwright-cli"]
 exclude = []
@@ -108,7 +103,7 @@ exclude = []
 # ─────────────────────────────────────────────
 
 [projects."/Users/gezi/Dev/profile"]
-agents = ["kiro", "claude"]
+agents = ["claude"]
 bundles = []
 include = ["cv-builder"]
 exclude = []
@@ -118,7 +113,7 @@ exclude = []
 # ─────────────────────────────────────────────
 
 [projects."/Users/gezi/Dev/sitebox"]
-agents = ["kiro", "claude"]
+agents = ["claude"]
 bundles = ["frontend"]
 include = ["vercel-react-best-practices", "web-design-guidelines"]
 exclude = []
@@ -128,7 +123,7 @@ exclude = []
 # ─────────────────────────────────────────────
 
 [projects."/Users/gezi/Dev/terraform-provider-automq"]
-agents = ["kiro", "claude"]
+agents = ["claude"]
 bundles = []
 include = ["provider-resources"]
 exclude = []

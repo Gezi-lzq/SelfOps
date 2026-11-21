@@ -86,3 +86,12 @@ class AgentRuntimeProjectsPathTest(unittest.TestCase):
     def test_rejects_relative_projects_path(self):
         with self.assertRaises(SystemExit):
             self.agent_runtime.plan(projects_path="projects.toml")
+
+    def test_invocation_policy_writes_claude_and_codex_metadata(self):
+        skill = self.root / "materialized" / "skills" / "contrib-workflow"
+        (skill / "SKILL.md").write_text("---\nname: test\n---\n", encoding="utf-8")
+        self.agent_runtime.apply_invocation_policy(
+            "contrib-workflow", {"source": {"type": "owned"}, "model_invocable": False}
+        )
+        self.assertIn("disable-model-invocation: true", (skill / "SKILL.md").read_text())
+        self.assertIn("allow_implicit_invocation: false", (skill / "agents" / "openai.yaml").read_text())
