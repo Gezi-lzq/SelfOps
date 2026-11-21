@@ -16,6 +16,9 @@ set +a
 
 : "${MIHOMO_SUBSCRIPTION_URL:?Set MIHOMO_SUBSCRIPTION_URL in $env_file}"
 
+exec 9>/run/lock/mihomo-subscription.lock
+flock -n 9 || exit 0
+umask 077
 tmp="$(mktemp)"
 backup=""
 trap 'rm -f "$tmp" "$backup"' EXIT
@@ -37,6 +40,14 @@ data["bind-address"] = "127.0.0.1"
 data["external-controller"] = "127.0.0.1:9090"
 data.setdefault("log-level", "info")
 data["find-process-mode"] = "strict"
+# TUN DNS interception requires an enabled resolver, independent of subscription.
+data["dns"] = {
+    "enable": True,
+    "listen": "127.0.0.1:1053",
+    "enhanced-mode": "redir-host",
+    "nameserver": ["10.0.0.1", "1.1.1.1"],
+    "proxy-server-nameserver": ["10.0.0.1", "1.1.1.1"],
+}
 data["tun"] = {
     "enable": True,
     "stack": "gvisor",
@@ -61,10 +72,32 @@ if isinstance(proxies, list):
     )
 
 preferred_proxy = "🇭🇰 香港A10 | IEPL"
+node_names = {p.get("name") for p in data.get("proxies", []) if isinstance(p, dict)}
 for group in data.get("proxy-groups", []):
     proxies = group.get("proxies")
-    if group.get("name") == "🔰 选择节点" and isinstance(proxies, list) and preferred_proxy in proxies:
-        group["proxies"] = [preferred_proxy] + [p for p in proxies if p != preferred_proxy]
+    if group.get("name") != "🔰 选择节点":
+        continue
+    if not isinstance(proxies, list):
+        raise SystemExit("main proxy group must contain explicit proxy candidates")
+    candidates = list(dict.fromkeys(p for p in proxies if p in node_names))
+    if not candidates:
+        raise SystemExit("main proxy group has no subscription proxy nodes")
+    if preferred_proxy in candidates:
+        candidates = [preferred_proxy] + [p for p in candidates if p != preferred_proxy]
+    group.clear()
+    group.update({
+        "name": "🔰 选择节点",
+        "type": "fallback",
+        "proxies": candidates + ["DIRECT"],
+        "url": "https://www.apple.com/library/test/success.html",
+        "interval": 60,
+        "timeout": 5000,
+        "lazy": False,
+        "expected-status": 200,
+    })
+    break
+else:
+    raise SystemExit("subscription is missing the main proxy group")
 
 with open(path, "w", encoding="utf-8") as f:
     yaml.safe_dump(data, f, allow_unicode=True, sort_keys=False)
@@ -122,14 +155,83 @@ if [[ -f "$config_file" ]]; then
   cp -p "$config_file" "$backup"
 fi
 
-install -m 0644 "$tmp" "$config_file"
-if ! systemctl restart mihomo; then
+direct_fallback_ready() {
+  python3 - "${config_file:-/etc/mihomo/config.yaml}" <<'CHECK_DIRECT'
+import datetime
+import json
+import urllib.request
+import sys
+import yaml
+
+probe_url = "https://www.apple.com/library/test/success.html"
+try:
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    with open(sys.argv[1], encoding="utf-8") as config:
+        secret = (yaml.safe_load(config) or {}).get("secret", "")
+    request = urllib.request.Request("http://127.0.0.1:9090/proxies")
+    if secret:
+        request.add_header("Authorization", "Bearer " + str(secret))
+    with opener.open(request, timeout=3) as response:
+        proxies = json.load(response)["proxies"]
+    group = proxies["🔰 选择节点"]
+    assert group["type"] == "Fallback" and group["now"] == "DIRECT"
+    candidates = group["all"]
+    assert len(candidates) > 1 and candidates[-1] == "DIRECT"
+    now = datetime.datetime.now(datetime.timezone.utc)
+    for name in candidates:
+        result = proxies[name]["extra"][probe_url]
+        history = result["history"]
+        assert history
+        latest = history[-1]
+        timestamp = datetime.datetime.fromisoformat(latest["time"].replace("Z", "+00:00"))
+        assert 0 <= (now - timestamp).total_seconds() <= 180
+        expected_alive = name == "DIRECT"
+        assert result["alive"] is expected_alive
+        assert (latest["delay"] > 0) is expected_alive
+except (AssertionError, KeyError, ValueError, TypeError, OSError, yaml.YAMLError):
+    raise SystemExit(1)
+CHECK_DIRECT
+}
+
+health_check() {
+  local deadline=$((SECONDS + 90))
+  while (( SECONDS < deadline )); do
+    resolvectl flush-caches
+    if timeout 12 getent ahostsv4 api.raft.build >/dev/null; then
+      if direct_fallback_ready \
+        && curl --noproxy '*' -fsS --connect-timeout 5 --max-time 12 \
+          https://www.apple.com/library/test/success.html -o /dev/null \
+        && curl --noproxy '' -x http://127.0.0.1:7890 -fsS \
+          --connect-timeout 5 --max-time 12 \
+          https://www.apple.com/library/test/success.html -o /dev/null; then
+        echo "DEGRADED: proxy probes failed; DIRECT fallback and DNS verified. Proxy-only destinations may remain unavailable." >&2
+        return 0
+      fi
+      if curl --noproxy '*' -fsS --connect-timeout 5 --max-time 12 \
+          https://www.google.com/generate_204 -o /dev/null \
+        && curl --noproxy '' -x http://127.0.0.1:7890 -fsS \
+          --connect-timeout 5 --max-time 12 \
+          https://www.google.com/generate_204 -o /dev/null; then
+        return 0
+      fi
+    fi
+    sleep 2
+  done
+  return 1
+}
+
+install -m 0600 "$tmp" "$config_file"
+if ! systemctl restart mihomo || ! health_check; then
   if [[ -n "$backup" ]]; then
-    install -m 0644 "$backup" "$config_file"
+    install -m 0600 "$backup" "$config_file"
     systemctl restart mihomo
+    if ! health_check; then
+      echo "Previous configuration also failed health checks; operator intervention required." >&2
+    fi
   fi
-  echo "Mihomo restart failed; restored the previous configuration." >&2
+  echo "Mihomo update failed restart or connectivity checks; restored previous configuration when available." >&2
   exit 1
 fi
 
-echo "Installed updated Mihomo configuration and restarted the service."
+install -m 0600 "$config_file" "${config_file}.last-known-good"
+echo "Installed updated Mihomo configuration; connectivity checks passed (see any DEGRADED warning above)."

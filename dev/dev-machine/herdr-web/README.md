@@ -22,6 +22,7 @@ browser
 127.0.0.1:7682  ttyd mobile terminal profile
 127.0.0.1:8765  herdr-status
 127.0.0.1:8780  Caddy public router
+127.0.0.1:7777  Ducter home
 ```
 
 用户面对的入口：
@@ -29,10 +30,12 @@ browser
 ```text
 /               gezi-dev service homepage
 /herdr          Herdr Status Dashboard
-/kiro-gateway   Kiro Gateway
+/magpie-ui/     Magpie 浏览器管理页（HTTP Basic Auth）
+/magpie/*       Magpie 模型 API（Native Gateway Key）
 /mcp/           Nowledge Mem MCP 端点（稳定直代，无 302，MCP server 后端）
 /nmem-api/*     Nowledge Mem REST API（稳定直代，无 302）
 /nmem           Nowledge Mem Web UI（302 跳转到专用 cloudflared tunnel）
+/ducter/        Ducter personal AI（本机 Codex，设备配对）
 ```
 
 Herdr 子路由：
@@ -90,6 +93,8 @@ dev/dev-machine/herdr-status/
 当前认证模型：
 
 - `ttyd` 使用 HTTP basic auth，凭证来自 `HERDR_WEB_TTYD_CREDENTIAL`。
+- Magpie 管理页 `/magpie-ui/` 使用独立 HTTP basic auth；Caddy 只在回环上游注入 `MAGPIE_WEB_KEY`。
+- Magpie API `/magpie/*` 要求 `Authorization: Bearer <gateway-key>`、`X-Api-Key` 或 `X-Goog-Api-Key`；凭证是 Magpie 原生 Gateway Key。
 - `herdr-status` 和 `/herdr/history` 是只读页面，目前不额外加 basic auth。
 - `nmem` 读写全量个人记忆，公网仅靠 nmem 自带 API key 保护，已接受此风险：
   - API/MCP（`/nmem-api/*`、`/mcp/`）走 herdr 现有 ngrok 域名的稳定直代，直连 nmem 14242。
@@ -102,6 +107,7 @@ dev/dev-machine/herdr-status/
 ```text
 ~/.config/selfops/herdr-web.env
 ~/.config/selfops/herdr-status.env
+~/.config/selfops/magpie.env
 ~/.config/ngrok/ngrok.yml
 ```
 

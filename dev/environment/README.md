@@ -166,7 +166,7 @@ Linux/SSH/headless 机器推荐使用 Playwright 的 headless Chromium，并通�
 
 ```toml
 [tools]
-node = "26.3.0"
+node = "26.13.0"
 pnpm = "11.5.2"
 "npm:@playwright/cli" = "latest"
 "npm:agent-browser" = "latest"

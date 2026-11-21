@@ -9,7 +9,10 @@ Environment=SELFOPS_ROOT=__SELFOPS_ROOT__
 Environment=PATH=%h/.local/share/mise/shims:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
 EnvironmentFile=%h/.config/selfops/herdr-web.env
 ExecStart=__SELFOPS_ROOT__/dev/dev-machine/herdr-web/bin/herdr-web-ngrok
-Restart=on-failure
+# Keep the fixed endpoint online after ngrok exits cleanly (for example after
+# a transient network/session shutdown). An explicit `systemctl --user stop`
+# still suppresses restarts.
+Restart=always
 RestartSec=10
 
 [Install]

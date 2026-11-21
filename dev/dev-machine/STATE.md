@@ -30,7 +30,7 @@
 - CLIProxyAPI 管理密钥文件：`/home/debian/cliproxyapi/.management-secret`，权限 `600`，不提交仓库
 - CLIProxyAPI 监听：`0.0.0.0:8317`
 - CLIProxyAPI systemd user service：`cliproxyapi.service`，当前运行中，尚未 enable
-- magpie CLI：`/home/debian/.local/bin/magpie`；systemd user service `magpie.service` 已启用并运行，监听 `127.0.0.1:3425`
+- magpie CLI：`/home/debian/.local/bin/magpie`（版本 `0.1.1330`，2026-10-23 更新）；systemd user service `magpie.service` 已启用并运行；API 监听 `127.0.0.1:3425`，Web 管理页监听 `127.0.0.1:3430`；公网 `/magpie-ui/` 使用独立 Basic Auth，`/magpie/*` 使用独立 Magpie Gateway Key；Kiro 通过 `dev/dev-machine/magpie/plugins/kiro-local` 本地插件运行，请求不发送 `modelId`
 - Obelisk CLI 版本：`0.2.5`
 - Obelisk 索引：`/home/debian/.obelisk/obelisk.sqlite`，数据源为本机 Claude Code 与 Codex transcript
 - Obelisk agent skill：全局安装，供各项目按需查询历史证据
@@ -40,8 +40,9 @@
   - `herdr-status.service`：只读手机状态页，默认监听 `127.0.0.1:8765`
   - `herdr-web-proxy.service`：本地 Caddy path router，监听 `127.0.0.1:8780`，作为主要公网反向代理出口
   - `herdr-web-ngrok.service`：通过 ngrok 暴露 Caddy router
+- `ducter.service`：Ducter 个人 AI 任务服务，监听 `127.0.0.1:7777`，数据目录 `~/.ducter`；经 Caddy `/ducter/` 路由和现有 ngrok 入口访问
   - `herdr-web-cloudflared.service`：可选 Cloudflare quick tunnel，绕开 ngrok pooling
-  - `kiro-gateway`：当前进程监听 `0.0.0.0:8000`，通过 Caddy 公网 path `/kiro-gateway` 接入
+  - `magpie`：本地模型网关（OpenAI 兼容）监听 `127.0.0.1:3425`，通过 Caddy 公网 path `/magpie` strip 前缀直代接入（替代原 kiro-gateway，后者因 AWS SSO token 过期已停用）
   - Nowledge Mem 公网暴露：nmem backend 本机 `0.0.0.0:14242`，既是 REST API（含 MCP 端点 `/remote-api/mcp/`）也是 SPA Web UI（资源用绝对路径，UI 不能走 Caddy 子路径反代）
     - API / MCP：走 herdr 现有 ngrok 域名的稳定直代，无 302（API 客户端自拼 URL，不受 SPA 绝对路径问题影响）
       - `/mcp/*`：Caddy rewrite `/mcp/` → `/remote-api/mcp/` → 直代 `127.0.0.1:14242`，作为 MCP server 稳定后端入口
@@ -127,11 +128,11 @@
   - `gpg.ssh.allowedSignersFile`：`~/.config/git/allowed_signers`
   - `commit.gpgsign`：`true`
   - 非交互 signed commit 已验证为 `Good "git" signature`
-- Claude Code 版本：`2.1.284`，由 `mise`/npm 管理，native Linux binary 已验证
-- 安装并配置 Codex CLI，版本 `0.157.1`
+- Claude Code 版本：`2.1.312`，由 `mise`/npm 管理，native Linux binary 已验证
+- 安装并配置 Codex CLI，版本 `0.165.0`
   - 配置位置：`/home/debian/.codex/config.toml`
-  - Codex app-server daemon：`0.157.1`，通过 `codex app-server daemon bootstrap` 管理
-  - Mailroom 的 systemd PATH 优先使用 mise 安装的 Codex `0.157.1`，Pager 握手已验证
+  - Codex app-server daemon：`0.165.0`，通过 `codex app-server daemon bootstrap` 管理
+  - Mailroom 的 systemd PATH 优先使用 mise 安装的 Codex `0.165.0`；Pager 握手曾验证，本轮更新后未重测
   - provider：本机私有 `custom` provider（endpoint 与 bearer token 仅保存在本机配置）
   - 使用 HTTP Responses，关闭 WebSocket
   - 2026-07-27 恢复被意外覆盖的本地配置后，真实模型 smoke test 返回 `ok`
@@ -175,8 +176,10 @@
   - 管理方式：`mise` npm backend（`npm:@larksuite/cli`）
   - bot 身份：ready
   - user 身份：ready
-- 安装并认证 `lody`，版本 `0.100.0`
-  - Lody 管理的 Codex runtime：`0.156.0`；机器级 Codex CLI 为 `0.157.1`
+- 安装并认证 `lody`，版本 `0.108.1`（2026-10-29 更新）
+  - Node.js 更新至 `26.13.0`，满足 Lody 的最低版本要求
+  - 支持 Lody remote previews（机器协议能力 `previewControl`）
+  - Lody 管理的 Codex runtime：`0.156.0`；机器级 Codex CLI 为 `0.165.0`
   - 管理方式：`mise` npm backend（`npm:lody`）
   - 登录用户：`Gezi-lzq (lzqtxwd@gmail.com)`
   - 机器名：`gezi-dev`
@@ -274,7 +277,7 @@
   - 公网 URL 当前 path 设计：
     - `/`：gezi-dev 服务 homepage
     - 顶层入口只放 `/herdr`：Herdr status dashboard
-    - `/kiro-gateway`：Kiro Gateway，本地后端 `127.0.0.1:8000`
+    - `/magpie`：Magpie 本地模型网关（OpenAI 兼容），本地后端 `127.0.0.1:3425`
     - Herdr 内部/兼容路径：
       - `/herdr/api.json`：状态 JSON
       - `/herdr/history`：只读可滚动 pane history，适合手机查看当前执行输出
@@ -296,3 +299,47 @@
 - [ ] 有自有域名 / Cloudflare zone 后，再评估 `cloudflare-tunnel-ingress-controller`
 - [ ] 为 CLIProxyAPI 执行所需 provider OAuth 登录，例如 Codex、Claude 或 Gemini
 - [ ] 需要开机自启时 enable `cliproxyapi.service`
+
+
+## 2026-10-18 Mihomo DNS 复发与修复
+
+- 北京时间 13:40:44 订阅更新重启 Mihomo 后，Meta 再次成为默认 DNS；缺少显式 DNS 配置导致公网解析 SERVFAIL。
+- 此前仅调整 resolvectl 的临时恢复会在 TUN 重建后失效，不能作为持久修复。
+- 已为当前配置和订阅更新器补充显式 DNS；重启后验证系统解析、TUN HTTPS、显式 HTTP 代理 HTTPS。
+- 更新器增加联网检查、失败回滚、成功配置副本与并发锁；配置及备份仅保存在本机，不提交凭证。
+
+- 北京时间 15:47 补充回归验证：
+  - 通过 systemd 触发订阅更新成功；本轮只有入口别名变化，正常按 86400s 策略延后。
+  - 临时令 `MIHOMO_SERVER_REFRESH_INTERVAL=0` 运行同一更新器，实际下载、安装配置并重启成功，内置联网检查通过；未持久修改刷新间隔。
+  - 再单独重启 Mihomo，清空 resolved 缓存后，公网 DNS 经 Meta 成功，NetBird 私有域名仍经 wt0 成功。
+  - 更新后、单独重启后，TUN 与 HTTP 代理请求均返回 204；GitHub API 返回 200，Raft 根路径返回 404（证明 HTTPS 连通，不代表 Raft 业务健康）。
+  - 从当前客户端新建 NetBird SSH 连接成功；未验证异地网络连接、整机重启或故障注入回滚。
+
+- 2026-10-18 主节点组改为 fallback，DIRECT 作为最后候选；设置固化到订阅更新器。
+  - 健康探测每 60s 一次，超时 5s，检测 Apple success 页面。
+  - 验证更新应用、重启与再次更新保留设置；隔离测试的不可达节点自动回退 DIRECT，HTTPS 成功。
+  - 未通过停用正式节点测试全部代理失效；直连是否可用仍取决于目的服务与网络。
+
+- 2026-10-18 整体复核与独立 subagent 确认：修正 DIRECT 可用但 Google 不可达时更新器误判并回滚的问题；使用近期同 URL 探测证据及实际联网验证识别降级状态，输出 DEGRADED。
+  - 隔离故障、controller 认证、过期/矛盾探测记录拒绝测试通过；更新器已安装，实际更新与重启后正常联网检查通过。
+  - 系统服务无 failed；用户 Nowledge Mem 备份任务仍 failed，属于独立待处理问题。本次未改动其权限或数据。
+
+## 2026-11-09 Paseo headless 安装
+
+- 按 Paseo 官方 headless 做法安装 `@getpaseo/cli` 0.15.3，并在 `dev/environment/config.toml` 中固定版本，由 mise 管理。
+- 同时安装官方 `paseo` 0.15.3 Debian 桌面包；无图形会话时不启动桌面 Electron 应用。
+- 添加 `dev/dev-machine/paseo/systemd/paseo-daemon.service`，以用户服务运行 `paseo daemon run`。
+- daemon home 为 `~/.paseo`，只监听 `127.0.0.1:6767`；服务已启用并运行。
+- 已注册 Paseo project：`SelfOps`，路径 `/home/debian/SelfOps`，project ID `prj_d386b8ea57085150`。
+- 当前保留的 Paseo projects：`SelfOps`、`automq-workspace`（`/home/debian/automq-workspace` -> `/data/home/debian/automq-workspace`）、`fluss`、`iceberg`、`pi-mono`。
+- 已按 2026-11-09 用户要求移除登记：`nowledge-mem/community`、`magpie`、`automq-topic-view`、`automq-object-wal-cas`、`automqbox`、`trino`、`private-resume-publish`、`resume`、`lakehouse`；只删除 Paseo project metadata，未删除磁盘目录。
+- 验证 `paseo --version` 返回 `0.15.3`，`paseo daemon status --json` 显示 daemon running，Claude 与 Codex provider 可用。
+
+## 2026-11-14 Pi 模型接入
+
+- Pi CLI 版本 `1.5.2`，入口 `~/.local/bin/pi` 指向 `~/.pi/agent/bin/pi`。
+- `~/.pi/agent/models.json` 配置 `magpie` provider，复用 Codex 当前网关 `http://127.0.0.1:3425/v1`，使用 `openai-responses` API。
+- `~/.pi/agent/settings.json` 默认使用 `magpie/gpt-6-sol`，transport 为 `sse`；模型上下文和输出上限暂用 Pi 默认值 `128000` / `16384`，不是上游能力上限声明。
+- 网关凭据从 Codex 当前 provider 复制到 `~/.pi/agent/auth.json`；三份 Pi 配置权限为 `0600`，凭据不入 Git。后续网关密钥轮换时需同步 Pi 凭据。
+- 修改前的配置备份位于同目录，后缀为 `.backup-20261114T062047Z`。
+- 验证：模型列表可见、认证 `ready`、实际对话返回指定文本；`read` 工具成功读取临时文件并正确返回内容。验证禁用扩展、MCP、skills 和项目上下文，未验证这些集成。

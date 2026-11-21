@@ -1,8 +1,8 @@
 [tools]
 python = "3.12"
 node = "latest"
-"npm:@openai/codex" = "0.157.1"
-"npm:@anthropic-ai/claude-code" = "2.1.284"
+"npm:@openai/codex" = "0.165.0"
+"npm:@anthropic-ai/claude-code" = "2.1.312"
 
 [env]
 SELFOPS_ROOT = "{{ config_root }}"

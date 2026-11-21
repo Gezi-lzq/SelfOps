@@ -4,8 +4,11 @@ After=network.target
 
 [Service]
 Type=simple
+EnvironmentFile=-%h/.config/selfops/magpie.env
 WorkingDirectory=/home/debian/magpie
-ExecStart=/home/debian/.local/bin/magpie serve
+ExecStart=/home/debian/.local/bin/magpie web --addr 127.0.0.1:3430 --no-open --gateway
+StandardOutput=null
+StandardError=journal
 Restart=always
 RestartSec=3
 Environment=HOME=/home/debian

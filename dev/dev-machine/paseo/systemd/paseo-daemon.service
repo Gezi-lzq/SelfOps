@@ -1,0 +1,14 @@
+[Unit]
+Description=Paseo headless daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/share/mise/shims/paseo daemon run --home %h/.paseo
+Restart=on-failure
+RestartSec=5
+Environment=PATH=%h/.local/share/mise/shims:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=default.target
