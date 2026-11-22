@@ -356,6 +356,12 @@
 - 移除没有 active workspace 的重复 Hive scratch 注册后，为保留中的 Hive PR 6777 worktree 恢复了 Project 与 workspace 登记。
 - 旧项目目录和 Paseo 管理的历史 worktree 目录保留在磁盘上，未执行文件删除。
 
+## 2026-11-22 Paseo Project 范围收敛
+
+- Paseo 当前只登记 `/data/projects` 下的六个 AutoMQ Project。
+- `SelfOps`、`pi-mono`、`fluss`、`iceberg`、两个 Hive Project 均已撤销 Paseo 注册。
+- Hive PR 6777 workspace 已归档。相关仓库和 worktree 文件仍保留在磁盘上。
+
 ## 2026-11-14 Pi 模型接入
 
 - Pi CLI 版本 `1.5.2`，入口 `~/.local/bin/pi` 指向 `~/.pi/agent/bin/pi`。
