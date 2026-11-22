@@ -362,6 +362,13 @@
 - `SelfOps`、`pi-mono`、`fluss`、`iceberg`、两个 Hive Project 均已撤销 Paseo 注册。
 - Hive PR 6777 workspace 已归档。相关仓库和 worktree 文件仍保留在磁盘上。
 
+## 2026-11-22 T3 Code CLI
+
+- 按官方 Linux 安装脚本安装 T3 Code CLI `0.1.11`。
+- 可执行文件位于 `~/.t3/runtime/versions/0.1.11/t3`，命令入口为 `~/.local/bin/t3`。
+- `t3 --version` 验证通过。
+- 当前未安装 T3 后台服务，未开启 T3 Connect 或 LAN 访问；需要使用时运行 `t3 serve`，需要常驻运行时再单独执行 `t3 service install`。
+
 ## 2026-11-14 Pi 模型接入
 
 - Pi CLI 版本 `1.5.2`，入口 `~/.local/bin/pi` 指向 `~/.pi/agent/bin/pi`。
