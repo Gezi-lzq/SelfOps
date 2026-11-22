@@ -136,6 +136,7 @@ Claude Code、Codex、ChatGPT 和其他 MCP 客户端可以连接 T3 Code 环境
 - Clash Verge TUN 会接管公网流量。
 - 已在活动规则 profile 和活动配置中为 `v2.argotunnel.com`、`argotunnel.com` 加入 `DIRECT` 规则。
 - 已验证 `Tunnel connected · 2 connections · HTTP2`。
+- 已通过 T3 Connect 建立 Linked environments 连接到 gezi-dev，权限为 `full-access`，有效期至 2026-12-22。
 - MacBook 没有安装 T3 后台 service，桌面应用退出或本机注销会影响可达性。
 
 ### gezi-dev
@@ -147,6 +148,7 @@ Claude Code、Codex、ChatGPT 和其他 MCP 客户端可以连接 T3 Code 环境
 - mihomo TUN 会接管公网流量。
 - 已在 `/etc/mihomo/config.yaml` 和 `/usr/local/sbin/update-mihomo-subscription` 中为 `v2.argotunnel.com`、`argotunnel.com` 加入 `DIRECT` 规则。
 - 已验证 `Tunnel connected · 4 connections · HTTP2`。
+- Linked environments 开关已启用。
 - 远端 T3 服务通过 T3 Connect 可被其他设备访问。
 
 ### 记录与分支
@@ -158,7 +160,7 @@ Claude Code、Codex、ChatGPT 和其他 MCP 客户端可以连接 T3 Code 环境
 
 ## 12. 当前未完成项
 
-- 本地 MacBook 和 gezi-dev 尚未启用 Linked environments，因此不能直接从一个环境向另一个环境使用 `delegate_task` 调度。
+- MacBook 与 gezi-dev 已建立 Linked environments 连接。当前 MacBook 可达 gezi-dev，权限为 `full-access`，有效期至 2026-12-22。
 - MacBook 没有安装后台 service。需要手机在 MacBook 注销或桌面应用退出后仍能访问时，应评估安装 macOS 后台服务。
 - 尚未验证两个环境的外部 agent MCP 授权流程。
 - 尚未建立项目级 `t3.json`、动作脚本、worktree 清理策略和计划任务。
