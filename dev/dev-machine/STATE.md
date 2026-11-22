@@ -407,3 +407,9 @@
   - `automq-benchmark`
 - 六个 Project 的 T3 Thread 列表当前为空，未接管已有 Thread。
 - 默认 provider、权限、worktree 和项目动作脚本尚未配置。
+
+
+## 2026-11-22 SelfOps T3 Project
+
+- gezi-dev 已将 `/home/debian/SelfOps` 注册为 T3 Project，项目名为 `SelfOps`。
+- SelfOps 的 T3 Thread 列表当前为空。
