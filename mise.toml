@@ -1,7 +1,7 @@
 [tools]
 python = "3.12"
 node = "latest"
-"npm:@openai/codex" = "0.165.0"
+"npm:@openai/codex" = "0.171.0"
 "npm:@anthropic-ai/claude-code" = "2.1.312"
 
 [env]
