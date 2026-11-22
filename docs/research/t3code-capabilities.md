@@ -175,4 +175,5 @@ Claude Code、Codex、ChatGPT 和其他 MCP 客户端可以连接 T3 Code 环境
 - 尚未验证两个环境的外部 agent MCP 授权流程。
 - 尚未建立项目级 `t3.json`、动作脚本、worktree 清理策略和计划任务。
 - 已确认 Worktree 创建链路正常。下一步按真实任务创建正式线程，再为已有且稳定的构建或测试入口配置 Project actions。
+- gezi-dev 已执行 `t3 browser setup`，允许 Chrome sandbox。随后通过远程 scratch thread 打开 `https://example.com` 并读取标题 `Example Domain`，headless browser 可用。
 - T3 Connect 依赖 Cloudflare Tunnel 网络可达。Clash Verge 和 mihomo 的 TUN 规则需要在配置生成链路中保持 `argotunnel.com` 直连。
