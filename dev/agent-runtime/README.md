@@ -85,6 +85,16 @@ mise run agent:update              # 更新 public skills 到最新版本
 `skills.toml` is shared skill catalog and bundle state. Project paths are machine-local, so each
 machine can keep a separate projects file built from `registry/projects.machine.template.toml`.
 
+Paseo skills use `getpaseo/paseo` as their public upstream source. The `npx skills` CLI fetches
+that source into the runtime cache, while this runtime owns the links into `~/.agents/skills`,
+`~/.claude/skills`, and `~/.codex/skills`. Paseo's npm package owns its bundled copy for Paseo's
+own orchestration UI. Do not use both managers to write the same skill directory because the
+runtime uses symlinked skill roots.
+
+Paseo is an exception to the usual public-cache flow. Run `mise run agent:sync-paseo` after
+upgrading `@getpaseo/cli`. It copies the six bundled skills into `materialized/skills`, records
+the installed package version in `registry/paseo.toml`, and then `agent:apply` distributes them.
+
 Recommended shape:
 
 ```text

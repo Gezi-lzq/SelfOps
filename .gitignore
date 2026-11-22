@@ -8,6 +8,12 @@ __pycache__/
 /dev/agent-runtime/materialized/skills/*
 !/dev/agent-runtime/materialized/skills/self-enhancement/
 !/dev/agent-runtime/materialized/skills/telegram-extra/
+!/dev/agent-runtime/materialized/skills/paseo/
+!/dev/agent-runtime/materialized/skills/paseo-advisor/
+!/dev/agent-runtime/materialized/skills/paseo-committee/
+!/dev/agent-runtime/materialized/skills/paseo-handoff/
+!/dev/agent-runtime/materialized/skills/paseo-help/
+!/dev/agent-runtime/materialized/skills/paseo-plugin/
 
 # Agent runtime directories generated for this repository.
 /.codex/

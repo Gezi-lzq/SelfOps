@@ -1,0 +1,10 @@
+{
+  "eval_id": 2,
+  "eval_name": "long-thread-ownership",
+  "prompt": "回顾我在北京时间 2026-07-14 做的工作并整理 GTD。很多 Codex 对话很长，旧讨论不要算进当天；请用 nmem 的 Memory 和知识图谱核对哪些遗留事项现在仍有效、仍归我负责。",
+  "assertions": [
+    "Old messages from long Threads are excluded from date claims.",
+    "Memory or graph evidence is used for current meaning or ownership, not as proof that work occurred on the review date.",
+    "Next Actions contain only concrete actions that remain relevant and user-owned."
+  ]
+}

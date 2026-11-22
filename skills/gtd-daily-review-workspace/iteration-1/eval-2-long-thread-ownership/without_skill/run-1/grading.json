@@ -1,0 +1,14 @@
+{
+  "expectations": [
+    {"text": "Old messages from long Threads are excluded from date claims.", "passed": true, "evidence": "The取证说明 states message timestamps were used and identifies old xterm.js content excluded from the day."},
+    {"text": "Memory or graph evidence is used for current meaning or ownership, not as proof that work occurred on the review date.", "passed": true, "evidence": "The report uses Memory 4fe6f5eb-ed23-4d0d-bb60-27216c643570 only to exclude GCP machine follow-up, while Thread messages establish activity."},
+    {"text": "Next Actions contain only concrete actions that remain relevant and user-owned.", "passed": false, "evidence": "It asks the user to follow PR #180 through merge even though the PR had already merged on July 14; this is a stale Next Action. It also assigns Issue #6122 triage without resolving the explicitly uncertain ownership."}
+  ],
+  "summary": {"passed": 2, "failed": 1, "total": 3, "pass_rate": 0.6667},
+  "execution_metrics": {"output_chars": 3077},
+  "claims": [
+    {"claim": "PR #180 still needs follow-up to merge.", "type": "factual", "verified": false, "evidence": "The with-skill run's native GitHub verification found PR #180 merged at 20:18 on the review date."},
+    {"claim": "GCP machine-selection follow-up is no longer user-owned.", "type": "factual", "verified": true, "evidence": "The report cites the latest ownership Memory and excludes the work from Next Actions."}
+  ],
+  "eval_feedback": {"suggestions": [{"reason": "Make native artifact-state verification an explicit assertion; it is what separates a plausible action list from a current one in this run."}], "overall": "Ownership checking succeeded, but stale artifact state remained a material GTD error."}
+}

@@ -214,6 +214,38 @@ source = { type = "public", spec = "nowledge-co/community" }
 [skills.status]
 source = { type = "public", spec = "nowledge-co/community" }
 
+# ── getpaseo/paseo ──
+
+[skills.paseo]
+source = { type = "owned" }
+materialized_path = "materialized/skills/paseo"
+model_invocable = true
+
+[skills.paseo-advisor]
+source = { type = "owned" }
+materialized_path = "materialized/skills/paseo-advisor"
+model_invocable = false
+
+[skills.paseo-committee]
+source = { type = "owned" }
+materialized_path = "materialized/skills/paseo-committee"
+model_invocable = false
+
+[skills.paseo-handoff]
+source = { type = "owned" }
+materialized_path = "materialized/skills/paseo-handoff"
+model_invocable = false
+
+[skills.paseo-help]
+source = { type = "owned" }
+materialized_path = "materialized/skills/paseo-help"
+model_invocable = true
+
+[skills.paseo-plugin]
+source = { type = "owned" }
+materialized_path = "materialized/skills/paseo-plugin"
+model_invocable = false
+
 # ── obra/superpowers ──
 
 [skills.brainstorming]
@@ -409,6 +441,17 @@ skills = [
   "save-thread",
   "search-memory",
   "status",
+]
+
+[bundles.paseo]
+description = "Paseo workspace and agent operations"
+skills = [
+  "paseo",
+  "paseo-advisor",
+  "paseo-committee",
+  "paseo-handoff",
+  "paseo-help",
+  "paseo-plugin",
 ]
 
 [bundles.lark-core]

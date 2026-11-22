@@ -24,3 +24,7 @@ run = "python scripts/agent_runtime.py apply"
 [tasks."agent:update"]
 description = "Update public skills to latest versions via npx"
 run = "npx skills update -p -y"
+
+[tasks."agent:sync-paseo"]
+description = "Sync Paseo skills from the installed @getpaseo/cli package"
+run = "python scripts/sync_paseo_skills.py"

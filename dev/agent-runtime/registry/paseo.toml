@@ -1,0 +1,5 @@
+[upstreams.paseo]
+package = "@getpaseo/cli"
+version = "0.16.1"
+source = "getpaseo/paseo"
+skills_path = "@getpaseo/server/dist/server/skills"

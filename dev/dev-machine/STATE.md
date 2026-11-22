@@ -377,3 +377,13 @@
 - 网关凭据从 Codex 当前 provider 复制到 `~/.pi/agent/auth.json`；三份 Pi 配置权限为 `0600`，凭据不入 Git。后续网关密钥轮换时需同步 Pi 凭据。
 - 修改前的配置备份位于同目录，后缀为 `.backup-20261114T062047Z`。
 - 验证：模型列表可见、认证 `ready`、实际对话返回指定文本；`read` 工具成功读取临时文件并正确返回内容。验证禁用扩展、MCP、skills 和项目上下文，未验证这些集成。
+
+
+## 2026-11-22 T3 Code / T3 Connect
+
+- 开发机 gezi-dev 已安装 T3 Code CLI 0.1.11，配置为 systemd 用户服务。T3 Connect 已启用，LAN 暴露保持关闭。
+- 开发机的 mihomo TUN 曾将 Cloudflare Tunnel 流量送入代理路径，导致 `TLS handshake with edge error: EOF`。已在 `/etc/mihomo/config.yaml` 和 `/usr/local/sbin/update-mihomo-subscription` 的规则中加入 `v2.argotunnel.com`、`argotunnel.com` 的 `DIRECT` 规则。
+- 当前开发机验证为 `Tunnel connected · 4 connections · HTTP2`，`mihomo` 与 `t3code` 服务均正常。
+- 本地 MacBook 的 Clash Verge TUN 存在相同问题。已在 Clash Verge 当前规则 profile 和活动配置中加入同样的 `DIRECT` 规则，并重载配置。
+- 当前 MacBook 验证为 `Tunnel connected · 2 connections · HTTP2`。
+- 未记录 T3 Connect 授权码、订阅 URL 或其他凭证。

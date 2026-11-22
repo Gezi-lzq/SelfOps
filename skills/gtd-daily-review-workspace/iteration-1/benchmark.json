@@ -1,0 +1,201 @@
+{
+  "metadata": {
+    "skill_name": "gtd-daily-review",
+    "skill_path": "skills/gtd-daily-review",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-07-15T06:52:43Z",
+    "evals_run": [
+      1,
+      2
+    ],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 0.0,
+        "tokens": 7339,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The review uses the exact Beijing-day UTC window 2026-07-13T16:00:00Z to 2026-07-14T16:00:00Z.",
+          "passed": true,
+          "evidence": "The collector output was verified with exactly this UTC window, and the report labels all cited times as Beijing time."
+        },
+        {
+          "text": "Every progress item cites an in-window Thread message or a directly verified artifact.",
+          "passed": true,
+          "evidence": "All nine progress bullets include a Thread path plus Beijing message times; artifact-backed items additionally cite PRs, an Issue, workflow run, document, commit, or report."
+        },
+        {
+          "text": "The output separates progress, unfinished work, Next Actions, Waiting For, and uncertain items without inventing empty sections.",
+          "passed": true,
+          "evidence": "The report contains distinct \u6628\u65e5\u63a8\u8fdb\u3001\u672a\u7adf\u4e8b\u9879\u3001Next Actions\u3001Waiting For\u3001\u5f85\u786e\u8ba4 sections with substantive entries."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 0.0,
+        "tokens": 5270,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Old messages from long Threads are excluded from date claims.",
+          "passed": true,
+          "evidence": "Every activity claim cites message times inside the Beijing-day window; the collector filters individual messages rather than accepting whole candidate Threads."
+        },
+        {
+          "text": "Memory or graph evidence is used for current meaning or ownership, not as proof that work occurred on the review date.",
+          "passed": true,
+          "evidence": "Thread messages establish the GCP machine-analysis activity, while the latest Memory is used only to remove its follow-up from Next Actions."
+        },
+        {
+          "text": "Next Actions contain only concrete actions that remain relevant and user-owned.",
+          "passed": true,
+          "evidence": "Actions use concrete verbs and the report excludes GCP machine/profile follow-up because ownership changed; PR #180 is correctly absent because native state shows it merged."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6667,
+        "passed": 2,
+        "failed": 1,
+        "total": 3,
+        "time_seconds": 0.0,
+        "tokens": 5079,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The review uses the exact Beijing-day UTC window 2026-07-13T16:00:00Z to 2026-07-14T16:00:00Z.",
+          "passed": true,
+          "evidence": "The report states the exact Beijing and UTC window in its opening note."
+        },
+        {
+          "text": "Every progress item cites an in-window Thread message or a directly verified artifact.",
+          "passed": false,
+          "evidence": "The report says nmem lacks per-message timestamps and therefore relies on Thread creation time/message indexes for several items; that does not prove each cited message is in-window and it omits valid later messages from long Threads."
+        },
+        {
+          "text": "The output separates progress, unfinished work, Next Actions, Waiting For, and uncertain items without inventing empty sections.",
+          "passed": true,
+          "evidence": "It separates \u4eca\u65e5\u63a8\u8fdb and \u5f85\u8ddf\u8fdb and omits sections for which it makes no distinct claims."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6667,
+        "passed": 2,
+        "failed": 1,
+        "total": 3,
+        "time_seconds": 0.0,
+        "tokens": 3077,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Old messages from long Threads are excluded from date claims.",
+          "passed": true,
+          "evidence": "The\u53d6\u8bc1\u8bf4\u660e states message timestamps were used and identifies old xterm.js content excluded from the day."
+        },
+        {
+          "text": "Memory or graph evidence is used for current meaning or ownership, not as proof that work occurred on the review date.",
+          "passed": true,
+          "evidence": "The report uses Memory 4fe6f5eb-ed23-4d0d-bb60-27216c643570 only to exclude GCP machine follow-up, while Thread messages establish activity."
+        },
+        {
+          "text": "Next Actions contain only concrete actions that remain relevant and user-owned.",
+          "passed": false,
+          "evidence": "It asks the user to follow PR #180 through merge even though the PR had already merged on July 14; this is a stale Next Action. It also assigns Issue #6122 triage without resolving the explicitly uncertain ownership."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "tokens": {
+        "mean": 6304.5,
+        "stddev": 1463.0039,
+        "min": 5270,
+        "max": 7339
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.6667,
+        "stddev": 0.0,
+        "min": 0.6667,
+        "max": 0.6667
+      },
+      "time_seconds": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "tokens": {
+        "mean": 4078.0,
+        "stddev": 1415.6278,
+        "min": 3077,
+        "max": 5079
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.33",
+      "time_seconds": "+0.0",
+      "tokens": "+2226"
+    }
+  },
+  "notes": [
+    "The skill passed all six assertions across two evals; baseline missed one assertion in each eval.",
+    "Eval 1 exposed the largest behavioral difference: baseline incorrectly concluded that nmem lacks per-message timestamps and omitted valid in-window continuation work from long Threads.",
+    "Eval 2 showed that an explicit prompt can lead baseline to use the ownership Memory correctly, but baseline still generated a stale Next Action for PR #180 after it had already merged.",
+    "Token values are output-character proxies because executor token and timing telemetry were unavailable for these subagent runs."
+  ]
+}

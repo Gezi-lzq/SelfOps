@@ -22,7 +22,7 @@ scan_dirs = ["<absolute-workspace-root>"]
 
 [projects."@global"]
 agents = ["claude", "codex"]
-bundles = ["core", "tools", "memory"]
+bundles = ["core", "tools", "memory", "paseo"]
 include = [
   "skill-management",
   "dev-machine-management",

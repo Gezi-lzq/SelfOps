@@ -11,7 +11,7 @@ scan_dirs = ["~/Dev"]
 
 [projects."@global"]
 agents = ["claude", "codex", "agents"]
-bundles = ["core", "tools", "memory", "lark-core", "ponytail", "mattpocock"]
+bundles = ["core", "tools", "memory", "paseo", "lark-core", "ponytail", "mattpocock"]
 include = [
   "obelisk",
   "skill-management",
@@ -20,7 +20,7 @@ include = [
 exclude = []
 
 [projects."@global".agent_overrides.agents]
-bundles = ["core", "tools", "memory", "lark-core", "ponytail", "mattpocock"]
+bundles = ["core", "tools", "memory", "paseo", "lark-core", "ponytail", "mattpocock"]
 include = [
   "obelisk",
   "skill-management",

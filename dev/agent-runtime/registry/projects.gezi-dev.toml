@@ -18,7 +18,7 @@ scan_dirs = ["/home/debian/work", "/home/debian/SelfOps"]
 
 [projects."@global"]
 agents = ["claude", "codex", "agents"]
-bundles = ["core", "tools", "memory", "lark-core", "ponytail", "mattpocock"]
+bundles = ["core", "tools", "memory", "paseo", "lark-core", "ponytail", "mattpocock"]
 include = [
   "obelisk",
   "skill-management",
@@ -28,7 +28,7 @@ exclude = []
 
 # Codex provides skill-creator as a system skill and Nowledge Mem as a plugin.
 [projects."@global".agent_overrides.codex]
-bundles = ["core", "tools", "memory", "lark-core", "ponytail", "mattpocock"]
+bundles = ["core", "tools", "memory", "paseo", "lark-core", "ponytail", "mattpocock"]
 include = [
   "obelisk",
   "skill-management",

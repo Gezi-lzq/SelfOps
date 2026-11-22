@@ -1,0 +1,14 @@
+{
+  "expectations": [
+    {"text": "The review uses the exact Beijing-day UTC window 2026-07-13T16:00:00Z to 2026-07-14T16:00:00Z.", "passed": true, "evidence": "The report states the exact Beijing and UTC window in its opening note."},
+    {"text": "Every progress item cites an in-window Thread message or a directly verified artifact.", "passed": false, "evidence": "The report says nmem lacks per-message timestamps and therefore relies on Thread creation time/message indexes for several items; that does not prove each cited message is in-window and it omits valid later messages from long Threads."},
+    {"text": "The output separates progress, unfinished work, Next Actions, Waiting For, and uncertain items without inventing empty sections.", "passed": true, "evidence": "It separates 今日推进 and 待跟进 and omits sections for which it makes no distinct claims."}
+  ],
+  "summary": {"passed": 2, "failed": 1, "total": 3, "pass_rate": 0.6667},
+  "execution_metrics": {"output_chars": 5079},
+  "claims": [
+    {"claim": "nmem currently does not provide per-message timestamps.", "type": "factual", "verified": false, "evidence": "The Nowledge FS messages.jsonl records do contain timestamps; the skill collector successfully filtered 267 messages by them."},
+    {"claim": "Cross-day continuation work cannot be reliably placed in the review window.", "type": "quality", "verified": false, "evidence": "Per-message timestamps make that placement possible, so the conservative omission loses real progress."}
+  ],
+  "eval_feedback": {"suggestions": [{"reason": "Add an assertion that long Threads with in-window continuation messages are included; this is the key discriminating behavior exposed by the run."}], "overall": "The eval found a real date-evidence failure, but should explicitly test long-Thread recall."}
+}

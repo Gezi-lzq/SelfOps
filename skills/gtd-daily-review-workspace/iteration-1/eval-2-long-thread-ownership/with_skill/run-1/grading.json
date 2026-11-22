@@ -1,0 +1,14 @@
+{
+  "expectations": [
+    {"text": "Old messages from long Threads are excluded from date claims.", "passed": true, "evidence": "Every activity claim cites message times inside the Beijing-day window; the collector filters individual messages rather than accepting whole candidate Threads."},
+    {"text": "Memory or graph evidence is used for current meaning or ownership, not as proof that work occurred on the review date.", "passed": true, "evidence": "Thread messages establish the GCP machine-analysis activity, while the latest Memory is used only to remove its follow-up from Next Actions."},
+    {"text": "Next Actions contain only concrete actions that remain relevant and user-owned.", "passed": true, "evidence": "Actions use concrete verbs and the report excludes GCP machine/profile follow-up because ownership changed; PR #180 is correctly absent because native state shows it merged."}
+  ],
+  "summary": {"passed": 3, "failed": 0, "total": 3, "pass_rate": 1.0},
+  "execution_metrics": {"output_chars": 5270},
+  "claims": [
+    {"claim": "GCP 8.x machine-selection follow-up no longer belongs to the user from 2026-07-15.", "type": "factual", "verified": true, "evidence": "The output cites the newest ownership Memory and therefore keeps the work only as historical progress."},
+    {"claim": "PR #180 should not be a Next Action.", "type": "quality", "verified": true, "evidence": "The report verifies the PR was merged on July 14 and treats it as completed progress."}
+  ],
+  "eval_feedback": {"suggestions": [{"reason": "Require at least one explicit source identifier for the ownership Memory so graph/current-state reasoning is independently traceable."}], "overall": "The assertions discriminate date evidence from current-state correction well."}
+}

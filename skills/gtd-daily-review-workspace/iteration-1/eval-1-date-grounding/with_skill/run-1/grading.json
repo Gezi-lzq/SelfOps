@@ -1,0 +1,14 @@
+{
+  "expectations": [
+    {"text": "The review uses the exact Beijing-day UTC window 2026-07-13T16:00:00Z to 2026-07-14T16:00:00Z.", "passed": true, "evidence": "The collector output was verified with exactly this UTC window, and the report labels all cited times as Beijing time."},
+    {"text": "Every progress item cites an in-window Thread message or a directly verified artifact.", "passed": true, "evidence": "All nine progress bullets include a Thread path plus Beijing message times; artifact-backed items additionally cite PRs, an Issue, workflow run, document, commit, or report."},
+    {"text": "The output separates progress, unfinished work, Next Actions, Waiting For, and uncertain items without inventing empty sections.", "passed": true, "evidence": "The report contains distinct 昨日推进、未竟事项、Next Actions、Waiting For、待确认 sections with substantive entries."}
+  ],
+  "summary": {"passed": 3, "failed": 0, "total": 3, "pass_rate": 1.0},
+  "execution_metrics": {"output_chars": 7339},
+  "claims": [
+    {"claim": "PR #180 was merged on the review date.", "type": "factual", "verified": true, "evidence": "The report cites the native PR artifact and merge time 20:18."},
+    {"claim": "GCP machine selection was completed on the review date.", "type": "factual", "verified": true, "evidence": "The report cites three in-window message times from the machine-selection Thread."}
+  ],
+  "eval_feedback": {"suggestions": [{"reason": "Add an assertion that stale or completed work must not appear in Next Actions; date grounding alone does not test GTD usefulness."}], "overall": "Strong date-grounding assertions, but current-state action validity needs an explicit check."}
+}
