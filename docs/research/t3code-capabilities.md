@@ -144,7 +144,7 @@ Claude Code、Codex、ChatGPT 和其他 MCP 客户端可以连接 T3 Code 环境
 - T3 Code CLI 版本为 `0.1.11`。
 - 已安装并运行 systemd user service `t3code.service`。
 - T3 Connect 已启用，LAN/tailnet 暴露关闭。
-- 远端已有 Codex CLI `0.165.0`。
+- 远端已有 Codex CLI `0.171.0`，与 MacBook 当前版本一致。
 - mihomo TUN 会接管公网流量。
 - 已在 `/etc/mihomo/config.yaml` 和 `/usr/local/sbin/update-mihomo-subscription` 中为 `v2.argotunnel.com`、`argotunnel.com` 加入 `DIRECT` 规则。
 - 已验证 `Tunnel connected · 4 connections · HTTP2`。
