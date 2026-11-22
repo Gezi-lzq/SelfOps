@@ -158,6 +158,15 @@ Claude Code、Codex、ChatGPT 和其他 MCP 客户端可以连接 T3 Code 环境
 - 两个分支保持独立。
 - T3 Connect 授权码、订阅 URL 和其他凭证未写入文档。
 
+## 13. 当前 Project 默认值
+
+- gezi-dev 环境默认新 Thread 使用 worktree，并从远端默认分支创建新 worktree。
+- SelfOps 使用主 checkout `/home/debian/SelfOps`。
+- 其他六个代码 Project 使用 worktree 模式。
+- 当前环境权限保持 `full-access`。
+- Project API 未保存项目级模型覆盖，Project 继承 gezi-dev 环境默认模型。当前 gezi-dev 能力列表提供 GPT-6.2-Sol。
+- 项目动作脚本和物理 worktree 根目录尚未配置。
+
 ## 12. 当前未完成项
 
 - MacBook 与 gezi-dev 已建立 Linked environments 连接。当前 MacBook 可达 gezi-dev，权限为 `full-access`，有效期至 2026-12-22。

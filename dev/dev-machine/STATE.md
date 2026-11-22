@@ -80,3 +80,12 @@
 
 - gezi-dev 已将 `/home/debian/SelfOps` 注册为 T3 Project，项目名为 `SelfOps`。
 - SelfOps 的 T3 Thread 列表当前为空。
+
+## 2026-11-22 T3 Project defaults
+
+- gezi-dev 环境默认新 Thread 使用 worktree，并从远端默认分支创建新 worktree。
+- SelfOps Project 使用主 checkout `/home/debian/SelfOps`。
+- 其他六个代码 Project 使用 worktree 模式。
+- 当前环境权限保持 `full-access`。
+- Project API 未保存项目级模型覆盖，Project 继承 gezi-dev 环境默认模型。当前 gezi-dev 能力列表提供 GPT-6.2-Sol。
+- 项目动作脚本和物理 worktree 根目录尚未配置。
