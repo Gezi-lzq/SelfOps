@@ -166,6 +166,7 @@ Claude Code、Codex、ChatGPT 和其他 MCP 客户端可以连接 T3 Code 环境
 - 当前环境权限保持 `full-access`。
 - Project API 未保存项目级模型覆盖，Project 继承 gezi-dev 环境默认模型。当前 gezi-dev 能力列表提供 GPT-6.2-Sol。
 - 项目动作脚本和物理 worktree 根目录尚未配置。
+- 已完成 `automq-workspace` Worktree 试点。线程使用 `gpt-6.2-sol` 和 `full-access`，从 `origin/private/gezi--workspace-overlay` 创建 `t3/verify-automq-workspace`，远程工作区干净，未产生修改。
 
 ## 12. 当前未完成项
 
@@ -173,4 +174,5 @@ Claude Code、Codex、ChatGPT 和其他 MCP 客户端可以连接 T3 Code 环境
 - MacBook 没有安装后台 service。需要手机在 MacBook 注销或桌面应用退出后仍能访问时，应评估安装 macOS 后台服务。
 - 尚未验证两个环境的外部 agent MCP 授权流程。
 - 尚未建立项目级 `t3.json`、动作脚本、worktree 清理策略和计划任务。
+- 已确认 Worktree 创建链路正常。下一步按真实任务创建正式线程，再为已有且稳定的构建或测试入口配置 Project actions。
 - T3 Connect 依赖 Cloudflare Tunnel 网络可达。Clash Verge 和 mihomo 的 TUN 规则需要在配置生成链路中保持 `argotunnel.com` 直连。
