@@ -27,6 +27,11 @@
 - 通过 `mise` 安装 base CLI 和 lab CLI
 - 通过 apt 安装 `htop`、`ncdu`、`rsync`
 - 配置 `gh` 登录 GitHub，并启用 git credential helper
+- 添加本地到开发机的 AWS/saml2aws 凭证同步脚本：
+  - 脚本：`dev/dev-machine/aws-credentials/sync-to-gezi-dev.sh`
+  - 同步文件：`~/.saml2aws`、`~/.aws/config`、`~/.aws/credentials`
+  - 远端备份目录：`~/.aws/backups/aws-credentials-<timestamp>/`
+  - 已验证 `dev3` profile 可调用 STS
 - 安装并认证 `lark-cli`，版本 `1.0.48`
   - bot 身份：ready
   - user 身份：ready
@@ -43,3 +48,12 @@
 ## 待完成
 
 - [ ] 后续按需评估 `cloudflare-tunnel-ingress-controller`
+
+## 2026-11-22 T3 Code / T3 Connect
+
+- 开发机 gezi-dev 已安装 T3 Code CLI 0.1.11，配置为 systemd 用户服务。T3 Connect 已启用，LAN 暴露保持关闭。
+- 开发机的 mihomo TUN 曾将 Cloudflare Tunnel 流量送入代理路径，导致 `TLS handshake with edge error: EOF`。已在 `/etc/mihomo/config.yaml` 和 `/usr/local/sbin/update-mihomo-subscription` 的规则中加入 `v2.argotunnel.com`、`argotunnel.com` 的 `DIRECT` 规则。
+- 当前开发机验证为 `Tunnel connected · 4 connections · HTTP2`，`mihomo` 与 `t3code` 服务均正常。
+- 本地 MacBook 的 Clash Verge TUN 存在相同问题。已在 Clash Verge 当前规则 profile 和活动配置中加入同样的 `DIRECT` 规则，并重载配置。
+- 当前 MacBook 验证为 `Tunnel connected · 2 connections · HTTP2`。
+- 未记录 T3 Connect 授权码、订阅 URL 或其他凭证。

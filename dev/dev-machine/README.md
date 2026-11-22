@@ -6,6 +6,7 @@
 |------|------|
 | [PLAN.md](./PLAN.md) | 目标状态 |
 | [STATE.md](./STATE.md) | 当前状态与变更记录 |
+| [aws-credentials/](./aws-credentials/) | 本地 AWS/saml2aws 凭证同步到开发机的可重复脚本 |
 
 原则：
 
@@ -13,4 +14,3 @@
 - 目标状态写入 `PLAN.md`
 - 已完成变更写入 `STATE.md`
 - 不记录密码、token、setup key
-

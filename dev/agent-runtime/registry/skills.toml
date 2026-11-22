@@ -12,85 +12,11 @@
 [skills.skill-creator]
 source = { type = "public", spec = "anthropics/skills" }
 
-# ── larksuite/cli ──
+# ── Unified Lark skill ──
 
-[skills.lark-approval]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-apps]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-attendance]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-base]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-calendar]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-contact]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-doc]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-drive]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-event]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-im]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-mail]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-markdown]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-minutes]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-okr]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-openapi-explorer]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-shared]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-sheets]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-skill-maker]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-slides]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-task]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-vc]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-vc-agent]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-whiteboard]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-wiki]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-workflow-meeting-summary]
-source = { type = "public", spec = "larksuite/cli" }
-
-[skills.lark-workflow-standup-report]
-source = { type = "public", spec = "larksuite/cli" }
+[skills.lark]
+source = { type = "owned" }
+materialized_path = "../../skills/lark"
 
 # ── mager/frontend-design ──
 
@@ -105,91 +31,85 @@ source = { type = "public", spec = "masayuki-kono/agent-skills" }
 # ── mattpocock/skills ──
 
 [skills.ask-matt]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+
+[skills.code-review]
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.codebase-design]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.diagnosing-bugs]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.domain-modeling]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.grill-with-docs]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+
+[skills.improve-codebase-architecture]
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.prototype]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+
+[skills.research]
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.setup-matt-pocock-skills]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.tdd]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
-[skills.to-issues]
-source = { type = "public", spec = "mattpocock/skills" }
+[skills.to-spec]
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
-[skills.to-prd]
-source = { type = "public", spec = "mattpocock/skills" }
+[skills.to-tickets]
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.triage]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
+
+[skills.wayfinder]
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.grill-me]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.grilling]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.handoff]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.teach]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.writing-great-skills]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.design-an-interface]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.qa]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.request-refactor-plan]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.ubiquitous-language]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.implement]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.resolving-merge-conflicts]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
-[skills.decision-mapping]
-source = { type = "public", spec = "mattpocock/skills" }
+[skills.claude-handoff]
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.loop-me]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
-[skills.review]
-source = { type = "public", spec = "mattpocock/skills" }
+[skills.wizard]
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.writing-beats]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.writing-fragments]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 [skills.writing-shape]
-source = { type = "public", spec = "mattpocock/skills" }
-
-[skills.edit-article]
-source = { type = "public", spec = "mattpocock/skills" }
+source = { type = "public", spec = "mattpocock/skills#v1.2.3" }
 
 # ── nowledge-co/community ──
 
@@ -431,46 +351,12 @@ skills = [
 ]
 
 [bundles.lark-core]
-description = "Feishu / Lark core tools"
-skills = [
-  "lark-base",
-  "lark-doc",
-  "lark-markdown",
-  "lark-shared",
-  "lark-whiteboard",
-  "lark-wiki",
-]
+description = "Feishu / Lark tools"
+skills = ["lark"]
 
 [bundles.lark]
-description = "Feishu / Lark full suite"
-skills = [
-  "lark-approval",
-  "lark-apps",
-  "lark-attendance",
-  "lark-base",
-  "lark-calendar",
-  "lark-contact",
-  "lark-doc",
-  "lark-drive",
-  "lark-event",
-  "lark-im",
-  "lark-mail",
-  "lark-markdown",
-  "lark-minutes",
-  "lark-okr",
-  "lark-openapi-explorer",
-  "lark-shared",
-  "lark-sheets",
-  "lark-skill-maker",
-  "lark-slides",
-  "lark-task",
-  "lark-vc",
-  "lark-vc-agent",
-  "lark-whiteboard",
-  "lark-wiki",
-  "lark-workflow-meeting-summary",
-  "lark-workflow-standup-report",
-]
+description = "Feishu / Lark tools"
+skills = ["lark"]
 
 [bundles.waza]
 description = "Claude-only AI workflow (tw93/Waza)"
@@ -520,33 +406,31 @@ skills = [
 description = "Matt Pocock skills"
 skills = [
   "ask-matt",
+  "code-review",
   "codebase-design",
   "diagnosing-bugs",
   "domain-modeling",
   "grill-with-docs",
+  "improve-codebase-architecture",
   "prototype",
+  "research",
   "setup-matt-pocock-skills",
   "tdd",
-  "to-issues",
-  "to-prd",
+  "to-spec",
+  "to-tickets",
   "triage",
+  "wayfinder",
   "grilling",
   "handoff",
   "teach",
-  "writing-great-skills",
-  "design-an-interface",
-  "qa",
-  "request-refactor-plan",
-  "ubiquitous-language",
   "implement",
   "resolving-merge-conflicts",
-  "decision-mapping",
+  "claude-handoff",
   "loop-me",
-  "review",
+  "wizard",
   "writing-beats",
   "writing-fragments",
   "writing-shape",
-  "edit-article",
 ]
 
 [bundles.enterprise]
