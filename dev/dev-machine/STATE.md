@@ -326,14 +326,29 @@
 
 ## 2026-11-09 Paseo headless 安装
 
-- 按 Paseo 官方 headless 做法安装 `@getpaseo/cli` 0.15.3，并在 `dev/environment/config.toml` 中固定版本，由 mise 管理。
-- 同时安装官方 `paseo` 0.15.3 Debian 桌面包；无图形会话时不启动桌面 Electron 应用。
+- 按 Paseo 官方 headless 做法安装 `@getpaseo/cli` 0.16.1，并在 `dev/environment/config.toml` 中固定版本，由 mise 管理。
+- 同时安装官方 `paseo` 0.16.1 Debian 桌面包；无图形会话时不启动桌面 Electron 应用。
 - 添加 `dev/dev-machine/paseo/systemd/paseo-daemon.service`，以用户服务运行 `paseo daemon run`。
 - daemon home 为 `~/.paseo`，只监听 `127.0.0.1:6767`；服务已启用并运行。
+- 新的 workspace 管理根目录已准备为 `/data/projects`（项目 checkout）和 `/data/workspaces`（Paseo 新 worktree）；旧的 `/home/debian` 项目和 workspace 暂不迁移。
+- `~/.paseo/config.json` 已设置 `worktrees.root=/data/workspaces`，并已重启 daemon 使配置生效；重启保留了现有 terminals。
 - 已注册 Paseo project：`SelfOps`，路径 `/home/debian/SelfOps`，project ID `prj_d386b8ea57085150`。
 - 当前保留的 Paseo projects：`SelfOps`、`automq-workspace`（`/home/debian/automq-workspace` -> `/data/home/debian/automq-workspace`）、`fluss`、`iceberg`、`pi-mono`。
 - 已按 2026-11-09 用户要求移除登记：`nowledge-mem/community`、`magpie`、`automq-topic-view`、`automq-object-wal-cas`、`automqbox`、`trino`、`private-resume-publish`、`resume`、`lakehouse`；只删除 Paseo project metadata，未删除磁盘目录。
-- 验证 `paseo --version` 返回 `0.15.3`，`paseo daemon status --json` 显示 daemon running，Claude 与 Codex provider 可用。
+- 验证 `paseo --version` 返回 `0.16.1`，`paseo daemon status --json` 显示 daemon running，Claude 与 Codex provider 可用。
+
+## 2026-11-22 数据盘 Project / Workspace 初始化
+
+- 从干净远程仓库创建新的 canonical projects：
+  - `/data/projects/automq-workspace`，远程分支 `private/gezi--workspace-overlay`
+  - `/data/projects/automq-kafka-enterprise`
+  - `/data/projects/automqbox`
+  - `/data/projects/automq-playground`
+  - `/data/projects/automq-marathon`
+  - `/data/projects/automq-benchmark`
+- 六个路径已注册为 Paseo projects。旧的同名 projects 仍保留，便于从旧工作区选择性迁移本地提交和未提交内容。
+- 创建并验证了一个临时 worktree，实际路径为 `/data/workspaces/1gjn0po7/verify-data-workspace`，验证后已归档并删除。
+- `automq-workspace` 旧 checkout 的本地提交和未提交文件未复制到新目录，仍保留在旧路径供人工挑选迁移。
 
 ## 2026-11-14 Pi 模型接入
 

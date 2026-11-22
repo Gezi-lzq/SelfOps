@@ -10,6 +10,8 @@ desktop application, CLI, and headless daemon.
 - Daemon home: `~/.paseo`
 - Listen address: `127.0.0.1:6767`
 - User service: `paseo-daemon.service`
+- New project root: `/data/projects`
+- New worktree root: `/data/workspaces`
 
 The daemon is kept local by default. Enable the user service after installing
 the package:
@@ -31,3 +33,6 @@ systemctl --user status paseo-daemon.service --no-pager
 
 The desktop application requires a graphical session. Headless use should use
 the CLI and daemon service.
+
+The data-disk roots apply to new Paseo projects and worktree workspaces. Existing
+projects and worktrees under `/home/debian` remain unchanged during migration.
