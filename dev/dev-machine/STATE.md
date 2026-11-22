@@ -394,3 +394,16 @@
 - MacBook 与 gezi-dev 已建立 T3 Code Linked environments 连接。
 - 当前连接可达，权限为 `full-access`，有效期至 2026-12-22。
 - 两台机器的 T3 Connect 隧道保持正常，LAN 暴露保持关闭。
+
+
+## 2026-11-22 T3 Projects 初始化
+
+- gezi-dev 已将以下 `/data/projects` canonical checkout 注册为 T3 Projects：
+  - `automq-workspace`
+  - `automq-kafka-enterprise`
+  - `automqbox`
+  - `automq-playground`
+  - `automq-marathon`
+  - `automq-benchmark`
+- 六个 Project 的 T3 Thread 列表当前为空，未接管已有 Thread。
+- 默认 provider、权限、worktree 和项目动作脚本尚未配置。
