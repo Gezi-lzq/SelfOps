@@ -350,6 +350,12 @@
 - 创建并验证了一个临时 worktree，实际路径为 `/data/workspaces/1gjn0po7/verify-data-workspace`，验证后已归档并删除。
 - `automq-workspace` 旧 checkout 的本地提交和未提交文件未复制到新目录，仍保留在旧路径供人工挑选迁移。
 
+## 2026-11-22 清理旧 Paseo 注册
+
+- 撤销迁移前的旧 `automq-workspace`、`automq-kafka-enterprise`、`automq-benchmark`、`automq-marathon` 和 `~` Project 及其历史 workspace。
+- 移除没有 active workspace 的重复 Hive scratch 注册后，为保留中的 Hive PR 6777 worktree 恢复了 Project 与 workspace 登记。
+- 旧项目目录和 Paseo 管理的历史 worktree 目录保留在磁盘上，未执行文件删除。
+
 ## 2026-11-14 Pi 模型接入
 
 - Pi CLI 版本 `1.5.2`，入口 `~/.local/bin/pi` 指向 `~/.pi/agent/bin/pi`。
